@@ -5,6 +5,7 @@
     <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <script src="/lib/swal/sweetalert2.all.min.js"></script>
+    <link rel="stylesheet" href="/lib/font-awesome-4.7.0/css/font-awesome.min.css">
 </head>
 
 <body>
@@ -12,17 +13,14 @@
         <div class="mdl-layout__drawer">
             <span class="mdl-layout-title"><b>Rosbag Utils</b></span>
             <nav class="mdl-navigation">
-                <a id="nav1" class="mdl-navigation__link" href="javascript:void(0);" onclick="showPanel(1);"><b>1.
-                        Select
-                        bags</b></a>
-                <a id="nav2" class="mdl-navigation__link" href="javascript:void(0);" onclick="showPanel(2);"><b>2.
-                        Select
-                        topics</b></a>
-                <a id="nav3" class="mdl-navigation__link" href="javascript:void(0);" onclick="showPanel(3);"><b>3.
-                        Process
-                        data</b></a>
-                <a id="nav4" class="mdl-navigation__link" href="javascript:void(0);" onclick="showPanel(4);"><b>4.
-                        Finish</b></a>
+                <a id="nav1" class="mdl-navigation__link" href="javascript:void(0);" onclick="showPanel(1);">
+                </a>
+                <a id="nav2" class="mdl-navigation__link" href="javascript:void(0);" onclick="showPanel(2);">
+                </a>
+                <a id="nav3" class="mdl-navigation__link" href="javascript:void(0);" onclick="showPanel(3);">
+                </a>
+                <a id="nav4" class="mdl-navigation__link" href="javascript:void(0);" onclick="showPanel(4);">
+                </a>
             </nav>
         </div>
         <main class="mdl-layout__content">
@@ -181,9 +179,9 @@
         }
         let result = getAllTopics();
         if (!result.topicsAllTheSame) {
-            document.getElementById("bagDiffWarning").innerHTML = "Warning: some bags have different topics.";
+            document.getElementById("bagDiffWarning").innerHTML = `<br><i class="fa fa-info-circle fa-lg" aria-hidden="true"></i> &nbsp Some bags have different topics.`;
         } else {
-            document.getElementById("bagDiffWarning").innerHTML = "All bags have the same topics.";
+            document.getElementById("bagDiffWarning").innerHTML = `<br><i class="fa fa-info-circle fa-lg" aria-hidden="true"></i> &nbsp All bags have the same topics.`;
         }
         let table = document.getElementById("allTopicsTable");
         table.innerHTML = "";
@@ -244,6 +242,7 @@
 
                 addToTable(table, [filename], "showBagInfoTable(" + (files.length - 1) + ")");
             }
+            completedStep(1);
         }
         makeRequest("/selectBag", addFilesToTable)
     }
@@ -259,6 +258,7 @@
 
     window.onload = function () {
         showPanel(0);
+        completedStep(0);
     }
 
     function makeRequest(url, callback) {
@@ -295,11 +295,13 @@
             for (let i = 0, length = boxes.length; i < length; i++) {
                 boxes[i].MaterialCheckbox.check();
                 boxes[i].MaterialCheckbox.updateClasses_();
+                completedStep(2);
             }
         } else {
             for (let i = 0, length = boxes.length; i < length; i++) {
                 boxes[i].MaterialCheckbox.uncheck();
                 boxes[i].MaterialCheckbox.updateClasses_();
+                completedStep(1);
             }
         }
     };
@@ -315,9 +317,44 @@
             headerCheckbox.MaterialCheckbox.uncheck();
             headerCheckbox.MaterialCheckbox.updateClasses_();
         }
+        if (boxes.length === 0) {
+            completedStep(1);
+        } else {
+            completedStep(2);
+        }
+    }
+    headerCheckbox.addEventListener('change', headerCheckHandler);
+
+
+    const greenCheckIcon = ` &nbsp &nbsp <i style="color: green;" class="fa fa-check-circle fa-lg" aria-hidden="true"></i>`
+    const orangeBangIcon = ` &nbsp &nbsp <i style="color: #ff6200;" class="fa fa-exclamation-triangle fa-lg" aria-hidden="true"></i>`
+    function completedStep(idx) {
+        let text = [``, `1. Select bags`, `2. Select topics`, `3. Process data`, `4. Finish`];
+        if (idx === 0) {
+            text[1] += orangeBangIcon;
+        } else if (idx === 1) {
+            text[1] += greenCheckIcon;
+            text[2] += orangeBangIcon;
+        } else if (idx === 2) {
+            text[1] += greenCheckIcon;
+            text[2] += greenCheckIcon;
+            text[3] += orangeBangIcon;
+        } else if (idx === 3) {
+            text[1] += greenCheckIcon;
+            text[2] += greenCheckIcon;
+            text[3] += greenCheckIcon;
+            text[4] += orangeBangIcon;
+        } else {
+            text[1] += greenCheckIcon;
+            text[2] += greenCheckIcon;
+            text[3] += greenCheckIcon;
+            text[4] += greenCheckIcon;
+        }
+        for (let i = 1; i < 5; i++) {
+            document.getElementById("nav" + i).innerHTML = text[i];
+        }
     }
 
-    headerCheckbox.addEventListener('change', headerCheckHandler);
 </script>
 <style>
     .demo-card-wide.mdl-card {
