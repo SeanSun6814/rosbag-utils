@@ -197,8 +197,9 @@
             addToTable(table, [checkbox].concat(result.arr[arr]));
         }
         allTopicsTableItemCount = rowIdx - 1;
-        // let itemChecks = allTopicsTable.querySelectorAll('tbody .mdl-data-table__select input');
-        // itemChecks.forEach((elem) => elem.addEventListener('change', itemCheckHandler));
+        componentHandler.upgradeDom();
+        let itemChecks = allTopicsTable.querySelectorAll('tbody .mdl-data-table__select input');
+        itemChecks.forEach((elem) => elem.addEventListener('change', itemCheckHandler));
     }
 
     function addToTable(table, dataArr, onclick) {
@@ -304,8 +305,9 @@
     };
 
     let itemCheckHandler = function (event) {
-        let boxes = allTopicsTable.querySelectorAll('tbody .mdl-data-table__select');
+        let boxes = allTopicsTable.querySelectorAll('tbody .is-checked');
         let headerCheckbox = allTopicsTable.querySelector('thead .mdl-data-table__select');
+        // console.log("this many boxes checked: " + boxes.length);
         if (boxes.length === allTopicsTableItemCount) {
             headerCheckbox.MaterialCheckbox.check();
             headerCheckbox.MaterialCheckbox.updateClasses_();
