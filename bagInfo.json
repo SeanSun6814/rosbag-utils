@@ -1,0 +1,35 @@
+[
+    {
+        "sensor_msgs/CameraInfo": "c9a58c1b0b154e0e6da7578cb991d214",
+        "sensor_msgs/Image": "060021388200f6f0f447d0fcd9c64743",
+        "sensor_msgs/Imu": "6a62c6daae103f4ff57a132d6f95cec2",
+        "velodyne_msgs/VelodyneScan": "50804fc9533a0e579e6322c04ae70566"
+    },
+    {
+        "/imu/data": [
+            "sensor_msgs/Imu",
+            18680,
+            1,
+            200.23411467035854
+        ],
+        "/thermal/camera_info": [
+            "sensor_msgs/CameraInfo",
+            2802,
+            1,
+            30.005179345571086
+        ],
+        "/thermal/image": [
+            "sensor_msgs/Image",
+            2802,
+            1,
+            30.005393997925385
+        ],
+        "/velodyne_packets": [
+            "velodyne_msgs/VelodyneScan",
+            926,
+            1,
+            9.915448207712874
+        ]
+    },
+    "TypesAndTopicsTuple(msg_types={'sensor_msgs/CameraInfo': 'c9a58c1b0b154e0e6da7578cb991d214', 'sensor_msgs/Image': '060021388200f6f0f447d0fcd9c64743', 'sensor_msgs/Imu': '6a62c6daae103f4ff57a132d6f95cec2', 'velodyne_msgs/VelodyneScan': '50804fc9533a0e579e6322c04ae70566'}, topics={'/imu/data': TopicTuple(msg_type='sensor_msgs/Imu', message_count=18680, connections=1, frequency=200.23411467035854), '/thermal/camera_info': TopicTuple(msg_type='sensor_msgs/CameraInfo', message_count=2802, connections=1, frequency=30.005179345571086), '/thermal/image': TopicTuple(msg_type='sensor_msgs/Image', message_count=2802, connections=1, frequency=30.005393997925385), '/velodyne_packets': TopicTuple(msg_type='velodyne_msgs/VelodyneScan', message_count=926, connections=1, frequency=9.915448207712874)})"
+]

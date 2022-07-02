@@ -1,0 +1,373 @@
+<html>
+
+<head>
+    <script src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <script src="/lib/swal/sweetalert2.all.min.js"></script>
+</head>
+
+<body>
+    <div class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer">
+        <div class="mdl-layout__drawer">
+            <span class="mdl-layout-title"><b>Rosbag Utils</b></span>
+            <nav class="mdl-navigation">
+                <a id="nav1" class="mdl-navigation__link" href="javascript:void(0);" onclick="showPanel(1);"><b>1.
+                        Select
+                        bags</b></a>
+                <a id="nav2" class="mdl-navigation__link" href="javascript:void(0);" onclick="showPanel(2);"><b>2.
+                        Select
+                        topics</b></a>
+                <a id="nav3" class="mdl-navigation__link" href="javascript:void(0);" onclick="showPanel(3);"><b>3.
+                        Process
+                        data</b></a>
+                <a id="nav4" class="mdl-navigation__link" href="javascript:void(0);" onclick="showPanel(4);"><b>4.
+                        Finish</b></a>
+            </nav>
+        </div>
+        <main class="mdl-layout__content">
+            <div class="page-content">
+                <div id="panel0">
+                    <div class="demo-card-wide mdl-card mdl-shadow--2dp center">
+                        <div class="mdl-card__title">
+                            <h2 class="mdl-card__title-text">Welcome</h2>
+                        </div>
+                        <div class="mdl-card__supporting-text">
+                            Rosbag utils can help you filter out the useful topics from multiple rosbags. We'll also
+                            generate some important statistics about your data.
+                        </div>
+                        <div class="mdl-card__actions mdl-card--border">
+                            <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect"
+                                href="javascript:void(0);" onclick="showPanel(1);">
+                                Get Started
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div id="panel1" style="display: none;">
+                    <div class="row">
+                        <div class="column">
+                            <div class="" style="top:10%;">
+                                <h2>Import files</h2>
+                                <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
+                                    <thead>
+                                        <tr>
+                                            <th class="mdl-data-table__cell--non-numeric">Files</th>
+                                            <!-- <th>Quantity</th>
+                                            <th>Unit price</th> -->
+                                        </tr>
+                                    </thead>
+                                    <tbody id="fileTable">
+
+                                    </tbody>
+                                </table>
+                                <br><br>
+                                <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect"
+                                    onclick="showFileDialog();">
+                                    Add bag file
+                                </button>
+                            </div>
+                        </div>
+                        <div class="column">
+                            <div class="" style="top:10%;">
+                                <h2>Bag info</h2>
+                                <p id="bagName"></p>
+                                <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
+                                    <thead>
+                                        <tr>
+                                            <th class="mdl-data-table__cell--non-numeric">Topic</th>
+                                            <th class="mdl-data-table__cell--non-numeric">Type</th>
+                                            <th class="mdl-data-table__cell--non-numeric">Messages</th>
+                                            <th class="mdl-data-table__cell--non-numeric">Frequency</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="bagInfoTable">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div id="panel2" style="display: none;">
+                    <div class="" style="top: 10%; padding-left: 7%;">
+                        <h2>Select the topics to keep</h2>
+                        <table id="allTopicsTableOuter" class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <label
+                                            class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect mdl-data-table__select"
+                                            for="table-header">
+                                            <input type="checkbox" id="table-header" class="mdl-checkbox__input" />
+                                        </label>
+                                    </th>
+                                    <th class="mdl-data-table__cell--non-numeric">Topic</th>
+                                    <th class="mdl-data-table__cell--non-numeric">Type</th>
+                                    <th class="mdl-data-table__cell--non-numeric">Total # messages</th>
+                                    <th class="mdl-data-table__cell--non-numeric">Appeared in # bags</th>
+                                </tr>
+                            </thead>
+                            <tbody id="allTopicsTable">
+                            </tbody>
+                        </table>
+                        <p id="bagDiffWarning" style="color: red;"></p>
+                    </div>
+                </div>
+                <div id="panel3" style="display: none;">
+
+                </div>
+                <div id="panel4" style="display: none;">
+                    <p>Yay</p>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+<script>
+    let files = [];
+    let topics = [];
+    let selectedTopics = [];
+
+    function showPanel(panelIdx) {
+        for (let i = 0; i < 5; i++) {
+            document.getElementById("panel" + i).style.display = (panelIdx === i ? "block" : "none");
+            if (i > 0) document.getElementById("nav" + i).style.backgroundColor = (panelIdx === i ? "rgb(224, 224, 224)" : "rgb(250, 250, 250)");
+        }
+        if (panelIdx === 2) onShowPanel2();
+    }
+
+    function onShowPanel2() {
+        if (files.length === 0) {
+            return Swal.fire({
+                title: 'No bag files',
+                text: "Let's import some bag files first!",
+                icon: 'warning',
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Got it!'
+            }).then((result) => {
+                showPanel(1);
+            });
+        }
+
+        function getAllTopics() {
+            let allTopics = {};
+            let allTheSame = true;
+            for (let fileIdx = 0; fileIdx < files.length; fileIdx++) {
+                let info = files[fileIdx].info[1];
+                for (let topic in info) {
+                    if (allTopics[topic] == undefined) {
+                        if (fileIdx != 0) allTheSame = false;
+                        allTopics[topic] = [topic, info[topic][0], info[topic][1], 1]
+                    } else {
+                        if (info[topic][0] !== allTopics[topic][1]) {
+                            alert("Sneaky! Some topics have same names but different types!\n" +
+                                "This display might only show one type but everything else should work though. " +
+                                "This part of the code is not tested, so double check the results.");
+                        }
+                        allTopics[topic][2] += info[topic][1];
+                        allTopics[topic][3] += 1;
+                    }
+                }
+            }
+            let arr = [];
+            for (var key in allTopics) {
+                if (allTopics.hasOwnProperty(key)) {
+                    arr.push(allTopics[key]);
+                }
+            }
+            return { arr: arr, topicsAllTheSame: allTheSame };
+        }
+        let result = getAllTopics();
+        if (!result.topicsAllTheSame) {
+            document.getElementById("bagDiffWarning").innerHTML = "Warning: some bags have different topics.";
+        } else {
+            document.getElementById("bagDiffWarning").innerHTML = "All bags have the same topics.";
+        }
+        let table = document.getElementById("allTopicsTable");
+        table.innerHTML = "";
+        let rowIdx = 1;
+        let checkbox = "";//`<label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect mdl-data-table__select mdl-js-ripple-effect--ignore-events is-upgraded" data-upgraded=",MaterialCheckbox,MaterialRipple"><input type="checkbox" class="mdl-checkbox__input"><span class="mdl-checkbox__focus-helper"></span><span class="mdl-checkbox__box-outline"><span class="mdl-checkbox__tick-outline"></span></span><span class="mdl-checkbox__ripple-container mdl-js-ripple-effect mdl-ripple--center" data-upgraded=",MaterialRipple"><span class="mdl-ripple"></span></span></label>`;
+        for (let arr in result.arr) {
+            checkbox = `<label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect mdl-data-table__select" for="row${rowIdx}">
+                <input type="checkbox" id="row${rowIdx}" class="mdl-checkbox__input" />
+              </label>`;
+            rowIdx++;
+            addToTable(table, [checkbox].concat(result.arr[arr]));
+        }
+        allTopicsTableItemCount = rowIdx - 1;
+        // let itemChecks = allTopicsTable.querySelectorAll('tbody .mdl-data-table__select input');
+        // itemChecks.forEach((elem) => elem.addEventListener('change', itemCheckHandler));
+    }
+
+    function addToTable(table, dataArr, onclick) {
+        if (onclick === undefined) onclick = "";
+        let html = "<tr>";
+        dataArr.forEach((elem, idx, arr) => {
+            if (typeof elem === "string")
+                html += "<td onclick='" + onclick + "' class=\"mdl-data-table__cell--non-numeric\">" + elem + "</td>";
+            else
+                html += "<td onclick='" + onclick + "'>" + elem + "</td>";
+        });
+        html += "</tr>";
+        table.innerHTML += html;
+    }
+
+    function showBagInfoTable(idx) {
+        let title = document.getElementById("bagName");
+        let table = document.getElementById("bagInfoTable");
+
+        title.innerHTML = files[idx].filename;
+        table.innerHTML = "";
+
+        let info = files[idx].info[1];
+        for (let topic in info) {
+            addToTable(table, [topic, info[topic][0], info[topic][1], info[topic][3]]);
+        }
+    }
+
+    function showFileDialog() {
+        function addFilesToTable(str) {
+            let data = JSON.parse(str);
+            let table = document.getElementById("fileTable");
+            console.log(data);
+            for (let idx = 0; idx < data.length; idx++) {
+                let filename = data[idx];
+                files.push({ filename: filename });
+                console.log("getting info for bag idx" + (files.length - 1));
+                if (idx == data.length - 1)
+                    getBagInfo(files.length - 1, () => { showBagInfoTable(files.length - 1) });
+                else
+                    getBagInfo(files.length - 1, () => { });
+
+                addToTable(table, [filename], "showBagInfoTable(" + (files.length - 1) + ")");
+            }
+        }
+        makeRequest("/selectBag", addFilesToTable)
+    }
+
+    function getBagInfo(fileIdx, callback) {
+        function saveBagInfo(str) {
+            let data = JSON.parse(str);
+            files[fileIdx].info = data;
+            callback();
+        }
+        makeRequest("bagInfo?path=" + encodeURIComponent(files[fileIdx].filename), saveBagInfo);
+    }
+
+    window.onload = function () {
+        showPanel(0);
+    }
+
+    function makeRequest(url, callback) {
+        let httpRequest = new XMLHttpRequest();
+        if (!httpRequest)
+            return false;
+
+        function receivedResponse() {
+            if (httpRequest.readyState === XMLHttpRequest.DONE) {
+                if (httpRequest.status === 200) {
+                    // alert(httpRequest.responseText);
+                    console.log("RECEIVED RESPONSE: " + httpRequest.responseText);
+                    callback(httpRequest.responseText);
+                } else {
+                    alert('Internal error: \n\n' + httpRequest.responseText + "\n\nApp will restart...");
+                    location.reload();
+                }
+            }
+        }
+
+        httpRequest.timeout = 0
+        httpRequest.onreadystatechange = receivedResponse;
+        console.log("SENDING REQUEST: " + url);
+        httpRequest.open('GET', url);
+        httpRequest.send();
+    }
+
+    let allTopicsTableItemCount = 0;
+    let allTopicsTable = document.querySelector('#allTopicsTableOuter');
+    let headerCheckbox = allTopicsTable.querySelector('thead .mdl-data-table__select input');
+    let headerCheckHandler = function (event) {
+        let boxes = allTopicsTable.querySelectorAll('tbody .mdl-data-table__select');
+        if (event.target.checked) {
+            for (let i = 0, length = boxes.length; i < length; i++) {
+                boxes[i].MaterialCheckbox.check();
+                boxes[i].MaterialCheckbox.updateClasses_();
+            }
+        } else {
+            for (let i = 0, length = boxes.length; i < length; i++) {
+                boxes[i].MaterialCheckbox.uncheck();
+                boxes[i].MaterialCheckbox.updateClasses_();
+            }
+        }
+    };
+
+    let itemCheckHandler = function (event) {
+        let boxes = allTopicsTable.querySelectorAll('tbody .mdl-data-table__select');
+        let headerCheckbox = allTopicsTable.querySelector('thead .mdl-data-table__select');
+        if (boxes.length === allTopicsTableItemCount) {
+            headerCheckbox.MaterialCheckbox.check();
+            headerCheckbox.MaterialCheckbox.updateClasses_();
+        } else {
+            headerCheckbox.MaterialCheckbox.uncheck();
+            headerCheckbox.MaterialCheckbox.updateClasses_();
+        }
+    }
+
+    headerCheckbox.addEventListener('change', headerCheckHandler);
+</script>
+<style>
+    .demo-card-wide.mdl-card {
+        width: 512px;
+    }
+
+    .demo-card-wide>.mdl-card__title {
+        color: #fff;
+        height: 176px;
+        background-image: linear-gradient(to bottom right, rgb(98, 101, 255), rgb(166, 0, 255));
+
+    }
+
+    .demo-card-wide>.mdl-card__menu {
+        color: #fff;
+    }
+
+    .center {
+        margin: 0;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        -ms-transform: translate(-50%, -50%);
+        transform: translate(-50%, -50%);
+        height: fit-content;
+        width: fit-content;
+    }
+
+    .center1 {
+        position: relative;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    .column {
+        float: left;
+        width: fit-content;
+        height: fit-content;
+        padding-left: 7%;
+    }
+
+    /* Clear floats after the columns */
+    .row:after {
+        content: "";
+        display: table;
+        clear: both;
+    }
+
+    #fileTable td {
+        cursor: pointer;
+    }
+</style>
+
+</html>
