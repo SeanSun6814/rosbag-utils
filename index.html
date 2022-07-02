@@ -154,7 +154,9 @@
             let allTheSame = true;
             for (let fileIdx = 0; fileIdx < files.length; fileIdx++) {
                 let info = files[fileIdx].info[1];
+                let topicCount = 0;
                 for (let topic in info) {
+                    topicCount++;
                     if (allTopics[topic] == undefined) {
                         if (fileIdx != 0) allTheSame = false;
                         allTopics[topic] = [topic, info[topic][0], info[topic][1], 1]
@@ -167,6 +169,9 @@
                         allTopics[topic][2] += info[topic][1];
                         allTopics[topic][3] += 1;
                     }
+                }
+                if (topicCount!= Object.keys(allTopics).length){
+                    allTheSame = false;
                 }
             }
             let arr = [];
@@ -326,10 +331,10 @@
     headerCheckbox.addEventListener('change', headerCheckHandler);
 
 
-    const greenCheckIcon = ` &nbsp &nbsp <i style="color: green;" class="fa fa-check-circle fa-lg" aria-hidden="true"></i>`
-    const orangeBangIcon = ` &nbsp &nbsp <i style="color: #ff6200;" class="fa fa-exclamation-triangle fa-lg" aria-hidden="true"></i>`
+    const greenCheckIcon = `<i style="margin: 5px; color: green; float:right;" class="fa fa-check-circle fa-lg" aria-hidden="true"></i>`;
+    const orangeBangIcon = `<i style="margin: 5px; color: #ff6200; float:right;" class="fa fa-exclamation-triangle fa-lg" aria-hidden="true"></i>`;
     function completedStep(idx) {
-        let text = [``, `1. Select bags`, `2. Select topics`, `3. Process data`, `4. Finish`];
+        let text = [``, `<b>1. Select bags</b>`, `<b>2. Select topics</b>`, `<b>3. Process data</b>`, `<b>4. Finish</b>`];
         if (idx === 0) {
             text[1] += orangeBangIcon;
         } else if (idx === 1) {
