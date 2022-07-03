@@ -12,7 +12,6 @@ function showPanel(panelIdx) {
         showAlert("One step at a time", "It looks like you haven't completed step " + (completedStepIdx + 1) + " yet.<br>Let's do that first.",
             "warning", "Go to step " + (completedStepIdx + 1), () => { showPanel(completedStepIdx + 1) });
     }
-    if (panelIdx === 2) onShowPanel2();
     else if (panelIdx === 3) onShowPanel3();
 }
 
@@ -21,14 +20,13 @@ function onShowPanel3() {
 }
 
 function updateStep3Finished() {
-    if (!document.getElementById("standstillSwitch").checked || cropData.length > 0) {
-        completedStep(3);
-    } else {
-        completedStep(2);
-    }
+    if (!document.getElementById("standstillSwitch").checked || cropData.length > 0)
+        if (!document.getElementById("trajectoryLengthSwitch").checked || document.getElementById("trajectoryTopicSelect").value.trim() !== "")
+            return completedStep(3);
+    completedStep(2);
 }
 
-function onShowPanel2() {
+function generatePanel2() {
     function getAllTopics() {
         let allTopics = {};
         let allTheSame = true;
@@ -83,11 +81,6 @@ function onShowPanel2() {
     componentHandler.upgradeDom();
     let itemChecks = allTopicsTable.querySelectorAll('tbody .mdl-data-table__select input');
     itemChecks.forEach((elem) => elem.addEventListener('change', itemCheckHandler));
-    let headerCheckbox = allTopicsTable.querySelector('thead .mdl-data-table__select');
-    headerCheckbox.MaterialCheckbox.uncheck();
-    headerCheckbox.MaterialCheckbox.updateClasses_();
-    document.getElementById("standstillSwitch").parentElement.MaterialSwitch.off();
-    checkEnableStandstill();
 }
 
 function addToTable(table, dataArr, onclick) {
@@ -131,6 +124,7 @@ function showFileDialog() {
                     "showBagInfoTable(" + fileIdx + ")");
             }
             showBagInfoTable(files.length - 1);
+            generatePanel2();
             completedStep(1);
             hideLoading();
         }
@@ -155,8 +149,13 @@ function showFileDialog() {
             });
         }
     }
-    showLoading("Select file...");
-    makeRequest("/selectBag", addFilesToTable)
+    showLoading("Select file...");;
+    makeRequest("/selectBag", addFilesToTable);
+    let headerCheckbox = allTopicsTable.querySelector('thead .mdl-data-table__select');
+    headerCheckbox.MaterialCheckbox.uncheck();
+    headerCheckbox.MaterialCheckbox.updateClasses_();
+    document.getElementById("standstillSwitch").parentElement.MaterialSwitch.off();
+    checkEnableStandstill();
 }
 
 function getBagInfo(fileIdx, callback) {
@@ -241,7 +240,7 @@ const greenCheckIcon = `<i style="margin: 5px; color: green; float:right;" class
 const orangeBangIcon = `<i style="margin: 5px; color: #ff6200; float:right;" class="fa fa-exclamation-triangle fa-lg" aria-hidden="true"></i>`;
 function completedStep(idx) {
     completedStepIdx = idx;
-    let text = [``, `<b>1. Select bags</b>`, `<b>2. Select topics</b>`, `<b>3. Crop data</b>`, `<b>4. Finish</b>`];
+    let text = [``, `<b>1. Select bags</b>`, `<b>2. Select topics</b>`, `<b>3. More options</b>`, `<b>4. Finish</b>`];
     if (idx === 0) {
         text[1] += orangeBangIcon;
     } else if (idx === 1) {
@@ -282,10 +281,34 @@ function checkEnableStandstill() {
     } else {
         checkboxLabel.innerHTML = `Disabled`;
         document.getElementById("standstillTimeInput").parentElement.parentElement.parentElement.classList.add("disabled");
+        cropData = [];
+        let table = document.getElementById("croppingTable");
+        table.innerHTML = "";
     }
     if (completedStepIdx >= 2)
         updateStep3Finished();
 }
+
+function checkTrajectoryLength() {
+    let checkbox = document.getElementById("trajectoryLengthSwitch");
+    let checkboxLabel = document.getElementById("trajectoryLengthLabel");
+
+    if (!document.getElementById("oneRunSwitch").checked && checkbox.checked) {
+        checkbox.checked = false;
+        showAlert("Can't enable this feature", "This feature requires all the files to be in one run. <br>Go to the step 1 and enable 'Treat as one run'", 'warning', 'Got it!', () => { showPanel(1) })
+    }
+    if (checkbox.checked) {
+        checkboxLabel.innerHTML = `Enabled`;
+        document.getElementById("trajectoryTopicSelect").parentElement.parentElement.classList.remove("disabled");
+        initTrajectoryOdometryDropdown();
+    } else {
+        checkboxLabel.innerHTML = `Disabled`;
+        document.getElementById("trajectoryTopicSelect").parentElement.parentElement.classList.add("disabled");
+    }
+    if (completedStepIdx >= 2)
+        updateStep3Finished();
+}
+
 
 function initOdometryDropdown() {
     let topics = new Set();
@@ -303,7 +326,21 @@ function initOdometryDropdown() {
     document.getElementById("standstillTopicSelect").innerHTML = result;
 }
 
-
+function initTrajectoryOdometryDropdown() {
+    let topics = new Set();
+    for (let fileIdx = 0; fileIdx < files.length; fileIdx++) {
+        let info = files[fileIdx].info.topics;
+        for (let topic in info) {
+            if (info[topic][0] === "nav_msgs/Odometry")
+                topics.add(topic);
+        }
+    }
+    let result = "<option></option>";
+    topics.forEach(function (value) {
+        result += "<option>" + value + "</option>";
+    });
+    document.getElementById("trajectoryTopicSelect").innerHTML = result;
+}
 
 function checkTreatAsOneRun() {
     let checkbox = document.getElementById("oneRunSwitch");

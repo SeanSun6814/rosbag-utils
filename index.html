@@ -100,6 +100,7 @@
                 <div id="panel2" style="display: none;">
                     <div class="" style="top: 10%; padding-left: 7%;">
                         <h2>Select the topics to keep</h2>
+                        <p id="bagDiffWarning" style="color: red;"></p>
                         <table id="allTopicsTableOuter" class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
                             <thead>
                                 <tr>
@@ -119,10 +120,27 @@
                             <tbody id="allTopicsTable">
                             </tbody>
                         </table>
-                        <p id="bagDiffWarning" style="color: red;"></p>
                     </div>
                 </div>
                 <div id="panel3" style="display: none;">
+                    <div style="top: 10%; padding-left: 7%;">
+                        <h2>Calculate Trajectory Length</h2>
+                        <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="trajectoryLengthSwitch">
+                            <input type="checkbox" id="trajectoryLengthSwitch" class="mdl-switch__input"
+                                onchange="checkTrajectoryLength();">
+                            <span class="mdl-switch__label" id="trajectoryLengthLabel">Enabled</span>
+                        </label>
+                        <div class="disabled">
+                            <h4>Which topic to use for calculating trajectory length</h4>
+                            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                                <select class="mdl-textfield__input" id="trajectoryTopicSelect"
+                                    onchange="cropData = []; updateStep3Finished();" name="trajectoryTopicSelect">
+                                    <option></option>
+                                </select>
+                                <label class="mdl-textfield__label" for="trajectoryTopicSelect">Odometry topic</label>
+                            </div>
+                        </div>
+                    </div>
                     <div style="top: 10%; padding-left: 7%;">
                         <h2>Crop data</h2>
                         <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="standstillSwitch">
@@ -154,6 +172,7 @@
                                 onclick="previewCropping()">
                                 Compute cropping
                             </button>
+                            <br><br>
                             <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
                                 <thead>
                                     <tr>
@@ -164,7 +183,6 @@
                                     </tr>
                                 </thead>
                                 <tbody id="croppingTable">
-
                                 </tbody>
                             </table>
                         </div>

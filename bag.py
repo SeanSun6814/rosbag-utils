@@ -23,7 +23,6 @@ def getBagInfoJson(path):
 def getFirstMoveTime(path, targetTopic):
     print("Getting first move time on " + targetTopic + " for " + path)
     bagIn = rosbag.Bag(path)
-    print("getFirstMoveTime for bag " + path)
     count = 0
     resultTime = -2
     for topic, msg, t in bagIn.read_messages():
@@ -43,6 +42,15 @@ def getFirstMoveTime(path, targetTopic):
     # >=0: result, -1: no movement, -2: topic not found
     return resultTime
 
+def getFinalPosition(path, targetTopic):
+    print("Getting final position of " + targetTopic + " for " + path)
+    bagIn = rosbag.Bag(path)
+    lastPos = None
+    for topic, msg, t in bagIn.read_messages():
+        if topic == targetTopic:
+            pose = msg.pose.pose.position
+            lastPos = [pose.x, pose.y, pose.z, t]
+    return lastPos
 
 # print(getBagInfoJson("/home/sean/Downloads/thermal_dataset/2/2022-06-23-17-06-36.bag"))
 # print(getFirstMoveTime("/home/sean/Downloads/subt_datasets/nuc_2021-09-05-14-52-55_1.bag", "/aft_mapped_to_init"))
