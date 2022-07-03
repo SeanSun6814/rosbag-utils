@@ -1,6 +1,7 @@
 let files = [];
 let topics = [];
 let selectedTopics = [];
+let cropData = [];
 
 function showPanel(panelIdx) {
     for (let i = 0; i < 5; i++) {
@@ -210,7 +211,7 @@ const greenCheckIcon = `<i style="margin: 5px; color: green; float:right;" class
 const orangeBangIcon = `<i style="margin: 5px; color: #ff6200; float:right;" class="fa fa-exclamation-triangle fa-lg" aria-hidden="true"></i>`;
 function completedStep(idx) {
     completedStepIdx = idx;
-    let text = [``, `<b>1. Select bags</b>`, `<b>2. Select topics</b>`, `<b>3. Export options</b>`, `<b>4. Finish</b>`];
+    let text = [``, `<b>1. Select bags</b>`, `<b>2. Select topics</b>`, `<b>3. Crop data</b>`, `<b>4. Finish</b>`];
     if (idx === 0) {
         text[1] += orangeBangIcon;
     } else if (idx === 1) {
@@ -329,4 +330,58 @@ function humanFileSize(bytes, si = true, dp = 2) {
 
 
     return bytes.toFixed(dp) + ' ' + units[u];
+}
+
+function previewCropping() {
+    function updateCroppingTable() {
+        let table = document.getElementById("croppingTable");
+        table.innerHTML = "";
+        for (let idx = 0; idx < files.length; idx++) {
+            let blankTime = document.getElementById("standstillTimeInput").value;
+            let startMoving = cropData[idx] / 1e9 - files[idx].info.start;
+            let cropFrom = Math.max(0, startMoving - blankTime);
+            if (doubleEquals(cropData[idx], -1)) {
+                startMoving = "No movement";
+                cropFrom = "Skip entire bag";
+            } else if (doubleEquals(cropData[idx], -2)) {
+                startMoving = "Topic not found";
+                cropFrom = "Skip entire bag";
+            } else {
+                startMoving = round2(startMoving) + "s";
+                cropFrom = round2(cropFrom) + "s";
+            }
+            addToTable(table, [files[idx].filename, files[idx].info.duration, startMoving, cropFrom])
+        }
+        hideLoading();
+    }
+    showLoading("Scanning 1/" + files.length + "...");
+    updateCroppingData(updateCroppingTable);
+}
+
+function updateCroppingData(callback) {
+    let topicName = document.getElementById("standstillTopicSelect").value;
+    cropData = [];
+    let count = 0;
+    for (let fileIdx = 0; fileIdx < files.length; fileIdx++) {
+        cropData.push(0);
+        function receivedFirstMoveTime(str) {
+            let data = JSON.parse(str);
+            console.log("receivedFirstMoveTime: " + data);
+            cropData[fileIdx] = parseInt(data);
+            count++;
+            document.getElementById("swal2-title").innerHTML = "Scanning " + (count + 1) + "/" + files.length + "...";
+            if (count === files.length)
+                callback();
+        }
+        makeRequest("findMoveStart?topic=" + encodeURIComponent(topicName) + "&path=" + encodeURIComponent(files[fileIdx].filename), receivedFirstMoveTime);
+    }
+}
+
+
+function doubleEquals(a, b) {
+    return Math.abs(a - b) < 1e8;
+}
+
+function round2(a) {
+    return Math.round(a * 1e2) / 1e2;
 }

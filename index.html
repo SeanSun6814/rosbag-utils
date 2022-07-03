@@ -149,9 +149,23 @@
                                 <label class="mdl-textfield__label" for="standstillTopicSelect">Odometry topic</label>
                             </div>
                             <br><br>
-                            <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect">
+                            <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect"
+                                onclick="previewCropping()">
                                 Preview cropping
                             </button>
+                            <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
+                                <thead>
+                                    <tr>
+                                        <th class="mdl-data-table__cell--non-numeric">File</th>
+                                        <th class="mdl-data-table__cell--non-numeric">Duration</th>
+                                        <th class="mdl-data-table__cell--non-numeric">First moving at</th>
+                                        <th class="mdl-data-table__cell--non-numeric">Crop at</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="croppingTable">
+
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>

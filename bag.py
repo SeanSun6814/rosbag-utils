@@ -22,15 +22,17 @@ def getBagInfoJson(path):
 
 def getFirstMoveTime(path, targetTopic):
     bagIn = rosbag.Bag(path)
+    print("getFirstMoveTime for bag " + path)
     count = 0
     resultTime = -2
     for topic, msg, t in bagIn.read_messages():
         if topic == targetTopic:
-            resultTime = -1
+            if resultTime == -2:
+                resultTime = -1
             pose = msg.pose.pose.position
             if abs(pose.x) > 0.5 or abs(pose.y) > 0.5 or abs(pose.z) > 0.5:
                 if count == 0:
-                    resultTime = t
+                    resultTime = str(t)
                 elif count > 5:
                     return resultTime
                 count += 1
@@ -42,4 +44,4 @@ def getFirstMoveTime(path, targetTopic):
 
 
 # print(getBagInfoJson("/home/sean/Downloads/thermal_dataset/2/2022-06-23-17-06-36.bag"))
-# print(getFirstMoveTime("/home/sean/Downloads/subt_datasets/nuc_2021-09-05-14-51-43_0.bag", "/aft_mapped_to_init"))
+print(getFirstMoveTime("/home/sean/Downloads/subt_datasets/nuc_2021-09-05-14-52-55_1.bag", "/aft_mapped_to_init"))
