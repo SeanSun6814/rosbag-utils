@@ -6,7 +6,6 @@ def getBagInfoJson(path):
     print("Getting rosbag info for " + path)
     bagIn = rosbag.Bag(path, "r")
     info_raw = bagIn.get_type_and_topic_info()
-    # info_dict = yaml.load(subprocess.Popen(['rosbag', 'info', '--yaml', path], stdout=subprocess.PIPE).communicate()[0])
     info_dict = yaml.load(rosbag.Bag(path, "r")._get_yaml_info())
     info = {}
     info["topics"] = info_raw[1]
@@ -42,15 +41,42 @@ def getFirstMoveTime(path, targetTopic):
     # >=0: result, -1: no movement, -2: topic not found
     return resultTime
 
-def getFinalPosition(path, targetTopic):
-    print("Getting final position of " + targetTopic + " for " + path)
+
+def getFinalPositionAndLength(path, targetTopic):
+    print(
+        "Getting trajectory length and final position of "
+        + targetTopic
+        + " for "
+        + path
+    )
     bagIn = rosbag.Bag(path)
     lastPos = None
+    length = 0.0
     for topic, msg, t in bagIn.read_messages():
         if topic == targetTopic:
             pose = msg.pose.pose.position
-            lastPos = [pose.x, pose.y, pose.z, t]
-    return lastPos
+            pos = [pose.x, pose.y, pose.z, t]
+            length += dist(pose, lastPos)
+            lastPos = pos
+    return lastPos.append(length)
+
+
+def filterBag(pathIn, pathOut, targetTopics, startTime):
+    print(
+        "Processing bag " + pathIn + " -> " + pathOut + " starting at time" + startTime
+    )
+    bagIn = rosbag.Bag(pathIn)
+    with rosbag.Bag(pathOut, "w") as outbag:
+        for topic, msg, t in bagIn.read_messages():
+            if topic in topics and int(str(t)) >= startTime:
+                outbag.write(topic, msg, t)
+
+
+def dist(a, b):
+    [x1, y1, z1, _] = a
+    [x2, y2, z2, _] = b
+    return (((x2 - x1) ** 2) + ((y2 - y1) ** 2) + ((z2 - z1) ** 2)) ** (1 / 2)
+
 
 # print(getBagInfoJson("/home/sean/Downloads/thermal_dataset/2/2022-06-23-17-06-36.bag"))
 # print(getFirstMoveTime("/home/sean/Downloads/subt_datasets/nuc_2021-09-05-14-52-55_1.bag", "/aft_mapped_to_init"))
