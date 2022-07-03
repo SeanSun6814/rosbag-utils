@@ -7,6 +7,10 @@ function showPanel(panelIdx) {
         document.getElementById("panel" + i).style.display = (panelIdx === i ? "block" : "none");
         if (i > 0) document.getElementById("nav" + i).style.backgroundColor = (panelIdx === i ? "rgb(224, 224, 224)" : "rgb(250, 250, 250)");
     }
+    if (panelIdx - 1 > completedStepIdx) {
+        showAlert("One step at a time", "It looks like you haven't completed step " + (completedStepIdx + 1) + " yet.<br>Let's do that first.",
+            "warning", "Go to step " + (completedStepIdx + 1), () => { showPanel(completedStepIdx + 1) });
+    }
     if (panelIdx === 2) onShowPanel2();
 }
 
