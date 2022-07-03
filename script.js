@@ -13,6 +13,19 @@ function showPanel(panelIdx) {
             "warning", "Go to step " + (completedStepIdx + 1), () => { showPanel(completedStepIdx + 1) });
     }
     if (panelIdx === 2) onShowPanel2();
+    else if (panelIdx === 3) onShowPanel3();
+}
+
+function onShowPanel3() {
+    updateStep3Finished();
+}
+
+function updateStep3Finished() {
+    if (!document.getElementById("standstillSwitch").checked || cropData.length > 0) {
+        completedStep(3);
+    } else {
+        completedStep(2);
+    }
 }
 
 function onShowPanel2() {
@@ -270,6 +283,8 @@ function checkEnableStandstill() {
         checkboxLabel.innerHTML = `Disabled`;
         document.getElementById("standstillTimeInput").parentElement.parentElement.parentElement.classList.add("disabled");
     }
+    if (completedStepIdx >= 2)
+        updateStep3Finished();
 }
 
 function initOdometryDropdown() {
@@ -370,13 +385,16 @@ function previewCropping() {
             addToTable(table, [files[idx].filename, files[idx].info.duration, startMoving, cropFrom])
         }
         hideLoading();
+        updateStep3Finished();
     }
-    showLoading("Scanning 1/" + files.length + "...");
     updateCroppingData(updateCroppingTable);
 }
 
 function updateCroppingData(callback) {
     let topicName = document.getElementById("standstillTopicSelect").value;
+    if (topicName.trim() === "")
+        return showAlert("No topic selected", "Select an odometry topic to compute the cropping.", "error", "Got it", () => { });
+    showLoading("Scanning 1/" + files.length + "...");
     cropData = [];
     let count = 0;
     for (let fileIdx = 0; fileIdx < files.length; fileIdx++) {
