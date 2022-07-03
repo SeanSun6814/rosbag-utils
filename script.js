@@ -70,6 +70,10 @@ function onShowPanel2() {
     componentHandler.upgradeDom();
     let itemChecks = allTopicsTable.querySelectorAll('tbody .mdl-data-table__select input');
     itemChecks.forEach((elem) => elem.addEventListener('change', itemCheckHandler));
+    let headerCheckbox = allTopicsTable.querySelector('thead .mdl-data-table__select');
+    headerCheckbox.MaterialCheckbox.uncheck();
+    headerCheckbox.MaterialCheckbox.updateClasses_();
+    materia
 }
 
 function addToTable(table, dataArr, onclick) {
@@ -99,10 +103,11 @@ function showBagInfoTable(idx) {
 }
 
 function showFileDialog() {
+    let initialFileLength = files.length;
     function addFilesToTable(str) {
         function generateTable() {
             let table = document.getElementById("fileTable");
-            for (let fileIdx = 0; fileIdx < files.length; fileIdx++) {
+            for (let fileIdx = initialFileLength; fileIdx < files.length; fileIdx++) {
                 addToTable(table,
                     [files[fileIdx].filename,
                     Math.round(files[fileIdx].info.duration * 100) / 100 + "s",
@@ -117,21 +122,25 @@ function showFileDialog() {
         }
         let data = JSON.parse(str);
         console.log(data);
+        if (data === "Another file select window already opened.")
+            return showAlert("Error", "Another file select window already opened.<br>Let's finish that one first.", "error", "Got it", () => { })
         if (data.length === 0)
             hideLoading();
         else
             showLoading("Opening 1/" + data.length + "...");
-        let count = 2;
+        let count = 1;
         for (let idx = 0; idx < data.length; idx++) {
             let filename = data[idx];
             files.push({ filename: filename });
             console.log("getting info for bag idx" + (files.length - 1));
-            if (idx == data.length - 1)
-                getBagInfo(files.length - 1, () => { generateTable(); });
-            else
-                getBagInfo(files.length - 1, () => {
-                    document.getElementById("swal2-title").innerHTML = "Opening " + (count++) + "/" + data.length + "...";
-                });
+            getBagInfo(files.length - 1, () => {
+                if (count === data.length) {
+                    generateTable();
+                } else {
+                    document.getElementById("swal2-title").innerHTML = "Opening " + (count + 1) + "/" + data.length + "...";
+                    count++;
+                }
+            });
         }
     }
     showLoading("Select file...");
@@ -164,8 +173,7 @@ function makeRequest(url, callback) {
                 console.log("RECEIVED RESPONSE: " + httpRequest.responseText);
                 callback(httpRequest.responseText);
             } else {
-                alert('Internal error: \n\n' + httpRequest.responseText + "\n\nApp will restart...");
-                location.reload();
+                showAlert('Internal error', httpRequest.responseText + "<br><br>App will restart...", "error", "Restart app", () => { location.reload(); });
             }
         }
     }
@@ -379,9 +387,10 @@ function updateCroppingData(callback) {
             console.log("receivedFirstMoveTime: " + data);
             cropData[fileIdx] = parseInt(data);
             count++;
-            document.getElementById("swal2-title").innerHTML = "Scanning " + (count + 1) + "/" + files.length + "...";
             if (count === files.length)
                 callback();
+            else
+                document.getElementById("swal2-title").innerHTML = "Scanning " + (count + 1) + "/" + files.length + "...";
         }
         makeRequest("findMoveStart?topic=" + encodeURIComponent(topicName) + "&path=" + encodeURIComponent(files[fileIdx].filename), receivedFirstMoveTime);
     }
@@ -389,7 +398,7 @@ function updateCroppingData(callback) {
 
 
 function doubleEquals(a, b) {
-    return Math.abs(a - b) < 1e8;
+    return Math.abs(a - b) < 1e-8;
 }
 
 function round2(a) {

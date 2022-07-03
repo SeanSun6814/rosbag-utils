@@ -2,10 +2,10 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 import bag
 import urllib
 from urllib.parse import urlparse, parse_qs
-import tkinter as tk
-from tkinter import filedialog
 import json
 import os
+from socketserver import ThreadingMixIn
+import threading
 
 
 class handler(BaseHTTPRequestHandler):
@@ -17,6 +17,8 @@ class handler(BaseHTTPRequestHandler):
             )
             this.end_headers()
             this.wfile.write(bytes(msg, "utf8"))
+
+        print("Request processed on thread: " + threading.currentThread().getName())
 
         if self.path == "/":
             with open("./index.html", "r") as html_file:
@@ -34,12 +36,25 @@ class handler(BaseHTTPRequestHandler):
                 print(e)
 
         elif self.path.startswith("/selectBag"):
-            root = tk.Tk()
-            root.withdraw()
-            msg = tk.filedialog.askopenfiles(filetypes=[("Rosbag", "*.bag")])
-            file_names = [file.name for file in msg]
-            print(file_names)
-            res(self, 200, "json", json.dumps(file_names))
+            print(
+                "req = "
+                + str(bag.selectBagDialogRequest.isSet())
+                + "   finish = "
+                + str(bag.selectBagDialogFinish.isSet())
+            )
+            if bag.selectBagDialogRequest.isSet():
+                res(
+                    self,
+                    200,
+                    "json",
+                    json.dumps("Another file select window already opened."),
+                )
+            else:
+                bag.selectBagDialogFinish.clear()
+                bag.selectBagDialogRequest.set()
+                bag.selectBagDialogFinish.wait()
+                file_names = bag.selectBagMsg
+                res(self, 200, "json", json.dumps(file_names))
 
         elif self.path.startswith("/findMoveStart"):
             path = parse_qs(urlparse(self.path).query)["path"][0]
@@ -73,7 +88,11 @@ class handler(BaseHTTPRequestHandler):
                 self.wfile.write(html)
 
 
+class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
+    """Handle requests in a separate thread."""
+
+
 def startServer():
     print("Starting server on 127.0.0.1:8080")
-    with HTTPServer(("127.0.0.1", 8000), handler) as server:
+    with ThreadedHTTPServer(("127.0.0.1", 8000), handler) as server:
         server.serve_forever()
