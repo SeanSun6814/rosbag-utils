@@ -11,15 +11,11 @@ function showPanel(panelIdx) {
 }
 
 function onShowPanel2() {
-    // if (files.length === 0) {
-    //     return showAlert('No bag files', "Let's import some bag files first!", 'warning', 'Got it!', () => { showPanel(1); })
-    // }
-
     function getAllTopics() {
         let allTopics = {};
         let allTheSame = true;
         for (let fileIdx = 0; fileIdx < files.length; fileIdx++) {
-            let info = files[fileIdx].info[1];
+            let info = files[fileIdx].info.topics;
             let topicCount = 0;
             for (let topic in info) {
                 topicCount++;
@@ -57,7 +53,7 @@ function onShowPanel2() {
     let table = document.getElementById("allTopicsTable");
     table.innerHTML = "";
     let rowIdx = 1;
-    let checkbox = "";//`<label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect mdl-data-table__select mdl-js-ripple-effect--ignore-events is-upgraded" data-upgraded=",MaterialCheckbox,MaterialRipple"><input type="checkbox" class="mdl-checkbox__input"><span class="mdl-checkbox__focus-helper"></span><span class="mdl-checkbox__box-outline"><span class="mdl-checkbox__tick-outline"></span></span><span class="mdl-checkbox__ripple-container mdl-js-ripple-effect mdl-ripple--center" data-upgraded=",MaterialRipple"><span class="mdl-ripple"></span></span></label>`;
+    let checkbox = "";
     for (let arr in result.arr) {
         checkbox = `<label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect mdl-data-table__select" for="row${rowIdx}">
                 <input type="checkbox" id="row${rowIdx}" class="mdl-checkbox__input" />
@@ -91,31 +87,29 @@ function showBagInfoTable(idx) {
     title.innerHTML = files[idx].filename;
     table.innerHTML = "";
 
-    let info = files[idx].info[1];
+    let info = files[idx].info.topics;
     for (let topic in info) {
-        addToTable(table, [topic, info[topic][0], info[topic][1], info[topic][3]]);
+        addToTable(table, [topic, info[topic][0], info[topic][1], info[topic][3] == null ? 0 : info[topic][3]]);
     }
 }
 
 function showFileDialog() {
     function addFilesToTable(str) {
         let data = JSON.parse(str);
-        let table = document.getElementById("fileTable");
         console.log(data);
+        if (data.length === 0)
+            hideLoading();
+        else
+            showLoading("Opening files...");
         for (let idx = 0; idx < data.length; idx++) {
             let filename = data[idx];
             files.push({ filename: filename });
             console.log("getting info for bag idx" + (files.length - 1));
             if (idx == data.length - 1)
-                getBagInfo(files.length - 1, () => { showBagInfoTable(files.length - 1) });
+                getBagInfo(files.length - 1, () => { showBagInfoTable(files.length - 1); completedStep(1); hideLoading(); });
             else
                 getBagInfo(files.length - 1, () => { });
-
-            addToTable(table, [filename], "showBagInfoTable(" + (files.length - 1) + ")");
         }
-        hideLoading();
-        if (data.length > 0)
-            completedStep(1);
     }
     showLoading("Select file...");
     makeRequest("/selectBag", addFilesToTable)
@@ -123,8 +117,16 @@ function showFileDialog() {
 
 function getBagInfo(fileIdx, callback) {
     function saveBagInfo(str) {
+        let table = document.getElementById("fileTable");
         let data = JSON.parse(str);
         files[fileIdx].info = data;
+        addToTable(table,
+            [data.path,
+            Math.round(data.duration * 100) / 100 + "s",
+            humanFileSize(data.size),
+            data.messages
+            ],
+            "showBagInfoTable(" + fileIdx + ")");
         callback();
     }
     makeRequest("bagInfo?path=" + encodeURIComponent(files[fileIdx].filename), saveBagInfo);
@@ -283,4 +285,27 @@ function showLoading(title) {
 
 function hideLoading() {
     Swal.close();
+}
+
+
+function humanFileSize(bytes, si = true, dp = 2) {
+    const thresh = si ? 1000 : 1024;
+
+    if (Math.abs(bytes) < thresh) {
+        return bytes + ' B';
+    }
+
+    const units = si
+        ? ['kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+        : ['KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'];
+    let u = -1;
+    const r = 10 ** dp;
+
+    do {
+        bytes /= thresh;
+        ++u;
+    } while (Math.round(Math.abs(bytes) * r) / r >= thresh && u < units.length - 1);
+
+
+    return bytes.toFixed(dp) + ' ' + units[u];
 }
