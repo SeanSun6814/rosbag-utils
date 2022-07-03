@@ -60,10 +60,19 @@
                                     </tbody>
                                 </table>
                                 <br><br>
-                                <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect"
+                                <button id="addBagBtn"
+                                    class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect"
                                     onclick="showFileDialog();">
-                                    Add bag file
+                                    Add file
                                 </button>
+                                <br><br><br>
+                                <div id="oneRunSwitchDiv">
+                                    <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="oneRunSwitch">
+                                        <input type="checkbox" id="oneRunSwitch" onchange="checkTreatAsOneRun()"
+                                            class="mdl-switch__input" checked>
+                                        <span class="mdl-switch__label">Treat as one run</span>
+                                    </label>
+                                </div>
                             </div>
                         </div>
                         <div class="column">
@@ -85,7 +94,6 @@
                             </div>
                         </div>
                     </div>
-
                 </div>
                 <div id="panel2" style="display: none;">
                     <div class="" style="top: 10%; padding-left: 7%;">
@@ -113,13 +121,39 @@
                     </div>
                 </div>
                 <div id="panel3" style="display: none;">
-
+                    <div style="top: 10%; padding-left: 7%;">
+                        <h2>Remove standstill data at start</h2>
+                        <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="standstillSwitch">
+                            <input type="checkbox" id="standstillSwitch" class="mdl-switch__input"
+                                onchange="checkEnableStandstill();">
+                            <span class="mdl-switch__label" id="standstillSwitchLabel">Enabled</span>
+                        </label>
+                        <form action="#" class="disabled">
+                            <h4>Keep how many seconds of standstill data</h4>
+                            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                                <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?"
+                                    id="standstillTimeInput" value="30" size="10">
+                                <label class="mdl-textfield__label" for="standstillTimeInput">Seconds...</label>
+                                <span class="mdl-textfield__error">Input is not a number!</span>
+                            </div>
+                        </form>
+                    </div>
                 </div>
                 <div id="panel4" style="display: none;">
                     <p>Yay</p>
                 </div>
             </div>
         </main>
+    </div>
+    <div class="mdl-tooltip" data-mdl-for="addBagBtn">
+        Import rosbag files to process
+    </div>
+    <div class="mdl-tooltip" data-mdl-for="fileTable">
+        Click on bag to view info
+    </div>
+    <div class="mdl-tooltip" data-mdl-for="oneRunSwitchDiv">
+        Treat all the files as one continuous run that was just split in multiple files. (The files must be sorted
+        correctly!)
     </div>
 </body>
 <script>
@@ -136,18 +170,9 @@
     }
 
     function onShowPanel2() {
-        if (files.length === 0) {
-            return Swal.fire({
-                title: 'No bag files',
-                text: "Let's import some bag files first!",
-                icon: 'warning',
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Got it!'
-            }).then((result) => {
-                showPanel(1);
-            });
-        }
+        // if (files.length === 0) {
+        //     return showAlert('No bag files', "Let's import some bag files first!", 'warning', 'Got it!', () => { showPanel(1); })
+        // }
 
         function getAllTopics() {
             let allTopics = {};
@@ -170,7 +195,7 @@
                         allTopics[topic][3] += 1;
                     }
                 }
-                if (topicCount!= Object.keys(allTopics).length){
+                if (topicCount != Object.keys(allTopics).length) {
                     allTheSame = false;
                 }
             }
@@ -247,8 +272,11 @@
 
                 addToTable(table, [filename], "showBagInfoTable(" + (files.length - 1) + ")");
             }
-            completedStep(1);
+            hideLoading();
+            if (data.length > 0)
+                completedStep(1);
         }
+        showLoading("Select file...");
         makeRequest("/selectBag", addFilesToTable)
     }
 
@@ -330,11 +358,12 @@
     }
     headerCheckbox.addEventListener('change', headerCheckHandler);
 
-
+    let completedStepIdx = 0;
     const greenCheckIcon = `<i style="margin: 5px; color: green; float:right;" class="fa fa-check-circle fa-lg" aria-hidden="true"></i>`;
     const orangeBangIcon = `<i style="margin: 5px; color: #ff6200; float:right;" class="fa fa-exclamation-triangle fa-lg" aria-hidden="true"></i>`;
     function completedStep(idx) {
-        let text = [``, `<b>1. Select bags</b>`, `<b>2. Select topics</b>`, `<b>3. Process data</b>`, `<b>4. Finish</b>`];
+        completedStepIdx = idx;
+        let text = [``, `<b>1. Select bags</b>`, `<b>2. Select topics</b>`, `<b>3. Export options</b>`, `<b>4. Finish</b>`];
         if (idx === 0) {
             text[1] += orangeBangIcon;
         } else if (idx === 1) {
@@ -358,6 +387,61 @@
         for (let i = 1; i < 5; i++) {
             document.getElementById("nav" + i).innerHTML = text[i];
         }
+    }
+
+    function checkEnableStandstill() {
+        let checkbox = document.getElementById("standstillSwitch");
+        let checkboxLabel = document.getElementById("standstillSwitchLabel");
+
+        if (!document.getElementById("oneRunSwitch").checked && checkbox.checked) {
+            checkbox.checked = false;
+            showAlert("Can't enable this feature", "This feature requires all the files to be in one run. <br>Go to the step 1 and enable 'Treat as one run'", 'warning', 'Got it!', () => { showPanel(1) })
+        }
+        if (checkbox.checked) {
+            checkboxLabel.innerHTML = `Enabled`;
+            document.getElementById("standstillTimeInput").parentElement.parentElement.classList.remove("disabled");
+        } else {
+            checkboxLabel.innerHTML = `Disabled`;
+            document.getElementById("standstillTimeInput").parentElement.parentElement.classList.add("disabled");
+        }
+    }
+
+
+
+    function checkTreatAsOneRun() {
+        let checkbox = document.getElementById("oneRunSwitch");
+        if (!checkbox.checked) {
+            document.getElementById("standstillSwitch").parentElement.MaterialSwitch.off();
+        }
+    }
+
+    function showAlert(title, text, icon, buttonText, callback) {
+        Swal.fire({
+            title: title,
+            html: text,
+            icon: icon,
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: buttonText
+        }).then((result) => {
+            callback();
+        });
+    }
+
+    function showLoading(title) {
+        Swal.fire({
+            title: title,
+            html: '',
+            allowEscapeKey: false,
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        }).then((result) => {
+        });
+    }
+
+    function hideLoading() {
+        Swal.close();
     }
 
 </script>
@@ -411,6 +495,11 @@
 
     #fileTable td {
         cursor: pointer;
+    }
+
+    .disabled {
+        pointer-events: none;
+        opacity: 0.4;
     }
 </style>
 
