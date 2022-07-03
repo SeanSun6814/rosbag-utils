@@ -100,20 +100,38 @@ function showBagInfoTable(idx) {
 
 function showFileDialog() {
     function addFilesToTable(str) {
+        function generateTable() {
+            let table = document.getElementById("fileTable");
+            for (let fileIdx = 0; fileIdx < files.length; fileIdx++) {
+                addToTable(table,
+                    [files[fileIdx].filename,
+                    Math.round(files[fileIdx].info.duration * 100) / 100 + "s",
+                    humanFileSize(files[fileIdx].info.size),
+                    files[fileIdx].info.messages
+                    ],
+                    "showBagInfoTable(" + fileIdx + ")");
+            }
+            showBagInfoTable(files.length - 1);
+            completedStep(1);
+            hideLoading();
+        }
         let data = JSON.parse(str);
         console.log(data);
         if (data.length === 0)
             hideLoading();
         else
-            showLoading("Opening files...");
+            showLoading("Opening 1/" + data.length + "...");
+        let count = 2;
         for (let idx = 0; idx < data.length; idx++) {
             let filename = data[idx];
             files.push({ filename: filename });
             console.log("getting info for bag idx" + (files.length - 1));
             if (idx == data.length - 1)
-                getBagInfo(files.length - 1, () => { showBagInfoTable(files.length - 1); completedStep(1); hideLoading(); });
+                getBagInfo(files.length - 1, () => { generateTable(); });
             else
-                getBagInfo(files.length - 1, () => { });
+                getBagInfo(files.length - 1, () => {
+                    document.getElementById("swal2-title").innerHTML = "Opening " + (count++) + "/" + data.length + "...";
+                });
         }
     }
     showLoading("Select file...");
@@ -122,16 +140,8 @@ function showFileDialog() {
 
 function getBagInfo(fileIdx, callback) {
     function saveBagInfo(str) {
-        let table = document.getElementById("fileTable");
         let data = JSON.parse(str);
         files[fileIdx].info = data;
-        addToTable(table,
-            [data.path,
-            Math.round(data.duration * 100) / 100 + "s",
-            humanFileSize(data.size),
-            data.messages
-            ],
-            "showBagInfoTable(" + fileIdx + ")");
         callback();
     }
     makeRequest("bagInfo?path=" + encodeURIComponent(files[fileIdx].filename), saveBagInfo);
