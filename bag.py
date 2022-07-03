@@ -1,30 +1,6 @@
 import rosbag
 import json
 import yaml
-import tkinter as tk
-from tkinter import filedialog
-from threading import Event
-
-selectBagDialogFinish = Event()
-selectBagDialogRequest = Event()
-selectBagMsg = None
-
-
-def selectBagDialog():
-    global selectBagMsg
-
-    selectBagDialogRequest.clear()
-    while True:
-        selectBagDialogRequest.wait()
-        print("Opening new select file dialog")
-        root = tk.Tk()
-        root.withdraw()
-        msg = tk.filedialog.askopenfiles(filetypes=[("Rosbag", "*.bag")])
-        selectBagMsg = [file.name for file in msg]
-        print(selectBagMsg)
-        selectBagDialogRequest.clear()
-        selectBagDialogFinish.set()
-
 
 def getBagInfoJson(path):
     print("Getting rosbag info for " + path)

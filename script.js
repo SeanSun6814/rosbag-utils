@@ -73,7 +73,8 @@ function onShowPanel2() {
     let headerCheckbox = allTopicsTable.querySelector('thead .mdl-data-table__select');
     headerCheckbox.MaterialCheckbox.uncheck();
     headerCheckbox.MaterialCheckbox.updateClasses_();
-    materia
+    document.getElementById("standstillSwitch").parentElement.MaterialSwitch.off();
+    checkEnableStandstill();
 }
 
 function addToTable(table, dataArr, onclick) {
@@ -122,8 +123,6 @@ function showFileDialog() {
         }
         let data = JSON.parse(str);
         console.log(data);
-        if (data === "Another file select window already opened.")
-            return showAlert("Error", "Another file select window already opened.<br>Let's finish that one first.", "error", "Got it", () => { })
         if (data.length === 0)
             hideLoading();
         else
