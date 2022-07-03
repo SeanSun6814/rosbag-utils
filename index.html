@@ -124,21 +124,35 @@
                 </div>
                 <div id="panel3" style="display: none;">
                     <div style="top: 10%; padding-left: 7%;">
-                        <h2>Remove standstill data at start</h2>
+                        <h2>Crop standstill at start</h2>
                         <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="standstillSwitch">
                             <input type="checkbox" id="standstillSwitch" class="mdl-switch__input"
                                 onchange="checkEnableStandstill();">
                             <span class="mdl-switch__label" id="standstillSwitchLabel">Enabled</span>
                         </label>
-                        <form action="#" class="disabled">
-                            <h4>Keep how many seconds of standstill data</h4>
+                        <div class="disabled">
+                            <form action="#">
+                                <h4>Keep how many seconds of standstill data</h4>
+                                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                                    <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?"
+                                        id="standstillTimeInput" value="30" size="10">
+                                    <label class="mdl-textfield__label" for="standstillTimeInput">Seconds...</label>
+                                    <span class="mdl-textfield__error">Input is not a number!</span>
+                                </div>
+                            </form>
+                            <h4>Which topic determines if robot is moving</h4>
                             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                                <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?"
-                                    id="standstillTimeInput" value="30" size="10">
-                                <label class="mdl-textfield__label" for="standstillTimeInput">Seconds...</label>
-                                <span class="mdl-textfield__error">Input is not a number!</span>
+                                <select class="mdl-textfield__input" id="standstillTopicSelect"
+                                    name="standstillTopicSelect">
+                                    <option></option>
+                                </select>
+                                <label class="mdl-textfield__label" for="standstillTopicSelect">Odometry topic</label>
                             </div>
-                        </form>
+                            <br><br>
+                            <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect">
+                                Preview cropping
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <div id="panel4" style="display: none;">
@@ -159,4 +173,5 @@
     </div>
 </body>
 <script src="/script.js"></script>
+
 </html>

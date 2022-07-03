@@ -41,6 +41,12 @@ class handler(BaseHTTPRequestHandler):
             print(file_names)
             res(self, 200, "json", json.dumps(file_names))
 
+        elif self.path.startswith("/findMoveStart"):
+            path = parse_qs(urlparse(self.path).query)["path"][0]
+            topic = parse_qs(urlparse(self.path).query)["topic"][0]
+            result = bag.getFirstMoveTime(path, topic)
+            res(self, 200, "json", json.dumps(result))
+
         else:
             root = os.getcwd()
             # print(self.path)

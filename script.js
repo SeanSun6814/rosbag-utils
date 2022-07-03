@@ -246,11 +246,28 @@ function checkEnableStandstill() {
     }
     if (checkbox.checked) {
         checkboxLabel.innerHTML = `Enabled`;
-        document.getElementById("standstillTimeInput").parentElement.parentElement.classList.remove("disabled");
+        document.getElementById("standstillTimeInput").parentElement.parentElement.parentElement.classList.remove("disabled");
+        initOdometryDropdown();
     } else {
         checkboxLabel.innerHTML = `Disabled`;
-        document.getElementById("standstillTimeInput").parentElement.parentElement.classList.add("disabled");
+        document.getElementById("standstillTimeInput").parentElement.parentElement.parentElement.classList.add("disabled");
     }
+}
+
+function initOdometryDropdown() {
+    let topics = new Set();
+    for (let fileIdx = 0; fileIdx < files.length; fileIdx++) {
+        let info = files[fileIdx].info.topics;
+        for (let topic in info) {
+            if (info[topic][0] === "nav_msgs/Odometry")
+                topics.add(topic);
+        }
+    }
+    let result = "<option></option>";
+    topics.forEach(function (value) {
+        result += "<option>" + value + "</option>";
+    });
+    document.getElementById("standstillTopicSelect").innerHTML = result;
 }
 
 
