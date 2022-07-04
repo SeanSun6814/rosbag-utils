@@ -186,7 +186,7 @@ window.onload = function () {
     completedStep(0);
 }
 
-function makeRequest(url, callback) {
+function makeRequest(url, callback, usePost, postData) {
     let httpRequest = new XMLHttpRequest();
     if (!httpRequest)
         return false;
@@ -205,9 +205,18 @@ function makeRequest(url, callback) {
 
     httpRequest.timeout = 0
     httpRequest.onreadystatechange = receivedResponse;
-    console.log("SENDING REQUEST: " + url);
-    httpRequest.open('GET', url);
-    httpRequest.send();
+    if (usePost === undefined) {
+        console.log("SENDING REQUEST: " + url);
+        httpRequest.open('GET', url);
+        httpRequest.send();
+    } else {
+        console.log("SENDING POST REQUEST: " + url);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.open("POST", url, true);
+        xhr.send(JSON.stringify({
+            value: postData
+        }));
+    }
 }
 
 let allTopicsTableItemCount = 0;
@@ -523,8 +532,8 @@ function onExportButton() {
                     totalTrajectoryLength += info.l;
                     if (!foundLastPos && info.t > 0) {
                         foundLastPos = true;
-                        tmpResult = "The last position in trajectory is<br><b>(" + info.x + "," + info.y + "," + info.z + ")</b><br>"
-                            + "and it occurred at time = <b>" + info.t + "</b><br>in bag file <b>" + files[idx].filename +"</b>";
+                        tmpResult = "The last position in trajectory is<br><b>(" + info.x + ", " + info.y + ", " + info.z + ")</b><br>"
+                            + "and it occurred at time = <b>" + info.t + "</b><br>in bag file <b>" + files[idx].filename + "</b>";
                     }
                 }
                 result += "The trajectory length across all bags is <b>" + totalTrajectoryLength + "</b><br><br>" + tmpResult;
@@ -548,6 +557,7 @@ function onExportButton() {
             } else {
                 showFinalResults();
                 hideLoading();
+                completedStep(4);
             }
 
         }
@@ -566,4 +576,102 @@ function msToTime(ms) {
     else if (minutes < 60) return minutes + " min";
     else if (hours < 24) return hours + " hrs";
     else return days + " days"
+}
+
+function getDateTime() {
+    var now = new Date();
+    var year = now.getFullYear();
+    var month = now.getMonth() + 1;
+    var day = now.getDate();
+    var hour = now.getHours();
+    var minute = now.getMinutes();
+    var second = now.getSeconds();
+    if (month.toString().length == 1) {
+        month = '0' + month;
+    }
+    if (day.toString().length == 1) {
+        day = '0' + day;
+    }
+    if (hour.toString().length == 1) {
+        hour = '0' + hour;
+    }
+    if (minute.toString().length == 1) {
+        minute = '0' + minute;
+    }
+    if (second.toString().length == 1) {
+        second = '0' + second;
+    }
+    var dateTime = year + '-' + month + '-' + day + ' ' + hour + '-' + minute + '-' + second;
+    return dateTime;
+}
+
+function saveDetailedResult() {
+    let path = files[0].filename.match(/(.*)[\/\\]/)[1] || '';
+    path += "/result_" + getDateTime() + ".txt";
+    let result = "";
+    result += "\n======================= Imported bags =======================\n";
+    for (let idx = 0; idx < files.length; idx++) {
+        result += files[idx].filename + "\n";
+    }
+
+    result += "\n\n\n\n======================= All topics among bags =======================\n";
+    result += "file, topic type, total # messages, appeared in # bags\n";
+    for (let idx = 0; idx < combinedTopics.length; idx++) {
+        result += combinedTopics[idx][0] + ", " + combinedTopics[idx][1] + ", " + combinedTopics[idx][2] + ", " + combinedTopics[idx][3] + "\n";
+    }
+
+    result += "\n\n\n\n======================= Calculate trajectory length =======================\n";
+    if (document.getElementById("trajectoryLengthSwitch").checked) {
+        let foundLastPos = false;
+        let totalTrajectoryLength = 0.0;
+        let tmpResult = "";
+        for (let idx = trajectoryInfo.length - 1; idx >= 0; idx--) {
+            let info = trajectoryInfo[idx];
+            totalTrajectoryLength += info.l;
+            if (!foundLastPos && info.t > 0) {
+                foundLastPos = true;
+                tmpResult = "The last position in trajectory is\n(" + info.x + "," + info.y + "," + info.z + ")\n"
+                    + "and it occurred at time = " + info.t + "\nin bag file " + files[idx].filename + "";
+            }
+        }
+        result += "The trajectory length across all bags is " + totalTrajectoryLength + "\n\n" + tmpResult;
+        result += "\n\n\n============ Trajectory info for each bag ============\n";
+        result += "file, last pos timestamp, last x pos, last y pos, last z pos, total length\n";
+        for (let idx = 0; idx < trajectoryInfo.length; idx++) {
+            let info = trajectoryInfo[idx];
+            if (info.t > 0) {
+                result += files[idx].filename + ", " + info.t + ", " + info.x + ", " + info.y + ", " + info.z + ", " + info.l + "\n";
+            } else {
+                result += "Trajectory topic not found.\n";
+            }
+        }
+
+    } else {
+        result += "Disabled\n";
+    }
+
+    result += "\n\n\n\n======================= Crop data =======================\n";
+    if (cropData.length > 0) {
+        let blankTime = document.getElementById("standstillTimeInput").value;
+        result += "file, duration, first moving at, start crop at\n";
+        for (let idx = 0; idx < files.length; idx++) {
+            let startMoving = cropData[idx] / 1e9 - files[idx].info.start;
+            let cropFrom = Math.max(0, startMoving - blankTime);
+            if (doubleEquals(cropData[idx], -1)) {
+                startMoving = "No movement";
+                cropFrom = "Skip entire bag";
+            } else if (doubleEquals(cropData[idx], -2)) {
+                startMoving = "Topic not found";
+                cropFrom = "Skip entire bag";
+            } else {
+                startMoving = round2(startMoving) + "s";
+                cropFrom = round2(cropFrom) + "s";
+            }
+            result += files[idx].filename + ", " + files[idx].info.duration + ", " + startMoving + ", " + cropFrom + "\n";
+        }
+    } else {
+        result += "Disabled\n";
+    }
+    console.log(result);
+    console.log(path);
 }
