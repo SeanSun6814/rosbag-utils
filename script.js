@@ -523,8 +523,9 @@ function onExportButton() {
                             + "and it occurred at time = <b>" + info.t + "</b><br>in bag file <b>" + files[idx].filename + "</b>";
                     }
                 }
-                result += "The trajectory length across all bags is <b>" + totalTrajectoryLength + "</b><br><br>" + tmpResult;
+                result += "The trajectory length across all bags is <b>" + totalTrajectoryLength + "</b><br><br>" + tmpResult + "<br><br>";
             }
+            result += "A detailed report is saved to <b>" + saveDetailedResult() + "</b>";
             label.innerHTML = result;
         }
 
@@ -635,7 +636,7 @@ function saveDetailedResult() {
             if (info.t > 0) {
                 result += files[idx].filename + ", " + info.t + ", " + info.x + ", " + info.y + ", " + info.z + ", " + info.l + "\n";
             } else {
-                result += "Trajectory topic not found.\n";
+                result += "Bag skipped or trajectory topic not found.\n";
             }
         }
 
@@ -667,4 +668,7 @@ function saveDetailedResult() {
     }
     console.log(result);
     console.log(path);
+    let dataUrl = "path=" + encodeURIComponent(path) + "&text=" + encodeURIComponent(result);
+    makeRequest("saveFile", dataUrl, () => { console.log("File saved!") });
+    return path;
 }

@@ -69,6 +69,15 @@ class handler(BaseHTTPRequestHandler):
             result = bag.exportBag(pathIn, pathOut, topics, startTime, trajectoryTopic)
             res(self, 200, "json", json.dumps(result))
 
+        elif self.path.startswith("/saveFile"):
+            print("REQUEST saveFile")
+            path = data[b"path"][0].decode("utf-8")
+            text = data[b"text"][0].decode("utf-8")
+            f = open(path, "w")
+            f.write(text)
+            f.close()
+            res(self, 200, "json", json.dumps("Done!"))
+
     def do_GET(self):
         root = os.getcwd()
         # print(self.path)
