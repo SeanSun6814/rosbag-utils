@@ -7,6 +7,7 @@ import os
 import tkinter as tk
 from tkinter import filedialog
 
+
 class handler(BaseHTTPRequestHandler):
     def do_GET(self):
         def res(this, code, type, msg):
@@ -47,10 +48,13 @@ class handler(BaseHTTPRequestHandler):
             result = bag.getFirstMoveTime(path, topic)
             res(self, 200, "json", json.dumps(result))
 
-        elif self.path.startswith("/findFinalPos"):
-            path = parse_qs(urlparse(self.path).query)["path"][0]
-            topic = parse_qs(urlparse(self.path).query)["topic"][0]
-            result = bag.getFinalPosition(path, topic)
+        elif self.path.startswith("/exportBag"):
+            pathIn = parse_qs(urlparse(self.path).query)["pathIn"][0]
+            pathOut = parse_qs(urlparse(self.path).query)["pathOut"][0]
+            topics = parse_qs(urlparse(self.path).query)["topics"][0]
+            startTime = parse_qs(urlparse(self.path).query)["startTime"][0]
+            trajectoryTopic = parse_qs(urlparse(self.path).query)["trajectoryTopic"][0]
+            result = bag.exportBag(pathIn, pathOut, topics, startTime, trajectoryTopic)
             res(self, 200, "json", json.dumps(result))
 
         else:

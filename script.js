@@ -2,6 +2,7 @@ let files = [];
 let combinedTopics = [];
 let selectedTopics = [];
 let cropData = [];
+let trajectoryInfo = [];
 
 function showPanel(panelIdx) {
     for (let i = 0; i < 5; i++) {
@@ -418,8 +419,8 @@ function previewCropping() {
     function updateCroppingTable() {
         let table = document.getElementById("croppingTable");
         table.innerHTML = "";
+        let blankTime = document.getElementById("standstillTimeInput").value;
         for (let idx = 0; idx < files.length; idx++) {
-            let blankTime = document.getElementById("standstillTimeInput").value;
             let startMoving = cropData[idx] / 1e9 - files[idx].info.start;
             let cropFrom = Math.max(0, startMoving - blankTime);
             if (doubleEquals(cropData[idx], -1)) {
@@ -471,11 +472,66 @@ function doubleEquals(a, b) {
 function round2(a) {
     return Math.round(a * 1e2) / 1e2;
 }
-let boxes;
+
 function updateSelectedTopics() {
-    boxes = allTopicsTable.querySelectorAll('tbody .is-checked');
+    let boxes = allTopicsTable.querySelectorAll('tbody .is-checked');
     selectedTopics = [];
-    for (let i = 0; i< boxes.length;i++){
+    for (let i = 0; i < boxes.length; i++) {
         selectedTopics.push(boxes[i].parentElement.nextSibling.innerHTML);
+    }
+}
+
+function onExportButton() {
+    let trajectoryTopic = document.getElementById("trajectoryLengthSwitch").checked ? document.getElementById("trajectoryTopicSelect").value : "NOTOPIC";
+    let blankTime = document.getElementById("standstillTimeInput").value;
+    blankTime *= 1e9;
+    trajectoryInfo = [];
+    for (let _ in files) {
+        trajectoryInfo.push({});
+    }
+    let count = 0;
+    showLoading("Exporting 1/" + files.length + "...");
+    for (let fileIdx = 0; fileIdx < files.length; fileIdx++) {
+        let startMoving = (cropData.length === 0 ? 0 : cropData[fileIdx]);
+        let pathIn = files[fileIdx].filename;
+        let cropFrom = startMoving < 0 ? -1 : Math.max(0, startMoving - blankTime);
+        let pathOut = pathIn.replace(new RegExp('.bag$'), '_processed.bag');
+        let topics = "";
+        for (let topicIdx = 0; topicIdx < selectedTopics.length; topicIdx++) {
+            topics += selectedTopics[topicIdx];
+            if (topicIdx !== selectedTopics.length - 1) {
+                topics += " ";
+            }
+        }
+        let url = "exportBag?pathIn=" + encodeURIComponent(pathIn) +
+            "&pathOut=" + encodeURIComponent(pathOut) +
+            "&startTime=" + encodeURIComponent(cropFrom) +
+            "&topics=" + encodeURIComponent(topics) +
+            "&trajectoryTopic=" + encodeURIComponent(trajectoryTopic);
+
+        function showFinalResults() {
+            
+        }
+
+        function finishExport(str) {
+            let data = JSON.parse(str);
+            console.log(data);
+            if (trajectoryTopic !== "NOTOPIC") {
+                trajectoryInfo[fileIdx].x = data[0];
+                trajectoryInfo[fileIdx].y = data[1];
+                trajectoryInfo[fileIdx].z = data[2];
+                trajectoryInfo[fileIdx].t = data[3];
+                trajectoryInfo[fileIdx].l = data[4];
+            }
+            count++;
+            if (count !== files.length) {
+                document.getElementById("swal2-title").innerHTML = "Exporting " + (count + 1) + "/" + files.length + "...";
+            } else {
+                showFinalResults();
+                hideLoading();
+            }
+
+        }
+        makeRequest(url, finishExport);
     }
 }

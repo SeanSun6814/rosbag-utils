@@ -2,6 +2,7 @@ import rosbag
 import json
 import yaml
 
+
 def getBagInfoJson(path):
     print("Getting rosbag info for " + path)
     bagIn = rosbag.Bag(path, "r")
@@ -42,37 +43,41 @@ def getFirstMoveTime(path, targetTopic):
     return resultTime
 
 
-def getFinalPositionAndLength(path, targetTopic):
+def exportBag(pathIn, pathOut, targetTopics, startTime, trajectoryTopic):
     print(
-        "Getting trajectory length and final position of "
-        + targetTopic
-        + " for "
-        + path
+        "Processing bag " + pathIn + " -> " + pathOut + " starting at time " + startTime
     )
-    bagIn = rosbag.Bag(path)
+    targetTopics = targetTopics.split(" ")
+    print("Including topics: " + str(targetTopics))
+    startTime = int(startTime)
+    if startTime < 0:
+        print("Skip bag...")
+        return [0, 0, 0, 0, 0]
+
+    bagIn = rosbag.Bag(pathIn)
     lastPos = None
     length = 0.0
-    for topic, msg, t in bagIn.read_messages():
-        if topic == targetTopic:
-            pose = msg.pose.pose.position
-            pos = [pose.x, pose.y, pose.z, t]
-            length += dist(pose, lastPos)
-            lastPos = pos
-    return lastPos.append(length)
-
-
-def filterBag(pathIn, pathOut, targetTopics, startTime):
-    print(
-        "Processing bag " + pathIn + " -> " + pathOut + " starting at time" + startTime
-    )
-    bagIn = rosbag.Bag(pathIn)
-    with rosbag.Bag(pathOut, "w") as outbag:
+    with rosbag.Bag(pathOut, "w") as bagOut:
         for topic, msg, t in bagIn.read_messages():
-            if topic in topics and int(str(t)) >= startTime:
-                outbag.write(topic, msg, t)
+            if topic in targetTopics and int(str(t)) >= startTime:
+                bagOut.write(topic, msg, t)
+
+            if topic == trajectoryTopic:
+                pose = msg.pose.pose.position
+                pose = [pose.x, pose.y, pose.z, int(str(t))]
+                length += dist(pose, lastPos)
+                lastPos = pose
+
+    if trajectoryTopic == "" or lastPos is None:
+        return [0, 0, 0, -1, 0]
+    else:
+        lastPos.append(length)
+        return lastPos
 
 
 def dist(a, b):
+    if a is None or b is None:
+        return 0.0
     [x1, y1, z1, _] = a
     [x2, y2, z2, _] = b
     return (((x2 - x1) ** 2) + ((y2 - y1) ** 2) + ((z2 - z1) ** 2)) ** (1 / 2)
