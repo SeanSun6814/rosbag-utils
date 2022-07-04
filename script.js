@@ -1,5 +1,5 @@
 let files = [];
-let topics = [];
+let combinedTopics = [];
 let selectedTopics = [];
 let cropData = [];
 
@@ -9,11 +9,21 @@ function showPanel(panelIdx) {
         if (i > 0) document.getElementById("nav" + i).style.backgroundColor = (panelIdx === i ? "rgb(224, 224, 224)" : "rgb(250, 250, 250)");
     }
     if (panelIdx - 1 > completedStepIdx) {
-        showAlert("One step at a time", "It looks like you haven't completed step " + (completedStepIdx + 1) + " yet.<br>Let's do that first.",
+        return showAlert("One step at a time", "It looks like you haven't completed step " + (completedStepIdx + 1) + " yet.<br>Let's do that first.",
             "warning", "Go to step " + (completedStepIdx + 1), () => { showPanel(completedStepIdx + 1) });
     }
-    else if (panelIdx === 3) onShowPanel3();
+    if (panelIdx === 3) onShowPanel3();
+    if (panelIdx === 4) onShowPanel4();
+
 }
+
+function onShowPanel4() {
+    updateSelectedTopics();
+    let label = document.getElementById("summaryLabel");
+    label.innerHTML = "We'll export " + selectedTopics.length + "/" + combinedTopics.length +
+        " topics from " + files.length + " bag files.";
+}
+
 
 function onShowPanel3() {
     updateStep3Finished();
@@ -58,6 +68,7 @@ function generatePanel2() {
                 arr.push(allTopics[key]);
             }
         }
+        combinedTopics = arr;
         return { arr: arr, topicsAllTheSame: allTheSame };
     }
     let result = getAllTopics();
@@ -459,4 +470,12 @@ function doubleEquals(a, b) {
 
 function round2(a) {
     return Math.round(a * 1e2) / 1e2;
+}
+let boxes;
+function updateSelectedTopics() {
+    boxes = allTopicsTable.querySelectorAll('tbody .is-checked');
+    selectedTopics = [];
+    for (let i = 0; i< boxes.length;i++){
+        selectedTopics.push(boxes[i].parentElement.nextSibling.innerHTML);
+    }
 }

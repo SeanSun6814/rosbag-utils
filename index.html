@@ -72,7 +72,8 @@
                                     <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="oneRunSwitch">
                                         <input type="checkbox" id="oneRunSwitch" onchange="checkTreatAsOneRun()"
                                             class="mdl-switch__input" checked>
-                                        <span class="mdl-switch__label" style="width: fit-content;">Treat as one run</span>
+                                        <span class="mdl-switch__label" style="width: fit-content;">Treat as one
+                                            run</span>
                                     </label>
                                 </div>
                             </div>
@@ -189,7 +190,15 @@
                     </div>
                 </div>
                 <div id="panel4" style="display: none;">
-                    <p>Yay</p>
+                    <div class="" style="top: 10%; padding-left: 7%;">
+                        <h2>Summary</h2>
+                        <h4 id="summaryLabel"></h4>
+                        <br>
+                        <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect"
+                            onclick="onExportButton()">
+                            Start export
+                        </button>
+                    </div>
                 </div>
             </div>
         </main>
