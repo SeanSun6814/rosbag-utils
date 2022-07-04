@@ -162,7 +162,7 @@ function showFileDialog() {
         }
     }
     showLoading("Select file...");;
-    makeRequest("/selectBag", addFilesToTable);
+    makeRequest("/selectBag", "", addFilesToTable);
     let headerCheckbox = allTopicsTable.querySelector('thead .mdl-data-table__select');
     headerCheckbox.MaterialCheckbox.uncheck();
     headerCheckbox.MaterialCheckbox.updateClasses_();
@@ -178,7 +178,7 @@ function getBagInfo(fileIdx, callback) {
         files[fileIdx].info = data;
         callback();
     }
-    makeRequest("bagInfo?path=" + encodeURIComponent(files[fileIdx].filename), saveBagInfo);
+    makeRequest("bagInfo", "path=" + encodeURIComponent(files[fileIdx].filename), saveBagInfo);
 }
 
 window.onload = function () {
@@ -186,7 +186,7 @@ window.onload = function () {
     completedStep(0);
 }
 
-function makeRequest(url, callback, usePost, postData) {
+function makeRequest(url, data, callback) {
     let httpRequest = new XMLHttpRequest();
     if (!httpRequest)
         return false;
@@ -205,18 +205,10 @@ function makeRequest(url, callback, usePost, postData) {
 
     httpRequest.timeout = 0
     httpRequest.onreadystatechange = receivedResponse;
-    if (usePost === undefined) {
-        console.log("SENDING REQUEST: " + url);
-        httpRequest.open('GET', url);
-        httpRequest.send();
-    } else {
-        console.log("SENDING POST REQUEST: " + url);
-        xhr.setRequestHeader('Content-Type', 'application/json');
-        xhr.open("POST", url, true);
-        xhr.send(JSON.stringify({
-            value: postData
-        }));
-    }
+    console.log("SENDING REQUEST: " + url);
+    httpRequest.open("POST", url, true);
+    httpRequest.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    httpRequest.send(data);
 }
 
 let allTopicsTableItemCount = 0;
@@ -469,7 +461,7 @@ function updateCroppingData(callback) {
             else
                 document.getElementById("swal2-title").innerHTML = "Scanning " + (count + 1) + "/" + files.length + "...";
         }
-        makeRequest("findMoveStart?topic=" + encodeURIComponent(topicName) + "&path=" + encodeURIComponent(files[fileIdx].filename), receivedFirstMoveTime);
+        makeRequest("findMoveStart", "topic=" + encodeURIComponent(topicName) + "&path=" + encodeURIComponent(files[fileIdx].filename), receivedFirstMoveTime);
     }
 }
 
@@ -513,11 +505,6 @@ function onExportButton() {
                 topics += " ";
             }
         }
-        let url = "exportBag?pathIn=" + encodeURIComponent(pathIn) +
-            "&pathOut=" + encodeURIComponent(pathOut) +
-            "&startTime=" + encodeURIComponent(cropFrom) +
-            "&topics=" + encodeURIComponent(topics) +
-            "&trajectoryTopic=" + encodeURIComponent(trajectoryTopic);
 
         function showFinalResults() {
             let label = document.getElementById("finalResultsLabel");
@@ -561,7 +548,13 @@ function onExportButton() {
             }
 
         }
-        makeRequest(url, finishExport);
+        let dataUrl = "pathIn=" + encodeURIComponent(pathIn) +
+            "&pathOut=" + encodeURIComponent(pathOut) +
+            "&startTime=" + encodeURIComponent(cropFrom) +
+            "&topics=" + encodeURIComponent(topics) +
+            "&trajectoryTopic=" + encodeURIComponent(trajectoryTopic);
+
+        makeRequest("exportBag", dataUrl, finishExport);
     }
 }
 
