@@ -155,7 +155,9 @@ function showFileDialog() {
     headerCheckbox.MaterialCheckbox.uncheck();
     headerCheckbox.MaterialCheckbox.updateClasses_();
     document.getElementById("standstillSwitch").parentElement.MaterialSwitch.off();
+    document.getElementById("trajectoryLengthSwitch").parentElement.MaterialSwitch.off();
     checkEnableStandstill();
+    checkTrajectoryLength();
 }
 
 function getBagInfo(fileIdx, callback) {
