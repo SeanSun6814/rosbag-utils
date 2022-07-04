@@ -490,6 +490,7 @@ function onExportButton() {
         trajectoryInfo.push({});
     }
     let count = 0;
+    let exportStartTimestamp = new Date().getTime();
     showLoading("Exporting 1/" + files.length + "...");
     for (let fileIdx = 0; fileIdx < files.length; fileIdx++) {
         let startMoving = (cropData.length === 0 ? 0 : cropData[fileIdx]);
@@ -510,7 +511,25 @@ function onExportButton() {
             "&trajectoryTopic=" + encodeURIComponent(trajectoryTopic);
 
         function showFinalResults() {
-            
+            let label = document.getElementById("finalResultsLabel");
+            let timeUsed = msToTime(new Date().getTime() - exportStartTimestamp);
+            let result = "Finished exporting " + files.length + " files in " + timeUsed + ".<br><br>";
+            if (trajectoryTopic !== "NOTOPIC") {
+                let foundLastPos = false;
+                let totalTrajectoryLength = 0.0;
+                let tmpResult = "";
+                for (let idx = trajectoryInfo.length - 1; idx >= 0; idx--) {
+                    let info = trajectoryInfo[idx];
+                    totalTrajectoryLength += info.l;
+                    if (!foundLastPos && info.t > 0) {
+                        foundLastPos = true;
+                        tmpResult = "The last position in trajectory is<br><b>(" + info.x + "," + info.y + "," + info.z + ")</b><br>"
+                            + "and it occurred at time = <b>" + info.t + "</b><br>in bag file <b>" + files[idx].filename +"</b>";
+                    }
+                }
+                result += "The trajectory length across all bags is <b>" + totalTrajectoryLength + "</b><br><br>" + tmpResult;
+            }
+            label.innerHTML = result;
         }
 
         function finishExport(str) {
@@ -534,4 +553,17 @@ function onExportButton() {
         }
         makeRequest(url, finishExport);
     }
+}
+
+
+function msToTime(ms) {
+    console.log("Converting " + ms + " ms");
+    let seconds = (ms / 1000).toFixed(1);
+    let minutes = (ms / (1000 * 60)).toFixed(1);
+    let hours = (ms / (1000 * 60 * 60)).toFixed(1);
+    let days = (ms / (1000 * 60 * 60 * 24)).toFixed(1);
+    if (seconds < 60) return seconds + " sec";
+    else if (minutes < 60) return minutes + " min";
+    else if (hours < 24) return hours + " hrs";
+    else return days + " days"
 }
