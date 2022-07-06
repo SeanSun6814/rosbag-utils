@@ -128,7 +128,7 @@ function showFileDialog() {
             let table = document.getElementById("fileTable");
             for (let fileIdx = initialFileLength; fileIdx < files.length; fileIdx++) {
                 addToTable(table,
-                    [files[fileIdx].filename,
+                    [fileIdx + 1, files[fileIdx].filename,
                     Math.round(files[fileIdx].info.duration * 100) / 100 + "s",
                     humanFileSize(files[fileIdx].info.size),
                     files[fileIdx].info.messages
@@ -139,6 +139,7 @@ function showFileDialog() {
             generatePanel2();
             completedStep(1);
             hideLoading();
+            checkIfBagsAreContinuous();
         }
         let data = JSON.parse(str);
         console.log(data);
@@ -671,4 +672,22 @@ function saveDetailedResult() {
     let dataUrl = "path=" + encodeURIComponent(path) + "&text=" + encodeURIComponent(result);
     makeRequest("saveFile", dataUrl, () => { console.log("File saved!") });
     return path;
+}
+
+function checkIfBagsAreContinuous() {
+    if (files.length === 0) return;
+    let prevEndTime = files[0].info.end;
+    let result = "";
+    for (let fileIdx = 1; fileIdx < files.length; fileIdx++) {
+        let startTime = files[fileIdx].info.start;
+        if (Math.abs(startTime - prevEndTime) > 1) {
+            result += `Bag #${fileIdx} ends at time ${prevEndTime}<br>`
+                + `but bag #${fileIdx + 1} starts at time ${startTime}<br><br>`;
+        }
+        prevEndTime = files[fileIdx].info.end;
+    }
+
+    if (result !== "") {
+        showAlert("Bags not continuous", result, "warning", "Got it", () => { });
+    }
 }

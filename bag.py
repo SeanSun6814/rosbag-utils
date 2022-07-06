@@ -7,7 +7,9 @@ def getBagInfoJson(path):
     print("Getting rosbag info for " + path)
     bagIn = rosbag.Bag(path, "r")
     info_raw = bagIn.get_type_and_topic_info()
-    info_dict = yaml.load(rosbag.Bag(path, "r")._get_yaml_info())
+    info_dict = yaml.load(
+        rosbag.Bag(path, "r")._get_yaml_info(), Loader=yaml.FullLoader
+    )
     info = {}
     info["topics"] = info_raw[1]
     info["path"] = info_dict["path"]
