@@ -31,7 +31,7 @@ class handler(BaseHTTPRequestHandler):
             this.wfile.write(bytes(msg, "utf8"))
 
         data = self.parse_POST()
-        print("Received data: " + str(data))
+        # print("Received data: " + str(data))
 
         if self.path.startswith("/bagInfo"):
             path = data[b"path"][0].decode("utf-8")

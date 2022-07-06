@@ -1,8 +1,8 @@
 let files = [];
+let outFiles = [];
 let combinedTopics = [];
 let selectedTopics = [];
 let cropData = [];
-let trajectoryInfo = [];
 
 function showPanel(panelIdx) {
     for (let i = 0; i < 5; i++) {
@@ -24,7 +24,6 @@ function onShowPanel4() {
     label.innerHTML = "We'll export " + selectedTopics.length + "/" + combinedTopics.length +
         " topics from " + files.length + " bag files.";
 }
-
 
 function onShowPanel3() {
     updateStep3Finished();
@@ -141,25 +140,32 @@ function showFileDialog() {
             hideLoading();
             checkIfBagsAreContinuous();
         }
+
         let data = JSON.parse(str);
         console.log(data);
         if (data.length === 0)
             hideLoading();
         else
             showLoading("Opening 1/" + data.length + "...");
+
         let count = 1;
         for (let idx = 0; idx < data.length; idx++) {
             let filename = data[idx];
             files.push({ filename: filename });
             console.log("getting info for bag idx" + (files.length - 1));
-            getBagInfo(files.length - 1, () => {
-                if (count === data.length) {
+            let fileIdx = files.length - 1;
+            let numFiles = data.length;
+            function saveBagInfo(str) {
+                let bagInfo = JSON.parse(str);
+                files[fileIdx].info = bagInfo;
+                if (count === numFiles) {
                     generateTable();
                 } else {
-                    document.getElementById("swal2-title").innerHTML = "Opening " + (count + 1) + "/" + data.length + "...";
+                    document.getElementById("swal2-title").innerHTML = "Opening " + (count + 1) + "/" + numFiles + "...";
                     count++;
                 }
-            });
+            }
+            makeRequest("bagInfo", "path=" + encodeURIComponent(files[fileIdx].filename), saveBagInfo);
         }
     }
     showLoading("Select file...");;
@@ -171,15 +177,6 @@ function showFileDialog() {
     document.getElementById("trajectoryLengthSwitch").parentElement.MaterialSwitch.off();
     checkEnableStandstill();
     checkTrajectoryLength();
-}
-
-function getBagInfo(fileIdx, callback) {
-    function saveBagInfo(str) {
-        let data = JSON.parse(str);
-        files[fileIdx].info = data;
-        callback();
-    }
-    makeRequest("bagInfo", "path=" + encodeURIComponent(files[fileIdx].filename), saveBagInfo);
 }
 
 window.onload = function () {
@@ -466,7 +463,6 @@ function updateCroppingData(callback) {
     }
 }
 
-
 function doubleEquals(a, b) {
     return Math.abs(a - b) < 1e-8;
 }
@@ -487,9 +483,9 @@ function onExportButton() {
     let trajectoryTopic = document.getElementById("trajectoryLengthSwitch").checked ? document.getElementById("trajectoryTopicSelect").value : "NOTOPIC";
     let blankTime = document.getElementById("standstillTimeInput").value;
     blankTime *= 1e9;
-    trajectoryInfo = [];
+    outFiles = [];
     for (let _ in files) {
-        trajectoryInfo.push({});
+        outFiles.push({ filename: "" });
     }
     let count = 0;
     let exportStartTimestamp = new Date().getTime();
@@ -500,6 +496,7 @@ function onExportButton() {
         let cropFrom = startMoving < 0 ? -1 : Math.max(0, startMoving - blankTime);
         let pathOut = pathIn.replace(new RegExp('.bag$'), '_processed.bag');
         let topics = "";
+        outFiles[fileIdx].filename = pathOut;
         for (let topicIdx = 0; topicIdx < selectedTopics.length; topicIdx++) {
             topics += selectedTopics[topicIdx];
             if (topicIdx !== selectedTopics.length - 1) {
@@ -510,43 +507,80 @@ function onExportButton() {
         function showFinalResults() {
             let label = document.getElementById("finalResultsLabel");
             let timeUsed = msToTime(new Date().getTime() - exportStartTimestamp);
-            let result = "Finished exporting " + files.length + " files in " + timeUsed + ".<br><br>";
+            let result = "";
+            let totalSize = 0;
+            let totalDuration = 0;
+            let totalFileCount = 0;
+            for (let idx = 0; idx < outFiles.length; idx++) {
+                if (outFiles[idx].info == undefined) continue;
+                totalSize += outFiles[idx].info.size;
+                totalDuration += outFiles[idx].info.end - outFiles[idx].info.start;
+                totalFileCount++;
+            }
+            result += "Finished exporting " + totalFileCount + " files in " + timeUsed + "<br><br>";
+            result += "Total size on disk: <b>" + humanFileSize(totalSize) + "</b><br><br>";
+            result += "Total trajectory duration: <b>" + round2(totalDuration) + "s</b><br><br>";
             if (trajectoryTopic !== "NOTOPIC") {
                 let foundLastPos = false;
                 let totalTrajectoryLength = 0.0;
                 let tmpResult = "";
-                for (let idx = trajectoryInfo.length - 1; idx >= 0; idx--) {
-                    let info = trajectoryInfo[idx];
+                for (let idx = outFiles.length - 1; idx >= 0; idx--) {
+                    let info = outFiles[idx].trajectory;
                     totalTrajectoryLength += info.l;
                     if (!foundLastPos && info.t > 0) {
                         foundLastPos = true;
-                        tmpResult = "The last position in trajectory is<br><b>(" + info.x + ", " + info.y + ", " + info.z + ")</b><br>"
-                            + "and it occurred at time = <b>" + info.t + "</b><br>in bag file <b>" + files[idx].filename + "</b>";
+                        tmpResult = "The final trajectory position: <b>(" + round2(info.x) + ", " + round2(info.y) + ", " + round2(info.z) + ")</b><br>";
                     }
                 }
-                result += "The trajectory length across all bags is <b>" + totalTrajectoryLength + "</b><br><br>" + tmpResult + "<br><br>";
+                result += "Total trajectory length: <b>" + round2(totalTrajectoryLength) + "</b><br><br>"
+                result += tmpResult + "<br><br>";
             }
-            result += "A detailed report is saved to <b>" + saveDetailedResult() + "</b>";
+            result += "A more detailed report for each bag is saved to <b>" + saveDetailedResult() + "</b>";
             label.innerHTML = result;
+        }
+
+        function getOutFileInfo() {
+            count = 0;
+            let totalFiles = outFiles.length;
+            for (let idx = 0; idx < outFiles.length; idx++) {
+                let fileIdx = idx;
+                if (cropData.length > 0 && cropData[idx] < 0) {
+                    totalFiles--;
+                    continue;
+                }
+                function finishOutFileInfo(str) {
+                    let bagInfo = JSON.parse(str);
+                    outFiles[fileIdx].info = bagInfo;
+                    count++;
+                    if (count !== totalFiles) {
+                        document.getElementById("swal2-title").innerHTML = "Finishing up " + (count + 1) + "/" + totalFiles + "...";
+                    } else {
+                        showFinalResults();
+                        hideLoading();
+                        completedStep(4);
+                    }
+                }
+                makeRequest("bagInfo", "path=" + encodeURIComponent(outFiles[idx].filename), finishOutFileInfo);
+            }
+            showLoading("Finishing up 1/" + totalFiles + "...");
         }
 
         function finishExport(str) {
             let data = JSON.parse(str);
             console.log(data);
             if (trajectoryTopic !== "NOTOPIC") {
-                trajectoryInfo[fileIdx].x = data[0];
-                trajectoryInfo[fileIdx].y = data[1];
-                trajectoryInfo[fileIdx].z = data[2];
-                trajectoryInfo[fileIdx].t = data[3];
-                trajectoryInfo[fileIdx].l = data[4];
+                outFiles[fileIdx].trajectory = {};
+                outFiles[fileIdx].trajectory.x = data[0];
+                outFiles[fileIdx].trajectory.y = data[1];
+                outFiles[fileIdx].trajectory.z = data[2];
+                outFiles[fileIdx].trajectory.t = data[3];
+                outFiles[fileIdx].trajectory.l = data[4];
             }
             count++;
             if (count !== files.length) {
                 document.getElementById("swal2-title").innerHTML = "Exporting " + (count + 1) + "/" + files.length + "...";
             } else {
-                showFinalResults();
-                hideLoading();
-                completedStep(4);
+                getOutFileInfo();
             }
 
         }
@@ -605,8 +639,10 @@ function saveDetailedResult() {
     path += "/result_" + getDateTime() + ".txt";
     let result = "";
     result += "\n======================= Imported bags =======================\n";
+    result += "file, duration, start time, end time, total # messages, size\n";
     for (let idx = 0; idx < files.length; idx++) {
-        result += files[idx].filename + "\n";
+        result += files[idx].filename + ", " + files[idx].info.duration + ", " + files[idx].info.start
+            + ", " + files[idx].info.end + ", " + files[idx].info.messages + ", " + humanFileSize(files[idx].info.size) + "\n";
     }
 
     result += "\n\n\n\n======================= All topics among bags =======================\n";
@@ -615,13 +651,24 @@ function saveDetailedResult() {
         result += combinedTopics[idx][0] + ", " + combinedTopics[idx][1] + ", " + combinedTopics[idx][2] + ", " + combinedTopics[idx][3] + "\n";
     }
 
+    result += "\n\n\n\n======================= Exported bags =======================\n";
+    result += "file, duration, start time, end time, total # messages, size\n";
+    for (let idx = 0; idx < outFiles.length; idx++) {
+        if (outFiles[idx].info === undefined) {
+            result += "Bag skipped\n";
+            continue;
+        }
+        result += outFiles[idx].filename + ", " + outFiles[idx].info.duration + ", " + outFiles[idx].info.start
+            + ", " + outFiles[idx].info.end + ", " + outFiles[idx].info.messages + ", " + humanFileSize(outFiles[idx].info.size) + "\n";
+    }
+
     result += "\n\n\n\n======================= Calculate trajectory length =======================\n";
     if (document.getElementById("trajectoryLengthSwitch").checked) {
         let foundLastPos = false;
         let totalTrajectoryLength = 0.0;
         let tmpResult = "";
-        for (let idx = trajectoryInfo.length - 1; idx >= 0; idx--) {
-            let info = trajectoryInfo[idx];
+        for (let idx = outFiles.length - 1; idx >= 0; idx--) {
+            let info = outFiles[idx].trajectory;
             totalTrajectoryLength += info.l;
             if (!foundLastPos && info.t > 0) {
                 foundLastPos = true;
@@ -632,8 +679,8 @@ function saveDetailedResult() {
         result += "The trajectory length across all bags is " + totalTrajectoryLength + "\n\n" + tmpResult;
         result += "\n\n\n============ Trajectory info for each bag ============\n";
         result += "file, last pos timestamp, last x pos, last y pos, last z pos, total length\n";
-        for (let idx = 0; idx < trajectoryInfo.length; idx++) {
-            let info = trajectoryInfo[idx];
+        for (let idx = 0; idx < outFiles.length; idx++) {
+            let info = outFiles[idx].trajectory;
             if (info.t > 0) {
                 result += files[idx].filename + ", " + info.t + ", " + info.x + ", " + info.y + ", " + info.z + ", " + info.l + "\n";
             } else {
@@ -667,6 +714,7 @@ function saveDetailedResult() {
     } else {
         result += "Disabled\n";
     }
+    result += "\n\n\n\n";
     console.log(result);
     console.log(path);
     let dataUrl = "path=" + encodeURIComponent(path) + "&text=" + encodeURIComponent(result);
