@@ -32,3 +32,9 @@
 - Calculate trajectory length
 
 - Auto crop blank space at the beginning of rosbags
+
+## Change log
+
+### 1.1.0
+- Added more output file information
+- Added non-continuous input file detection
