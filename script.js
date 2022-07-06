@@ -736,6 +736,6 @@ function checkIfBagsAreContinuous() {
     }
 
     if (result !== "") {
-        showAlert("Bags not continuous", result, "warning", "Got it", () => { });
+        showAlert("Bags are not continuous", result, "warning", "Got it", () => { });
     }
 }
