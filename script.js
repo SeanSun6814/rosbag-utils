@@ -535,7 +535,8 @@ function onExportButton() {
                 result += "Total trajectory length: <b>" + round2(totalTrajectoryLength) + "</b><br><br>"
                 result += tmpResult + "<br><br>";
             }
-            result += "A more detailed report for each bag is saved to <b>" + saveDetailedResult() + "</b>";
+            result += "A more detailed report for each bag is saved to <b>" + saveDetailedResult(result) + "</b>";
+            result += "<br><br> <i>This is a beta release of Rosbag Utils. Please double check the results are correct.</i>";
             label.innerHTML = result;
         }
 
@@ -634,11 +635,13 @@ function getDateTime() {
     return dateTime;
 }
 
-function saveDetailedResult() {
+function saveDetailedResult(summary) {
     let path = files[0].filename.match(/(.*)[\/\\]/)[1] || '';
     path += "/result_" + getDateTime() + ".txt";
     let result = "";
-    result += "\n======================= Imported bags =======================\n";
+    result += "\n======================= Summary =======================\n";
+    result += summary.replaceAll("<br>", "\n").replaceAll("<b>", "").replaceAll("</b>", "");
+    result += "\n\n\n\n======================= Imported bags =======================\n";
     result += "file, duration, start time, end time, total # messages, size\n";
     for (let idx = 0; idx < files.length; idx++) {
         result += files[idx].filename + ", " + files[idx].info.duration + ", " + files[idx].info.start
@@ -662,7 +665,7 @@ function saveDetailedResult() {
             + ", " + outFiles[idx].info.end + ", " + outFiles[idx].info.messages + ", " + humanFileSize(outFiles[idx].info.size) + "\n";
     }
 
-    result += "\n\n\n\n======================= Calculate trajectory length =======================\n";
+    result += "\n\n\n\n\n\n\n======================= Calculate trajectory length =======================\n";
     if (document.getElementById("trajectoryLengthSwitch").checked) {
         let foundLastPos = false;
         let totalTrajectoryLength = 0.0;
