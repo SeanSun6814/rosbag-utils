@@ -130,11 +130,11 @@ function updateCroppingTable() {
         let cropFrom = cropData[idx].start - files[idx].info.start;
         let cropTo = cropData[idx].end - files[idx].info.start;
         let startMoving = cropData[idx].start + blankTime - files[idx].info.start;
-        if (doubleEquals(cropData[idx], -1)) {
+        if (doubleEquals(cropData[idx].start, -1)) {
             startMoving = "No movement";
             cropFrom = "Skip entire bag";
             cropTo = "Skip entire bag";
-        } else if (doubleEquals(cropData[idx], -2)) {
+        } else if (doubleEquals(cropData[idx].start, -2)) {
             startMoving = "Topic not found";
             cropFrom = "Include entire bag";
             cropTo = "Include entire bag";

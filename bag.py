@@ -80,6 +80,8 @@ def exportBag(pathIn, pathOut, targetTopics, startTime, endTime, trajectoryTopic
                     pose = [pose.x, pose.y, pose.z, timestamp]
                     length += dist(pose, lastPos)
                     lastPos = pose
+            elif timestamp > endTime:
+                break
 
     print("Finished export bag")
     if trajectoryTopic == "" or lastPos is None:
