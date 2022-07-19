@@ -654,6 +654,11 @@ function saveDetailedResult(summary) {
         result += combinedTopics[idx][0] + ", " + combinedTopics[idx][1] + ", " + combinedTopics[idx][2] + ", " + combinedTopics[idx][3] + "\n";
     }
 
+    result += "\n\n\n\n======================= Selected topics =======================\n";
+    for (let idx = 0; idx < selectedTopics.length; idx++) {
+        result += selectedTopics[idx] + "\n";
+    }
+
     result += "\n\n\n\n======================= Exported bags =======================\n";
     result += "file, duration, start time, end time, total # messages, size\n";
     for (let idx = 0; idx < outFiles.length; idx++) {
