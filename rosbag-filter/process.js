@@ -261,3 +261,31 @@ function humanFileSize(bytes, si = true, dp = 2) {
 
     return bytes.toFixed(dp) + " " + units[u];
 }
+
+function openInputBox(title, text, icon, buttonText, placeholder, selectPlaceholder, callback, canceledCallback) {
+    Swal.fire({
+        title: title,
+        input: "text",
+        icon: icon,
+        inputLabel: text,
+        inputValue: placeholder,
+        confirmButtonColor: "#3085d6",
+        confirmButtonText: buttonText,
+        didOpen: (swalElem) => {
+            let input = document.getElementById("swal2-input");
+            input.focus();
+            if (selectPlaceholder) input.setSelectionRange(0, input.value.length);
+        },
+        preConfirm: (value) => {
+            if (value && value !== "") {
+                callback(value);
+            } else {
+                canceledCallback();
+            }
+        },
+    }).then((result) => {
+        if (!result.isConfirmed) {
+            canceledCallback();
+        }
+    });
+}

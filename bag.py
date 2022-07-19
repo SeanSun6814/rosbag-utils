@@ -71,14 +71,15 @@ def exportBag(pathIn, pathOut, targetTopics, startTime, endTime, trajectoryTopic
     with rosbag.Bag(pathOut, "w") as bagOut:
         for topic, msg, t in bagIn.read_messages():
             timestamp = float(str(t))
-            if topic in targetTopics and timestamp >= startTime and timestamp <= endTime:
-                bagOut.write(topic, msg, t)
+            if timestamp >= startTime and timestamp <= endTime:
+                if topic in targetTopics:
+                    bagOut.write(topic, msg, t)
 
-            if topic == trajectoryTopic:
-                pose = msg.pose.pose.position
-                pose = [pose.x, pose.y, pose.z, timestamp]
-                length += dist(pose, lastPos)
-                lastPos = pose
+                if topic == trajectoryTopic:
+                    pose = msg.pose.pose.position
+                    pose = [pose.x, pose.y, pose.z, timestamp]
+                    length += dist(pose, lastPos)
+                    lastPos = pose
 
     print("Finished export bag")
     if trajectoryTopic == "" or lastPos is None:

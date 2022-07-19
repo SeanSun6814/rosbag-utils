@@ -16,8 +16,6 @@ function onExportButton() {
     let trajectoryTopic = document.getElementById("trajectoryLengthSwitch").checked
         ? document.getElementById("trajectoryTopicSelect").value
         : "NOTOPIC";
-    let blankTime = document.getElementById("standstillTimeInput").value;
-    blankTime *= 1e9;
     outFiles = [];
     for (let _ in files) {
         outFiles.push({ filename: "" });
