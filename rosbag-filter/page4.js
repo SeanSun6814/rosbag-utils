@@ -1,4 +1,3 @@
-
 function onShowPanel4() {
     updateSelectedTopics();
     let label = document.getElementById("summaryLabel");
@@ -27,9 +26,9 @@ function onExportButton() {
     let exportStartTimestamp = new Date().getTime();
     showLoading("Exporting 1/" + files.length + "...");
     for (let fileIdx = 0; fileIdx < files.length; fileIdx++) {
-        let startMoving = cropData.length === 0 ? 0 : cropData[fileIdx];
         let pathIn = files[fileIdx].filename;
-        let cropFrom = startMoving < 0 ? -1 : Math.max(0, startMoving - blankTime);
+        let cropFrom = cropData.length === 0 ? 0 : cropData[fileIdx].start;
+        let cropTo = cropData.length === 0 ? files[fileIdx].info.end : cropData[fileIdx].end;
         let pathOut = pathIn.replace(new RegExp(".bag$"), "_processed.bag");
         let topics = "";
         outFiles[fileIdx].filename = pathOut;
@@ -128,6 +127,8 @@ function onExportButton() {
             encodeURIComponent(pathOut) +
             "&startTime=" +
             encodeURIComponent(cropFrom) +
+            "&endTime=" +
+            encodeURIComponent(cropTo) +
             "&topics=" +
             encodeURIComponent(topics) +
             "&trajectoryTopic=" +

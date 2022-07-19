@@ -65,8 +65,9 @@ class handler(BaseHTTPRequestHandler):
             pathOut = data[b"pathOut"][0].decode("utf-8")
             topics = data[b"topics"][0].decode("utf-8")
             startTime = data[b"startTime"][0].decode("utf-8")
+            endTime = data[b"endTime"][0].decode("utf-8")
             trajectoryTopic = data[b"trajectoryTopic"][0].decode("utf-8")
-            result = bag.exportBag(pathIn, pathOut, topics, startTime, trajectoryTopic)
+            result = bag.exportBag(pathIn, pathOut, topics, startTime, endTime, trajectoryTopic)
             res(self, 200, "json", json.dumps(result))
 
         elif self.path.startswith("/saveFile"):

@@ -107,21 +107,25 @@ function previewCropping() {
     function updateCroppingTable() {
         let table = document.getElementById("croppingTable");
         table.innerHTML = "";
-        let blankTime = document.getElementById("standstillTimeInput").value;
+        let blankTime = parseFloat(document.getElementById("standstillTimeInput").value);
         for (let idx = 0; idx < files.length; idx++) {
-            let startMoving = cropData[idx] / 1e9 - files[idx].info.start;
-            let cropFrom = Math.max(0, startMoving - blankTime);
+            let cropFrom = cropData[idx].start - files[idx].info.start;
+            let cropTo = cropData[idx].end - files[idx].info.start;
+            let startMoving = cropData[idx].start + blankTime - files[idx].info.start;
             if (doubleEquals(cropData[idx], -1)) {
                 startMoving = "No movement";
                 cropFrom = "Skip entire bag";
+                cropTo = "Skip entire bag";
             } else if (doubleEquals(cropData[idx], -2)) {
                 startMoving = "Topic not found";
-                cropFrom = "Skip entire bag";
+                cropFrom = "Include entire bag";
+                cropTo = "Include entire bag";
             } else {
                 startMoving = round2(startMoving) + "s";
                 cropFrom = round2(cropFrom) + "s";
+                cropTo = round2(cropTo) + "s";
             }
-            addToTable(table, [files[idx].filename, files[idx].info.duration, startMoving, cropFrom]);
+            addToTable(table, [files[idx].filename, files[idx].info.duration, startMoving, cropFrom, cropTo]);
         }
         hideLoading();
         updateStep3Finished();
@@ -136,12 +140,17 @@ function updateCroppingData(callback) {
     showLoading("Scanning 1/" + files.length + "...");
     cropData = [];
     let count = 0;
+    let blankTime = document.getElementById("standstillTimeInput").value;
     for (let fileIdx = 0; fileIdx < files.length; fileIdx++) {
         cropData.push(0);
         function receivedFirstMoveTime(str) {
             let data = JSON.parse(str);
             console.log("receivedFirstMoveTime: " + data);
-            cropData[fileIdx] = parseInt(data);
+            let startMoving = parseInt(data) / 1e9;
+            let cropFrom = startMoving < 0 ? -1 : Math.max(0, startMoving - blankTime);
+            cropData[fileIdx] = {};
+            cropData[fileIdx].start = cropFrom;
+            cropData[fileIdx].end = files[fileIdx].info.end;
             count++;
             if (count === files.length) callback();
             else document.getElementById("swal2-title").innerHTML = "Scanning " + (count + 1) + "/" + files.length + "...";

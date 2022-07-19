@@ -7,8 +7,6 @@ import subprocess
 def getBagInfoJson(path):
     print("Getting rosbag info for " + path)
     info_dict = yaml.load(subprocess.Popen(['rosbag', 'info', '--yaml', path], stdout=subprocess.PIPE).communicate()[0], Loader=yaml.FullLoader)
-    print(info_dict)
-    print("\n\n\n\n")
     info = {}
     info["path"] = info_dict["path"]
     info["start"] = info_dict["start"]
@@ -27,6 +25,7 @@ def getBagInfoJson(path):
         ]
     info["topics"] = topics
     info = json.dumps(info)
+    print("Finished getting bag info")
     return info
 
 
@@ -44,6 +43,7 @@ def getFirstMoveTime(path, targetTopic):
                 if count == 0:
                     resultTime = str(t)
                 elif count > 5:
+                    print("Found first move time: " + str(resultTime))
                     return resultTime
                 count += 1
             else:
@@ -53,14 +53,15 @@ def getFirstMoveTime(path, targetTopic):
     return resultTime
 
 
-def exportBag(pathIn, pathOut, targetTopics, startTime, trajectoryTopic):
+def exportBag(pathIn, pathOut, targetTopics, startTime, endTime, trajectoryTopic):
     print(
-        "Processing bag " + pathIn + " -> " + pathOut + " starting at time " + startTime
+        "Processing bag " + pathIn + " -> " + pathOut + " for time range " + startTime + "-" + endTime
     )
     targetTopics = targetTopics.split(" ")
     print("Including topics: " + str(targetTopics))
-    startTime = int(startTime)
-    if startTime < 0:
+    startTime = float(startTime) * 1e9
+    endTime = float(endTime) * 1e9
+    if abs(-1 - startTime) < 0.01:
         print("Skip bag...")
         return [0, 0, 0, 0, 0]
 
@@ -69,15 +70,17 @@ def exportBag(pathIn, pathOut, targetTopics, startTime, trajectoryTopic):
     length = 0.0
     with rosbag.Bag(pathOut, "w") as bagOut:
         for topic, msg, t in bagIn.read_messages():
-            if topic in targetTopics and int(str(t)) >= startTime:
+            timestamp = float(str(t))
+            if topic in targetTopics and timestamp >= startTime and timestamp <= endTime:
                 bagOut.write(topic, msg, t)
 
             if topic == trajectoryTopic:
                 pose = msg.pose.pose.position
-                pose = [pose.x, pose.y, pose.z, int(str(t))]
+                pose = [pose.x, pose.y, pose.z, timestamp]
                 length += dist(pose, lastPos)
                 lastPos = pose
 
+    print("Finished export bag")
     if trajectoryTopic == "" or lastPos is None:
         return [0, 0, 0, -1, 0]
     else:

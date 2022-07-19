@@ -163,21 +163,25 @@ function saveDetailedResult(summary) {
     result += "\n\n\n\n======================= Crop data =======================\n";
     if (cropData.length > 0) {
         let blankTime = document.getElementById("standstillTimeInput").value;
-        result += "file, duration, first moving at, start crop at\n";
+        result += "file, duration, first moving at, start crop at, end crop at\n";
         for (let idx = 0; idx < files.length; idx++) {
-            let startMoving = cropData[idx] / 1e9 - files[idx].info.start;
-            let cropFrom = Math.max(0, startMoving - blankTime);
+            let cropFrom = cropData[idx].start;
+            let cropTo = cropData[idx].end;
+            let startMoving = cropData[idx].start + blankTime - files[idx].info.start;
             if (doubleEquals(cropData[idx], -1)) {
                 startMoving = "No movement";
                 cropFrom = "Skip entire bag";
+                cropTo = "Skip entire bag";
             } else if (doubleEquals(cropData[idx], -2)) {
                 startMoving = "Topic not found";
-                cropFrom = "Skip entire bag";
+                cropFrom = "Include entire bag";
+                cropTo = "Include entire bag";
             } else {
                 startMoving = round2(startMoving) + "s";
                 cropFrom = round2(cropFrom) + "s";
+                cropTo = round2(cropTo) + "s";
             }
-            result += files[idx].filename + ", " + files[idx].info.duration + ", " + startMoving + ", " + cropFrom + "\n";
+            result += files[idx].filename + ", " + files[idx].info.duration + ", " + startMoving + ", " + cropFrom + ", " + cropTo + "\n";
         }
     } else {
         result += "Disabled\n";
