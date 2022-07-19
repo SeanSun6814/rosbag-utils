@@ -186,7 +186,7 @@ function saveDetailedResult(summary) {
     console.log(result);
     console.log(path);
     let dataUrl = "path=" + encodeURIComponent(path) + "&text=" + encodeURIComponent(result);
-    makeRequest("saveFile", dataUrl, () => {
+    makeRequest("/saveFile", dataUrl, () => {
         console.log("File saved!");
     });
     return path;

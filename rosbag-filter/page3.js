@@ -147,7 +147,7 @@ function updateCroppingData(callback) {
             else document.getElementById("swal2-title").innerHTML = "Scanning " + (count + 1) + "/" + files.length + "...";
         }
         makeRequest(
-            "findMoveStart",
+            "/findMoveStart",
             "topic=" + encodeURIComponent(topicName) + "&path=" + encodeURIComponent(files[fileIdx].filename),
             receivedFirstMoveTime
         );

@@ -1,3 +1,4 @@
+
 function onShowPanel4() {
     updateSelectedTopics();
     let label = document.getElementById("summaryLabel");
@@ -97,7 +98,7 @@ function onExportButton() {
                         completedStep(4);
                     }
                 }
-                makeRequest("bagInfo", "path=" + encodeURIComponent(outFiles[idx].filename), finishOutFileInfo);
+                makeRequest("/bagInfo", "path=" + encodeURIComponent(outFiles[idx].filename), finishOutFileInfo);
             }
             showLoading("Finishing up 1/" + totalFiles + "...");
         }
@@ -132,6 +133,6 @@ function onExportButton() {
             "&trajectoryTopic=" +
             encodeURIComponent(trajectoryTopic);
 
-        makeRequest("exportBag", dataUrl, finishExport);
+        makeRequest("/exportBag", dataUrl, finishExport);
     }
 }
