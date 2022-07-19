@@ -1,23 +1,31 @@
 import rosbag
 import json
 import yaml
+import subprocess
 
 
 def getBagInfoJson(path):
     print("Getting rosbag info for " + path)
-    bagIn = rosbag.Bag(path, "r")
-    info_raw = bagIn.get_type_and_topic_info()
-    info_dict = yaml.load(
-        rosbag.Bag(path, "r")._get_yaml_info(), Loader=yaml.FullLoader
-    )
+    info_dict = yaml.load(subprocess.Popen(['rosbag', 'info', '--yaml', path], stdout=subprocess.PIPE).communicate()[0], Loader=yaml.FullLoader)
+    print(info_dict)
+    print("\n\n\n\n")
     info = {}
-    info["topics"] = info_raw[1]
     info["path"] = info_dict["path"]
     info["start"] = info_dict["start"]
     info["end"] = info_dict["end"]
     info["size"] = info_dict["size"]
     info["duration"] = info_dict["duration"]
     info["messages"] = info_dict["messages"]
+
+    topics = {}
+    for t in info_dict["topics"]:
+        topics[t["topic"]] = [
+            t["type"],
+            t["messages"],
+            -1,
+            int(t["messages"]) / info["duration"]
+        ]
+    info["topics"] = topics
     info = json.dumps(info)
     return info
 
@@ -85,5 +93,5 @@ def dist(a, b):
     return (((x2 - x1) ** 2) + ((y2 - y1) ** 2) + ((z2 - z1) ** 2)) ** (1 / 2)
 
 
-# print(getBagInfoJson("/home/sean/Downloads/thermal_dataset/2/2022-06-23-17-06-36.bag"))
+# print(getBagInfoJson("/media/sean/SSD/_ProcessedDatasets/dataset_paper/hawkins_full_loop_r3_09_07/odom_results/2022-07-11-16-13-18.bag"))
 # print(getFirstMoveTime("/home/sean/Downloads/subt_datasets/nuc_2021-09-05-14-52-55_1.bag", "/aft_mapped_to_init"))

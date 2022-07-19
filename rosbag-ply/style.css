@@ -1,0 +1,54 @@
+.demo-card-wide.mdl-card {
+    width: 512px;
+}
+
+.demo-card-wide > .mdl-card__title {
+    color: #fff;
+    height: 176px;
+    background-image: linear-gradient(to bottom right, rgb(98, 101, 255), rgb(166, 0, 255));
+}
+
+.demo-card-wide > .mdl-card__menu {
+    color: #fff;
+}
+
+.center {
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    height: fit-content;
+    width: fit-content;
+}
+
+.center1 {
+    position: relative;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.column {
+    float: left;
+    width: fit-content;
+    height: fit-content;
+    padding-left: 7%;
+}
+
+/* Clear floats after the columns */
+.row:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+#fileTable td {
+    cursor: pointer;
+}
+
+.disabled {
+    pointer-events: none;
+    opacity: 0.4;
+}
