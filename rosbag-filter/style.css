@@ -2,10 +2,22 @@
     width: 512px;
 }
 
-.demo-card-wide > .mdl-card__title {
+.filter_card_background {
     color: #fff;
     height: 176px;
     background-image: linear-gradient(to bottom right, rgb(98, 101, 255), rgb(166, 0, 255));
+}
+
+.visualize_card_background {
+    color: #fff;
+    height: 176px;
+    background-image: linear-gradient(to bottom right, rgb(255, 204, 102), rgb(255, 102, 0));
+}
+
+.ply_card_background {
+    color: #fff;
+    height: 176px;
+    background-image: linear-gradient(to bottom right, rgb(102, 255, 179), rgb(0, 153, 51));
 }
 
 .demo-card-wide > .mdl-card__menu {

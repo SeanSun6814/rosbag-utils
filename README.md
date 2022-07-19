@@ -44,3 +44,7 @@
 ### 1.2.0
 
 -   Importing bag files is now much, _much_ faster
+
+### 1.3.0
+
+-   Supports manually specifying cropping timestamps
