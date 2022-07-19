@@ -165,8 +165,8 @@ function saveDetailedResult(summary) {
         let blankTime = document.getElementById("standstillTimeInput").value;
         result += "file, duration, first moving at, start crop at, end crop at\n";
         for (let idx = 0; idx < files.length; idx++) {
-            let cropFrom = cropData[idx].start;
-            let cropTo = cropData[idx].end;
+            let cropFrom = cropData[idx].start - files[idx].info.start;
+            let cropTo = cropData[idx].end - files[idx].info.start;
             let startMoving = cropData[idx].start + blankTime - files[idx].info.start;
             if (doubleEquals(cropData[idx], -1)) {
                 startMoving = "No movement";
