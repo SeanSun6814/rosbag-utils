@@ -2,14 +2,13 @@
     width: 512px;
 }
 
-.demo-card-wide>.mdl-card__title {
+.demo-card-wide > .mdl-card__title {
     color: #fff;
     height: 176px;
     background-image: linear-gradient(to bottom right, rgb(98, 101, 255), rgb(166, 0, 255));
-
 }
 
-.demo-card-wide>.mdl-card__menu {
+.demo-card-wide > .mdl-card__menu {
     color: #fff;
 }
 
