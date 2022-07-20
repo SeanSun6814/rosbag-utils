@@ -20,6 +20,8 @@
 1. Clone this repo
 2. `python3 app.py`
 
+_Tested on Ubuntu 20.04 with Python3, ROS Noetic, and Google Chrome._
+
 ### Tutorial
 
 [video](https://drive.google.com/file/d/1CQdt6Wb7p-Y6IWatlXA0cpNmh8SU0kE1/view?usp=sharing)
