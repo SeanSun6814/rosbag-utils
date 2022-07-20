@@ -157,7 +157,7 @@ function updateCroppingTable() {
 
 function onChangeCropData(fileIdx, isStart) {
     let oldValue = isStart ? cropData[fileIdx].start : cropData[fileIdx].end;
-    oldValue -= files[fileIdx].info.start;
+    oldValue = Math.max(0, oldValue - files[fileIdx].info.start);
     if (cropData[fileIdx].start < 0) oldValue = 0;
     openInputBox(
         "Change cropping " + (isStart ? "start" : "end"),
