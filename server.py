@@ -77,7 +77,15 @@ class handler(BaseHTTPRequestHandler):
             f = open(path, "w")
             f.write(text)
             f.close()
-            res(self, 200, "json", json.dumps("Done!"))
+            res(self, 200, "json", json.dumps("File saved!"))
+
+        elif self.path.startswith("/mkdir"):
+            print("REQUEST mkdir")
+            path = data[b"path"][0].decode("utf-8")
+            if not os.path.exists(path):
+                os.makedirs(path)
+            res(self, 200, "json", json.dumps("Folder created!"))
+
 
     def do_GET(self):
         root = os.getcwd()

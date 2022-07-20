@@ -2,31 +2,52 @@ import rosbag
 import json
 import yaml
 import subprocess
+import traceback
 
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
 
 def getBagInfoJson(path):
-    print("Getting rosbag info for " + path)
-    info_dict = yaml.load(subprocess.Popen(['rosbag', 'info', '--yaml', path], stdout=subprocess.PIPE).communicate()[0], Loader=yaml.FullLoader)
-    info = {}
-    info["path"] = info_dict["path"]
-    info["start"] = info_dict["start"]
-    info["end"] = info_dict["end"]
-    info["size"] = info_dict["size"]
-    info["duration"] = info_dict["duration"]
-    info["messages"] = info_dict["messages"]
+    try:
+        print("Getting rosbag info for " + path)
+        info_dict = yaml.load(subprocess.Popen(['rosbag', 'info', '--yaml', path], stdout=subprocess.PIPE).communicate()[0], Loader=yaml.FullLoader)
+        info = {}
+        info["size"] = 0
+        info["path"] = ""
+        info["start"] = 0
+        info["end"] = 0
+        info["duration"] = 0
+        info["messages"] = 0
+        info["topics"] = {}
+        info["size"] = info_dict["size"]
+        info["path"] = info_dict["path"]
+        info["start"] = info_dict["start"]
+        info["end"] = info_dict["end"]
+        info["duration"] = info_dict["duration"]
+        info["messages"] = info_dict["messages"]
 
-    topics = {}
-    for t in info_dict["topics"]:
-        topics[t["topic"]] = [
-            t["type"],
-            t["messages"],
-            -1,
-            int(t["messages"]) / info["duration"]
-        ]
-    info["topics"] = topics
-    info = json.dumps(info)
+        topics = {}
+        for t in info_dict["topics"]:
+            topics[t["topic"]] = [
+                t["type"],
+                t["messages"],
+                -1,
+                int(t["messages"]) / info["duration"]
+            ]
+        info["topics"] = topics
+    except Exception:
+        print("Get bag info ERROR: ")
+        traceback.print_exc()
     print("Finished getting bag info")
-    return info
+    return json.dumps(info)
 
 
 def getFirstMoveTime(path, targetTopic):

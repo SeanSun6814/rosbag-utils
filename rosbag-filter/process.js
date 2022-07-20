@@ -63,9 +63,7 @@ function getDateTime() {
     return dateTime;
 }
 
-function saveDetailedResult(summary) {
-    let path = files[0].filename.match(/(.*)[\/\\]/)[1] || "";
-    path += "/result_" + getDateTime() + ".txt";
+function saveDetailedResult(summary, path) {
     let result = "";
     result += "\n======================= Summary =======================\n";
     result += summary.replaceAll("<br>", "\n").replaceAll("<b>", "").replaceAll("</b>", "");
@@ -165,7 +163,7 @@ function saveDetailedResult(summary) {
         let blankTime = document.getElementById("standstillTimeInput").value;
         result += "file, duration, first moving at, start crop at, end crop at\n";
         for (let idx = 0; idx < files.length; idx++) {
-            let cropFrom = cropData[idx].start - files[idx].info.start;
+            let cropFrom = Math.max(0, cropData[idx].start - files[idx].info.start);
             let cropTo = cropData[idx].end - files[idx].info.start;
             let startMoving = cropData[idx].start + blankTime - files[idx].info.start;
             if (doubleEquals(cropData[idx].start, -1)) {
@@ -193,7 +191,6 @@ function saveDetailedResult(summary) {
     makeRequest("/saveFile", dataUrl, () => {
         console.log("File saved!");
     });
-    return path;
 }
 
 function doubleEquals(a, b) {
