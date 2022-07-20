@@ -48,3 +48,11 @@
 ### 1.3.0
 
 -   Supports manually specifying cropping timestamps
+
+
+### 1.4.0
+
+- Exports will be in a new, separate directory.
+- Cropping bug fixed: corner case of if the auto cropping topic is not found, it will display a negative start time
+- Cropping bug fixed: corner case of user manually changes cropping time of skipped bag
+- Empty bags will break the info api call and cause internal error
