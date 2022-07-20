@@ -9,9 +9,16 @@ function makeRequest(url, data, callback) {
                 console.log("RECEIVED RESPONSE: " + httpRequest.responseText);
                 callback(httpRequest.responseText);
             } else {
-                showAlert("Internal error", httpRequest.responseText + "<br><br>App will restart...", "error", "Restart app", () => {
-                    location.reload();
-                });
+                showAlert(
+                    "Internal Error",
+                    httpRequest.responseText +
+                        "<br><br><a style='color: #3085d6;' target='_blank' href='https://github.com/SeanSun6814/rosbag-utils'>Create an issue</a><br><br>App will restart",
+                    "error",
+                    "Restart app",
+                    () => {
+                        location.reload();
+                    }
+                );
             }
         }
     }
