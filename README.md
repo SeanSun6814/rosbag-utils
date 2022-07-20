@@ -20,6 +20,8 @@
 1. Clone this repo
 2. `python3 app.py`
 
+_Tested on Ubuntu 20.04 with Python3, ROS Noetic, and Google Chrome._
+
 ### Tutorial
 
 [video](https://drive.google.com/file/d/1CQdt6Wb7p-Y6IWatlXA0cpNmh8SU0kE1/view?usp=sharing)
@@ -52,7 +54,8 @@
 
 ### 1.4.0
 
+- Auto cropping defaults to include entire bag if topic is not found
 - Exports will be in a new, separate directory.
 - Cropping bug fixed: corner case of if the auto cropping topic is not found, it will display a negative start time
 - Cropping bug fixed: corner case of user manually changes cropping time of skipped bag
-- Empty bags will break the info api call and cause internal error
+- Bug fixed where empty bags will break the info api call and cause internal error
