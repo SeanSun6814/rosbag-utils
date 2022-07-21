@@ -80,11 +80,13 @@ def exportBag(pathIn, pathOut, targetTopics, startTime, endTime, trajectoryTopic
     )
     targetTopics = targetTopics.split(" ")
     print("Including topics: " + str(targetTopics))
-    startTime = float(startTime) * 1e9
-    endTime = float(endTime) * 1e9
+
     if abs(-1 - startTime) < 0.01:
         print("Skip bag...")
         return [0, 0, 0, 0, 0]
+        
+    startTime = float(startTime) * 1e9
+    endTime = float(endTime) * 1e9
 
     bagIn = rosbag.Bag(pathIn)
     lastPos = None
