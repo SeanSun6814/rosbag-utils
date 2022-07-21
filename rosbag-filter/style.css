@@ -20,6 +20,12 @@
     background-image: linear-gradient(to bottom right, rgb(102, 255, 179), rgb(0, 153, 51));
 }
 
+.alert_card_background {
+    color: #fff;
+    height: 176px;
+    background-image: linear-gradient(to bottom right, rgb(255, 121, 77), rgb(204, 0, 0));
+}
+
 .demo-card-wide > .mdl-card__menu {
     color: #fff;
 }

@@ -25,7 +25,7 @@
                     <div id="panel0" class="mdl-grid">
                         <div class="mdl-cell mdl-cell--6-col demo-card-wide mdl-card mdl-shadow--2dp" style="float: left; margin: 30px">
                             <div class="mdl-card__title filter_card_background">
-                                <h2 class="mdl-card__title-text">Rosbag Filter &nbsp; v1.4.0</h2>
+                                <h2 class="mdl-card__title-text">Rosbag Filter &nbsp; v1.4.1</h2>
                             </div>
                             <div class="mdl-card__supporting-text">
                                 Rosbag filter can help you filter out the useful topics from multiple rosbags. We'll also generate some important
@@ -61,6 +61,24 @@
                         <div class="mdl-cell mdl-cell--6-col demo-card-wide mdl-card mdl-shadow--2dp" style="float: left; margin: 30px">
                             <div class="mdl-card__title ply_card_background">
                                 <h2 class="mdl-card__title-text">Rosbag Ply &nbsp; v1.0.0</h2>
+                            </div>
+                            <div class="mdl-card__supporting-text">
+                                Rosbag ply can help you convert the cloud points from multiple rosbags to .ply format. Additional software
+                                dependencies may be required for this.
+                            </div>
+                            <div class="mdl-card__actions mdl-card--border">
+                                <a
+                                    class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect"
+                                    href="javascript:void(0);"
+                                    onclick="showAlert('Coming soon!','','info','Okay');"
+                                >
+                                    Open
+                                </a>
+                            </div>
+                        </div>
+                        <div class="mdl-cell mdl-cell--6-col demo-card-wide mdl-card mdl-shadow--2dp" style="float: left; margin: 30px">
+                            <div class="mdl-card__title alert_card_background">
+                                <h2 class="mdl-card__title-text">Rosbag Alert &nbsp; v1.0.0</h2>
                             </div>
                             <div class="mdl-card__supporting-text">
                                 Rosbag ply can help you convert the cloud points from multiple rosbags to .ply format. Additional software
@@ -174,7 +192,12 @@
                             <div class="disabled">
                                 <h4>Which topic to use for calculating trajectory length</h4>
                                 <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                                    <select class="mdl-textfield__input" id="trajectoryTopicSelect" name="trajectoryTopicSelect">
+                                    <select
+                                        class="mdl-textfield__input"
+                                        id="trajectoryTopicSelect"
+                                        name="trajectoryTopicSelect"
+                                        onchange="updateStep3Finished();"
+                                    >
                                         <option></option>
                                     </select>
                                     <label class="mdl-textfield__label" for="trajectoryTopicSelect">Odometry topic</label>

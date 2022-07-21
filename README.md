@@ -59,3 +59,7 @@ _Tested on Ubuntu 20.04 with Python3, ROS Noetic, and Google Chrome._
 - Cropping bug fixed: corner case of if the auto cropping topic is not found, it will display a negative start time
 - Cropping bug fixed: corner case of user manually changes cropping time of skipped bag
 - Bug fixed where empty bags will break the info api call and cause internal error
+
+### 1.4.1
+
+- Minor UI bugs fixed which are related to `Treat as one run` and the completion of step 3 

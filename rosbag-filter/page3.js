@@ -15,18 +15,6 @@ function checkEnableStandstill() {
     let checkbox = document.getElementById("standstillSwitch");
     let checkboxLabel = document.getElementById("standstillSwitchLabel");
 
-    if (!document.getElementById("oneRunSwitch").checked && checkbox.checked) {
-        checkbox.checked = false;
-        showAlert(
-            "Can't enable this feature",
-            "This feature requires all the files to be in one run. <br>Go to the step 1 and enable 'Treat as one run'",
-            "warning",
-            "Got it!",
-            () => {
-                showPanel(1);
-            }
-        );
-    }
     if (checkbox.checked) {
         checkboxLabel.innerHTML = `Enabled`;
         document.getElementById("standstillTimeInput").parentElement.parentElement.parentElement.classList.remove("disabled");
@@ -53,12 +41,12 @@ function checkTrajectoryLength() {
             "Can't enable this feature",
             "This feature requires all the files to be in one run. <br>Go to the step 1 and enable 'Treat as one run'",
             "warning",
-            "Got it!",
+            "Go to step 1",
             () => {
                 showPanel(1);
             }
         );
-    }
+    }    
     if (checkbox.checked) {
         checkboxLabel.innerHTML = `Enabled`;
         document.getElementById("trajectoryTopicSelect").parentElement.parentElement.classList.remove("disabled");
@@ -100,14 +88,18 @@ function initTrajectoryOdometryDropdown() {
     document.getElementById("trajectoryTopicSelect").innerHTML = result;
 }
 
-function checkTreatAsOneRun() {
-    let checkbox = document.getElementById("oneRunSwitch");
-    if (!checkbox.checked) {
-        document.getElementById("standstillSwitch").parentElement.MaterialSwitch.off();
-    }
-}
-
 function previewCropping() {
+    if (!document.getElementById("oneRunSwitch").checked) {
+        return showAlert(
+            "Can't enable this feature",
+            "This feature requires all the files to be in one run. <br>Go to the step 1 and enable 'Treat as one run'",
+            "warning",
+            "Go to step 1",
+            () => {
+                showPanel(1);
+            }
+        );
+    }
     updateCroppingData(() => {
         updateCroppingTable();
         hideLoading();
