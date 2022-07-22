@@ -67,7 +67,9 @@ class handler(BaseHTTPRequestHandler):
             startTime = data[b"startTime"][0].decode("utf-8")
             endTime = data[b"endTime"][0].decode("utf-8")
             trajectoryTopic = data[b"trajectoryTopic"][0].decode("utf-8")
-            result = bag.exportBag(pathIn, pathOut, topics, startTime, endTime, trajectoryTopic)
+            result = bag.exportBag(
+                pathIn, pathOut, topics, startTime, endTime, trajectoryTopic
+            )
             res(self, 200, "json", json.dumps(result))
 
         elif self.path.startswith("/saveFile"):
@@ -86,14 +88,12 @@ class handler(BaseHTTPRequestHandler):
                 os.makedirs(path)
             res(self, 200, "json", json.dumps("Folder created!"))
 
-
     def do_GET(self):
         root = os.getcwd()
         # print(self.path)
-        if self.path == "/":
-            filename = root + "/index.html"
-        else:
-            filename = root + self.path
+        filename = root + self.path
+        if self.path.endswith("/"):
+            filename += "/index.html"
 
         self.send_response(200)
         if filename[-4:] == ".css":

@@ -1,18 +1,19 @@
 <html>
     <head>
-        <title>Rosbag Utils</title>
+        <title>Rosbag Filter</title>
         <script src="/lib/mdl/material.min.js"></script>
         <link rel="stylesheet" href="/lib/mdl/material.min.css" />
         <link rel="stylesheet" href="/lib/mdl/material-icons.css" />
         <script src="/lib/swal/sweetalert2.all.min.js"></script>
         <link rel="stylesheet" href="/lib/font-awesome-4.7.0/css/font-awesome.min.css" />
+        <link rel="stylesheet" href="/common/style.css" />
         <link rel="stylesheet" href="./style.css" />
     </head>
 
     <body>
         <div class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer">
             <div class="mdl-layout__drawer">
-                <span class="mdl-layout-title"><b>Rosbag Filter</b></span>
+                <span class="mdl-layout-title"><a href="/" style="text-decoration: none; color: #424242;"><b>Rosbag Filter</b></a></span>
                 <nav class="mdl-navigation">
                     <a id="nav1" class="mdl-navigation__link" href="javascript:void(0);" onclick="showPanel(1);"> </a>
                     <a id="nav2" class="mdl-navigation__link" href="javascript:void(0);" onclick="showPanel(2);"> </a>
@@ -22,79 +23,6 @@
             </div>
             <main class="mdl-layout__content">
                 <div class="page-content">
-                    <div id="panel0" class="mdl-grid">
-                        <div class="mdl-cell mdl-cell--6-col demo-card-wide mdl-card mdl-shadow--2dp" style="float: left; margin: 30px">
-                            <div class="mdl-card__title filter_card_background">
-                                <h2 class="mdl-card__title-text">Rosbag Filter &nbsp; v1.4.1</h2>
-                            </div>
-                            <div class="mdl-card__supporting-text">
-                                Rosbag filter can help you filter out the useful topics from multiple rosbags. We'll also generate some important
-                                statistics about your data.
-                            </div>
-                            <div class="mdl-card__actions mdl-card--border">
-                                <a
-                                    class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect"
-                                    href="javascript:void(0);"
-                                    onclick="showPanel(1);"
-                                >
-                                    Open
-                                </a>
-                            </div>
-                        </div>
-                        <div class="mdl-cell mdl-cell--6-col demo-card-wide mdl-card mdl-shadow--2dp" style="float: left; margin: 30px">
-                            <div class="mdl-card__title visualize_card_background">
-                                <h2 class="mdl-card__title-text">Rosbag Visualize &nbsp; v1.0.0</h2>
-                            </div>
-                            <div class="mdl-card__supporting-text">
-                                Rosbag visualize can help you visualize the image topics from multiple rosbags. We can also export the images to disk.
-                            </div>
-                            <div class="mdl-card__actions mdl-card--border">
-                                <a
-                                    class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect"
-                                    href="javascript:void(0);"
-                                    onclick="showAlert('Coming soon!','','info','Okay');"
-                                >
-                                    Open
-                                </a>
-                            </div>
-                        </div>
-                        <div class="mdl-cell mdl-cell--6-col demo-card-wide mdl-card mdl-shadow--2dp" style="float: left; margin: 30px">
-                            <div class="mdl-card__title ply_card_background">
-                                <h2 class="mdl-card__title-text">Rosbag Ply &nbsp; v1.0.0</h2>
-                            </div>
-                            <div class="mdl-card__supporting-text">
-                                Rosbag ply can help you convert the cloud points from multiple rosbags to .ply format. Additional software
-                                dependencies may be required for this.
-                            </div>
-                            <div class="mdl-card__actions mdl-card--border">
-                                <a
-                                    class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect"
-                                    href="javascript:void(0);"
-                                    onclick="showAlert('Coming soon!','','info','Okay');"
-                                >
-                                    Open
-                                </a>
-                            </div>
-                        </div>
-                        <div class="mdl-cell mdl-cell--6-col demo-card-wide mdl-card mdl-shadow--2dp" style="float: left; margin: 30px">
-                            <div class="mdl-card__title alert_card_background">
-                                <h2 class="mdl-card__title-text">Rosbag Alert &nbsp; v1.0.0</h2>
-                            </div>
-                            <div class="mdl-card__supporting-text">
-                                Rosbag ply can help you convert the cloud points from multiple rosbags to .ply format. Additional software
-                                dependencies may be required for this.
-                            </div>
-                            <div class="mdl-card__actions mdl-card--border">
-                                <a
-                                    class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect"
-                                    href="javascript:void(0);"
-                                    onclick="showAlert('Coming soon!','','info','Okay');"
-                                >
-                                    Open
-                                </a>
-                            </div>
-                        </div>
-                    </div>
                     <div id="panel1" style="display: none">
                         <div class="row">
                             <div class="column">
@@ -281,7 +209,7 @@
             Treat all the bag files as one continuous run that was just split in multiple files. (The files must be sorted correctly!)
         </div>
     </body>
-    <script src="./process.js"></script>
+    <script src="/common/utils.js"></script>
     <script src="./page1.js"></script>
     <script src="./page2.js"></script>
     <script src="./page3.js"></script>

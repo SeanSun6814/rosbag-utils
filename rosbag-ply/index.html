@@ -6,13 +6,14 @@
         <link rel="stylesheet" href="/lib/mdl/material-icons.css" />
         <script src="/lib/swal/sweetalert2.all.min.js"></script>
         <link rel="stylesheet" href="/lib/font-awesome-4.7.0/css/font-awesome.min.css" />
+        <link rel="stylesheet" href="/common/style.css" />
         <link rel="stylesheet" href="./style.css" />
     </head>
 
     <body>
         <div class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer">
             <div class="mdl-layout__drawer">
-                <span class="mdl-layout-title"><b>Rosbag Ply</b></span>
+                <span class="mdl-layout-title"><a href="/" style="text-decoration: none; color: #424242;"><b>Rosbag Ply</b></a></span>
                 <nav class="mdl-navigation">
                     <a id="nav1" class="mdl-navigation__link" href="javascript:void(0);" onclick="showPanel(1);"> </a>
                     <a id="nav2" class="mdl-navigation__link" href="javascript:void(0);" onclick="showPanel(2);"> </a>
@@ -22,25 +23,6 @@
             </div>
             <main class="mdl-layout__content">
                 <div class="page-content">
-                    <div id="panel0">
-                        <div class="demo-card-wide mdl-card mdl-shadow--2dp center">
-                            <div class="mdl-card__title">
-                                <h2 class="mdl-card__title-text">Rosbag Ply &nbsp; v1.0.0</h2>
-                            </div>
-                            <div class="mdl-card__supporting-text">
-                                Todo...
-                            </div>
-                            <div class="mdl-card__actions mdl-card--border">
-                                <a
-                                    class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect"
-                                    href="javascript:void(0);"
-                                    onclick="showPanel(1);"
-                                >
-                                    Get Started
-                                </a>
-                            </div>
-                        </div>
-                    </div>
                     <div id="panel1" style="display: none">
                         <div class="row">
                             <div class="column">
@@ -97,6 +79,7 @@
                                         </thead>
                                         <tbody id="bagInfoTable"></tbody>
                                     </table>
+                                    <br /><br /><br /><br />
                                 </div>
                             </div>
                         </div>
@@ -124,6 +107,7 @@
                                 </thead>
                                 <tbody id="allTopicsTable"></tbody>
                             </table>
+                            <br /><br /><br /><br />
                         </div>
                     </div>
                     <div id="panel3" style="display: none">
@@ -139,8 +123,8 @@
                                     <select
                                         class="mdl-textfield__input"
                                         id="trajectoryTopicSelect"
-                                        onchange="cropData = []; updateStep3Finished();"
                                         name="trajectoryTopicSelect"
+                                        onchange="updateStep3Finished();"
                                     >
                                         <option></option>
                                     </select>
@@ -155,6 +139,24 @@
                                 <span class="mdl-switch__label" id="standstillSwitchLabel">Enabled</span>
                             </label>
                             <div class="disabled">
+                                <br />
+                                <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
+                                    <thead>
+                                        <tr>
+                                            <th class="mdl-data-table__cell--non-numeric">File</th>
+                                            <th class="mdl-data-table__cell--non-numeric">Duration</th>
+                                            <th class="mdl-data-table__cell--non-numeric">First moving at</th>
+                                            <th class="mdl-data-table__cell--non-numeric">Crop From</th>
+                                            <th class="mdl-data-table__cell--non-numeric">Crop To</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="croppingTable"></tbody>
+                                </table>
+                                <p style="color: #ff6200">
+                                    <i class="fa fa-info-circle fa-lg" aria-hidden="true"></i> &nbsp; Click the numbers to change cropping
+                                </p>
+                                <br />
+                                <h3>Auto crop when robot start moving</h3>
                                 <form action="#">
                                     <h4>Keep how many seconds of standstill data in the beginning</h4>
                                     <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
@@ -163,7 +165,6 @@
                                             type="text"
                                             pattern="-?[0-9]*(\.[0-9]+)?"
                                             id="standstillTimeInput"
-                                            onchange="cropData = [];updateStep3Finished();"
                                             value="10"
                                             size="10"
                                         />
@@ -173,32 +174,16 @@
                                 </form>
                                 <h4>Which topic determines if robot is moving/standstill</h4>
                                 <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                                    <select
-                                        class="mdl-textfield__input"
-                                        id="standstillTopicSelect"
-                                        onchange="cropData = []; updateStep3Finished();"
-                                        name="standstillTopicSelect"
-                                    >
+                                    <select class="mdl-textfield__input" id="standstillTopicSelect" name="standstillTopicSelect">
                                         <option></option>
                                     </select>
                                     <label class="mdl-textfield__label" for="standstillTopicSelect">Odometry topic</label>
                                 </div>
                                 <br /><br />
                                 <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect" onclick="previewCropping()">
-                                    Compute cropping
+                                    Scan & Update cropping
                                 </button>
-                                <br /><br />
-                                <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
-                                    <thead>
-                                        <tr>
-                                            <th class="mdl-data-table__cell--non-numeric">File</th>
-                                            <th class="mdl-data-table__cell--non-numeric">Duration</th>
-                                            <th class="mdl-data-table__cell--non-numeric">First moving at</th>
-                                            <th class="mdl-data-table__cell--non-numeric">Crop at</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="croppingTable"></tbody>
-                                </table>
+                                <br /><br /><br /><br />
                             </div>
                         </div>
                     </div>
@@ -212,6 +197,7 @@
                             </button>
                             <br /><br />
                             <h4 id="finalResultsLabel"></h4>
+                            <br /><br /><br /><br />
                         </div>
                     </div>
                 </div>
@@ -223,7 +209,7 @@
             Treat all the bag files as one continuous run that was just split in multiple files. (The files must be sorted correctly!)
         </div>
     </body>
-    <script src="./process.js"></script>
+    <script src="/common/utils.js"></script>
     <script src="./page1.js"></script>
     <script src="./page2.js"></script>
     <script src="./page3.js"></script>

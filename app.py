@@ -5,6 +5,6 @@ import webbrowser
 thread = Thread(target = server.startServer)
 thread.start()
 print("Opening app in browser...")
-webbrowser.open('127.0.0.1:8000/rosbag-filter/index.html')
+webbrowser.open('127.0.0.1:8000')
 thread.join()
 print("thread finished...exiting")

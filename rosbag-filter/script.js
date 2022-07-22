@@ -5,12 +5,12 @@ let selectedTopics = [];
 let cropData = [];
 
 window.onload = function () {
-    showPanel(0);
+    showPanel(1);
     completedStep(0);
 };
 
 function showPanel(panelIdx) {
-    for (let i = 0; i < 5; i++) {
+    for (let i = 1; i < 5; i++) {
         document.getElementById("panel" + i).style.display = panelIdx === i ? "block" : "none";
         if (i > 0) document.getElementById("nav" + i).style.backgroundColor = panelIdx === i ? "rgb(224, 224, 224)" : "rgb(250, 250, 250)";
     }

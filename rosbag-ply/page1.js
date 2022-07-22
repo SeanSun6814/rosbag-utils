@@ -89,3 +89,13 @@ function checkIfBagsAreContinuous() {
         showAlert("Bags are not continuous", result, "warning", "Got it", () => {});
     }
 }
+
+function checkTreatAsOneRun() {
+    let checkbox = document.getElementById("oneRunSwitch");
+    if (!checkbox.checked) {
+        document.getElementById("standstillSwitch").parentElement.MaterialSwitch.off();
+        document.getElementById("trajectoryLengthSwitch").parentElement.MaterialSwitch.off();
+        checkEnableStandstill();
+        checkTrajectoryLength();
+    }
+}
