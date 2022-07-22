@@ -1,103 +1,202 @@
-function generatePanel2() {
-    function getAllTopics() {
-        let allTopics = {};
-        let allTheSame = true;
-        for (let fileIdx = 0; fileIdx < files.length; fileIdx++) {
-            let info = files[fileIdx].info.topics;
-            let topicCount = 0;
-            for (let topic in info) {
-                topicCount++;
-                if (allTopics[topic] == undefined) {
-                    if (fileIdx != 0) allTheSame = false;
-                    allTopics[topic] = [topic, info[topic][0], info[topic][1], 1];
-                } else {
-                    if (info[topic][0] !== allTopics[topic][1]) {
-                        alert(
-                            "Sneaky! Some topics have same names but different types!\n" +
-                                "This display might only show one type but everything else should work though. " +
-                                "This part of the code is not tested, so double check the results."
-                        );
-                    }
-                    allTopics[topic][2] += info[topic][1];
-                    allTopics[topic][3] += 1;
-                }
-            }
-            if (topicCount != Object.keys(allTopics).length) {
-                allTheSame = false;
-            }
-        }
-        let arr = [];
-        for (var key in allTopics) {
-            if (allTopics.hasOwnProperty(key)) {
-                arr.push(allTopics[key]);
-            }
-        }
-        combinedTopics = arr;
-        return { arr: arr, topicsAllTheSame: allTheSame };
-    }
-    let result = getAllTopics();
-    if (!result.topicsAllTheSame) {
-        document.getElementById(
-            "bagDiffWarning"
-        ).innerHTML = `<br><i class="fa fa-info-circle fa-lg" aria-hidden="true"></i> &nbsp Some bags have different topics.`;
-    } else {
-        document.getElementById(
-            "bagDiffWarning"
-        ).innerHTML = `<br><i class="fa fa-info-circle fa-lg" aria-hidden="true"></i> &nbsp All bags have the same topics.`;
-    }
-    let table = document.getElementById("allTopicsTable");
-    table.innerHTML = "";
-    let rowIdx = 1;
-    let checkbox = "";
-    for (let arr in result.arr) {
-        checkbox = `<label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect mdl-data-table__select" for="row${rowIdx}">
-                <input type="checkbox" id="row${rowIdx}" class="mdl-checkbox__input" />
-              </label>`;
-        rowIdx++;
-        addToTable(table, [checkbox].concat(result.arr[arr]));
-    }
-    allTopicsTableItemCount = rowIdx - 1;
-    componentHandler.upgradeDom();
-    let itemChecks = allTopicsTable.querySelectorAll("tbody .mdl-data-table__select input");
-    itemChecks.forEach((elem) => elem.addEventListener("change", itemCheckHandler));
+function onShowPanel3() {
+    updateStep3Finished();
 }
 
-let allTopicsTableItemCount = 0;
-let allTopicsTable = document.querySelector("#allTopicsTableOuter");
-let headerCheckbox = allTopicsTable.querySelector("thead .mdl-data-table__select input");
-let headerCheckHandler = function (event) {
-    let boxes = allTopicsTable.querySelectorAll("tbody .mdl-data-table__select");
-    if (event.target.checked) {
-        for (let i = 0, length = boxes.length; i < length; i++) {
-            boxes[i].MaterialCheckbox.check();
-            boxes[i].MaterialCheckbox.updateClasses_();
-            completedStep(2);
-        }
-    } else {
-        for (let i = 0, length = boxes.length; i < length; i++) {
-            boxes[i].MaterialCheckbox.uncheck();
-            boxes[i].MaterialCheckbox.updateClasses_();
-            completedStep(1);
-        }
-    }
-};
+function updateStep3Finished() {
+    if (!document.getElementById("standstillSwitch").checked || cropData.length > 0)
+        if (!document.getElementById("trajectoryLengthSwitch").checked || document.getElementById("trajectoryTopicSelect").value.trim() !== "")
+            return completedStep(3);
+    completedStep(2);
+}
 
-let itemCheckHandler = function (event) {
-    let boxes = allTopicsTable.querySelectorAll("tbody .is-checked");
-    let headerCheckbox = allTopicsTable.querySelector("thead .mdl-data-table__select");
-    // console.log("this many boxes checked: " + boxes.length);
-    if (boxes.length === allTopicsTableItemCount) {
-        headerCheckbox.MaterialCheckbox.check();
-        headerCheckbox.MaterialCheckbox.updateClasses_();
-    } else {
-        headerCheckbox.MaterialCheckbox.uncheck();
-        headerCheckbox.MaterialCheckbox.updateClasses_();
-    }
-    if (boxes.length === 0) {
-        completedStep(1);
-    } else {
-        completedStep(2);
-    }
-};
+function checkEnableStandstill() {
+    let checkbox = document.getElementById("standstillSwitch");
+    let checkboxLabel = document.getElementById("standstillSwitchLabel");
 
-headerCheckbox.addEventListener("change", headerCheckHandler);
+    if (checkbox.checked) {
+        checkboxLabel.innerHTML = `Enabled`;
+        document.getElementById("standstillTimeInput").parentElement.parentElement.parentElement.classList.remove("disabled");
+        initOdometryDropdown();
+        createDummyCropData();
+        updateCroppingTable();
+    } else {
+        checkboxLabel.innerHTML = `Disabled`;
+        document.getElementById("standstillTimeInput").parentElement.parentElement.parentElement.classList.add("disabled");
+        cropData = [];
+        let table = document.getElementById("croppingTable");
+        table.innerHTML = "";
+    }
+    if (completedStepIdx >= 2) updateStep3Finished();
+}
+
+function checkTrajectoryLength() {
+    let checkbox = document.getElementById("trajectoryLengthSwitch");
+    let checkboxLabel = document.getElementById("trajectoryLengthLabel");
+
+    if (!document.getElementById("oneRunSwitch").checked && checkbox.checked) {
+        checkbox.checked = false;
+        showAlert(
+            "Can't enable this feature",
+            "This feature requires all the files to be in one run. <br>Go to the step 1 and enable 'Treat as one run'",
+            "warning",
+            "Go to step 1",
+            () => {
+                showPanel(1);
+            }
+        );
+    }    
+    if (checkbox.checked) {
+        checkboxLabel.innerHTML = `Enabled`;
+        document.getElementById("trajectoryTopicSelect").parentElement.parentElement.classList.remove("disabled");
+        initTrajectoryOdometryDropdown();
+    } else {
+        checkboxLabel.innerHTML = `Disabled`;
+        document.getElementById("trajectoryTopicSelect").parentElement.parentElement.classList.add("disabled");
+    }
+    if (completedStepIdx >= 2) updateStep3Finished();
+}
+
+function initOdometryDropdown() {
+    let topics = new Set();
+    for (let fileIdx = 0; fileIdx < files.length; fileIdx++) {
+        let info = files[fileIdx].info.topics;
+        for (let topic in info) {
+            if (info[topic][0] === "nav_msgs/Odometry") topics.add(topic);
+        }
+    }
+    let result = "<option></option>";
+    topics.forEach(function (value) {
+        result += "<option>" + value + "</option>";
+    });
+    document.getElementById("standstillTopicSelect").innerHTML = result;
+}
+
+function initTrajectoryOdometryDropdown() {
+    let topics = new Set();
+    for (let fileIdx = 0; fileIdx < files.length; fileIdx++) {
+        let info = files[fileIdx].info.topics;
+        for (let topic in info) {
+            if (info[topic][0] === "nav_msgs/Odometry") topics.add(topic);
+        }
+    }
+    let result = "<option></option>";
+    topics.forEach(function (value) {
+        result += "<option>" + value + "</option>";
+    });
+    document.getElementById("trajectoryTopicSelect").innerHTML = result;
+}
+
+function previewCropping() {
+    if (!document.getElementById("oneRunSwitch").checked) {
+        return showAlert(
+            "Can't enable this feature",
+            "This feature requires all the files to be in one run. <br>Go to the step 1 and enable 'Treat as one run'",
+            "warning",
+            "Go to step 1",
+            () => {
+                showPanel(1);
+            }
+        );
+    }
+    updateCroppingData(() => {
+        updateCroppingTable();
+        hideLoading();
+    });
+}
+
+function createDummyCropData() {
+    cropData = [];
+    for (let idx = 0; idx < files.length; idx++) {
+        cropData.push({ start: files[idx].info.start, end: files[idx].info.end });
+    }
+    usingAutoGeneratedCroppingData = false;
+}
+
+function updateCroppingTable() {
+    let table = document.getElementById("croppingTable");
+    table.innerHTML = "";
+    let blankTime = parseFloat(document.getElementById("standstillTimeInput").value);
+    for (let idx = 0; idx < files.length; idx++) {
+        let cropFrom = Math.max(0, cropData[idx].start - files[idx].info.start);
+        let cropTo = cropData[idx].end - files[idx].info.start;
+        let startMoving = cropData[idx].start + blankTime - files[idx].info.start;
+        if (doubleEquals(cropData[idx].start, -1)) {
+            startMoving = "No movement";
+            cropFrom = "Skip entire bag";
+            cropTo = "Skip entire bag";
+        } else if (doubleEquals(cropData[idx].start, -2)) {
+            startMoving = "Topic not found";
+            cropFrom = "Include entire bag";
+            cropTo = "Include entire bag";
+        } else if (!usingAutoGeneratedCroppingData) {
+            startMoving = "N/A";
+            cropFrom = round2(cropFrom) + "s";
+            cropTo = round2(cropTo) + "s";
+        } else {
+            startMoving = round2(startMoving) + "s";
+            cropFrom = round2(cropFrom) + "s";
+            cropTo = round2(cropTo) + "s";
+        }
+
+        cropFrom = "<a onclick='onChangeCropData(" + idx + ",true);' style='color: #ff6200; cursor: pointer;'>" + cropFrom + "</a>";
+        cropTo = "<a onclick='onChangeCropData(" + idx + ",false);' style='color: #ff6200; cursor: pointer;'>" + cropTo + "</a>";
+        addToTable(table, [files[idx].filename, files[idx].info.duration, startMoving, cropFrom, cropTo]);
+    }
+    updateStep3Finished();
+}
+
+function onChangeCropData(fileIdx, isStart) {
+    let oldValue = isStart ? cropData[fileIdx].start : cropData[fileIdx].end;
+    oldValue = Math.max(0, oldValue - files[fileIdx].info.start);
+    if (cropData[fileIdx].start < 0) oldValue = 0;
+    openInputBox(
+        "Change cropping " + (isStart ? "start" : "end"),
+        "Enter a new cropping " + (isStart ? "start" : "end") + " time in seconds",
+        "question",
+        "Update cropping",
+        oldValue,
+        true,
+        (newValue) => {
+            newValue = Math.max(files[fileIdx].info.start, Math.min(parseFloat(newValue) + files[fileIdx].info.start, files[fileIdx].info.end));
+            if (isStart) cropData[fileIdx].start = newValue;
+            else cropData[fileIdx].end = newValue;
+            if (cropData[fileIdx].start < 0)
+                if (isStart) cropData[fileIdx].end = files[fileIdx].info.end;
+                else cropData[fileIdx].start = files[fileIdx].info.start;
+            usingAutoGeneratedCroppingData = false;
+            updateCroppingTable();
+        },
+        () => {}
+    );
+}
+
+function updateCroppingData(callback) {
+    let topicName = document.getElementById("standstillTopicSelect").value;
+    if (topicName.trim() === "")
+        return showAlert("No topic selected", "Select an odometry topic to compute the cropping.", "error", "Got it", () => {});
+    showLoading("Scanning 1/" + files.length + "...");
+    cropData = [];
+    let count = 0;
+    let blankTime = document.getElementById("standstillTimeInput").value;
+    for (let fileIdx = 0; fileIdx < files.length; fileIdx++) {
+        cropData.push(0);
+        function receivedFirstMoveTime(str) {
+            let data = parseInt(JSON.parse(str));
+            console.log("receivedFirstMoveTime: " + data);
+            let startMoving = data / 1e9;
+            let cropFrom = data < 0 ? data : Math.max(0, startMoving - blankTime);
+            cropData[fileIdx] = {};
+            cropData[fileIdx].start = cropFrom;
+            cropData[fileIdx].end = files[fileIdx].info.end;
+            usingAutoGeneratedCroppingData = true;
+            count++;
+            if (count === files.length) callback();
+            else document.getElementById("swal2-title").innerHTML = "Scanning " + (count + 1) + "/" + files.length + "...";
+        }
+        makeRequest(
+            "/findMoveStart",
+            "topic=" + encodeURIComponent(topicName) + "&path=" + encodeURIComponent(files[fileIdx].filename),
+            receivedFirstMoveTime
+        );
+    }
+}

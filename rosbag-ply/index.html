@@ -85,51 +85,19 @@
                         </div>
                     </div>
                     <div id="panel2" style="display: none">
-                        <div class="" style="top: 10%; padding-left: 7%">
-                            <h2>Select the topics to keep</h2>
-                            <p id="bagDiffWarning" style="color: red"></p>
-                            <table id="allTopicsTableOuter" class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
-                                <thead>
-                                    <tr>
-                                        <th>
-                                            <label
-                                                class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect mdl-data-table__select"
-                                                for="table-header"
-                                            >
-                                                <input type="checkbox" id="table-header" class="mdl-checkbox__input" />
-                                            </label>
-                                        </th>
-                                        <th class="mdl-data-table__cell--non-numeric">Topic</th>
-                                        <th class="mdl-data-table__cell--non-numeric">Type</th>
-                                        <th class="mdl-data-table__cell--non-numeric">Total # messages</th>
-                                        <th class="mdl-data-table__cell--non-numeric">Appeared in # bags</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="allTopicsTable"></tbody>
-                            </table>
-                            <br /><br /><br /><br />
-                        </div>
-                    </div>
-                    <div id="panel3" style="display: none">
                         <div style="top: 10%; padding-left: 7%">
-                            <h2>Calculate Trajectory Length</h2>
-                            <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="trajectoryLengthSwitch">
-                                <input type="checkbox" id="trajectoryLengthSwitch" class="mdl-switch__input" onchange="checkTrajectoryLength();" />
-                                <span class="mdl-switch__label" id="trajectoryLengthLabel">Enabled</span>
-                            </label>
-                            <div class="disabled">
-                                <h4>Which topic to use for calculating trajectory length</h4>
-                                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                                    <select
-                                        class="mdl-textfield__input"
-                                        id="trajectoryTopicSelect"
-                                        name="trajectoryTopicSelect"
-                                        onchange="updateStep3Finished();"
-                                    >
-                                        <option></option>
-                                    </select>
-                                    <label class="mdl-textfield__label" for="trajectoryTopicSelect">Odometry topic</label>
-                                </div>
+                            <h2>Select topics</h2>
+                            <h4>Which topic to use for calculating trajectory length</h4>
+                            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                                <select
+                                    class="mdl-textfield__input"
+                                    id="trajectoryTopicSelect"
+                                    name="trajectoryTopicSelect"
+                                    onchange="updateStep3Finished();"
+                                >
+                                    <option></option>
+                                </select>
+                                <label class="mdl-textfield__label" for="trajectoryTopicSelect">Odometry topic</label>
                             </div>
                         </div>
                         <div style="top: 10%; padding-left: 7%">

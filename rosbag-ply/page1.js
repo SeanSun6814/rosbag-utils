@@ -50,13 +50,6 @@ function showFileDialog() {
     }
     showLoading("Select file...");
     makeRequest("/selectBag", "", addFilesToTable);
-    let headerCheckbox = allTopicsTable.querySelector("thead .mdl-data-table__select");
-    headerCheckbox.MaterialCheckbox.uncheck();
-    headerCheckbox.MaterialCheckbox.updateClasses_();
-    document.getElementById("standstillSwitch").parentElement.MaterialSwitch.off();
-    document.getElementById("trajectoryLengthSwitch").parentElement.MaterialSwitch.off();
-    checkEnableStandstill();
-    checkTrajectoryLength();
 }
 
 function showBagInfoTable(idx) {
