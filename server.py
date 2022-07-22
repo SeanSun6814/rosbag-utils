@@ -1,6 +1,6 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from cgi import parse_header, parse_multipart
-import bag
+import filter
 import urllib
 from urllib.parse import urlparse, parse_qs
 import json
@@ -37,7 +37,7 @@ class handler(BaseHTTPRequestHandler):
             path = data[b"path"][0].decode("utf-8")
             print("REQUEST bagInfo info for path: " + path)
             try:
-                msg = bag.getBagInfoJson(path)
+                msg = filter.getBagInfoJson(path)
                 res(self, 200, "json", msg)
             except Exception as e:
                 res(self, 500, "html", str(e))
@@ -56,7 +56,7 @@ class handler(BaseHTTPRequestHandler):
             print("REQUEST findMoveStart")
             path = data[b"path"][0].decode("utf-8")
             topic = data[b"topic"][0].decode("utf-8")
-            result = bag.getFirstMoveTime(path, topic)
+            result = filter.getFirstMoveTime(path, topic)
             res(self, 200, "json", json.dumps(result))
 
         elif self.path.startswith("/exportBag"):
@@ -67,7 +67,7 @@ class handler(BaseHTTPRequestHandler):
             startTime = data[b"startTime"][0].decode("utf-8")
             endTime = data[b"endTime"][0].decode("utf-8")
             trajectoryTopic = data[b"trajectoryTopic"][0].decode("utf-8")
-            result = bag.exportBag(
+            result = filter.exportBag(
                 pathIn, pathOut, topics, startTime, endTime, trajectoryTopic
             )
             res(self, 200, "json", json.dumps(result))
