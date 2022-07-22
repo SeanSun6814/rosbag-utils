@@ -241,7 +241,7 @@ function saveDetailedResult(summary, path) {
 
     result += "\n\n\n\n======================= Crop data =======================\n";
     if (cropData.length > 0) {
-        let blankTime = document.getElementById("standstillTimeInput").value;
+        let blankTime = parseFloat(document.getElementById("standstillTimeInput").value);
         result += "file, duration, first moving at, start crop at, end crop at\n";
         for (let idx = 0; idx < files.length; idx++) {
             let cropFrom = Math.max(0, cropData[idx].start - files[idx].info.start);

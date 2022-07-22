@@ -10,7 +10,7 @@ window.onload = function () {
 };
 
 function showPanel(panelIdx) {
-    for (let i = 1; i < 5; i++) {
+    for (let i = 1; i < 3; i++) {
         document.getElementById("panel" + i).style.display = panelIdx === i ? "block" : "none";
         if (i > 0) document.getElementById("nav" + i).style.backgroundColor = panelIdx === i ? "rgb(224, 224, 224)" : "rgb(250, 250, 250)";
     }
@@ -26,7 +26,6 @@ function showPanel(panelIdx) {
         );
     }
     if (panelIdx === 3) onShowPanel3();
-    if (panelIdx === 4) onShowPanel4();
 }
 
 let completedStepIdx = 0;
@@ -34,7 +33,7 @@ const greenCheckIcon = `<i style="margin: 5px; color: green; float:right;" class
 const orangeBangIcon = `<i style="margin: 5px; color: #ff6200; float:right;" class="fa fa-exclamation-triangle fa-lg" aria-hidden="true"></i>`;
 function completedStep(idx) {
     completedStepIdx = idx;
-    let text = [``, `<b>1. Select bags</b>`, `<b>2. Select topics</b>`, `<b>3. More options</b>`, `<b>4. Finish</b>`];
+    let text = [``, `<b>1. Select bags</b>`, `<b>2. More options</b>`, `<b>3. Finish</b>`];
     if (idx === 0) {
         text[1] += orangeBangIcon;
     } else if (idx === 1) {
@@ -55,7 +54,7 @@ function completedStep(idx) {
         text[3] += greenCheckIcon;
         text[4] += greenCheckIcon;
     }
-    for (let i = 1; i < 5; i++) {
+    for (let i = 1; i < 4; i++) {
         document.getElementById("nav" + i).innerHTML = text[i];
     }
 }

@@ -46,7 +46,7 @@ function checkTrajectoryLength() {
                 showPanel(1);
             }
         );
-    }    
+    }
     if (checkbox.checked) {
         checkboxLabel.innerHTML = `Enabled`;
         document.getElementById("trajectoryTopicSelect").parentElement.parentElement.classList.remove("disabled");
@@ -176,10 +176,11 @@ function updateCroppingData(callback) {
     let topicName = document.getElementById("standstillTopicSelect").value;
     if (topicName.trim() === "")
         return showAlert("No topic selected", "Select an odometry topic to compute the cropping.", "error", "Got it", () => {});
+    if (!standstillSecondsIsValid()) return showAlert("Standstill seconds invalid", "Enter a valid number.", "error", "Got it", () => {});
     showLoading("Scanning 1/" + files.length + "...");
     cropData = [];
     let count = 0;
-    let blankTime = document.getElementById("standstillTimeInput").value;
+    let blankTime = parseFloat(document.getElementById("standstillTimeInput").value);
     for (let fileIdx = 0; fileIdx < files.length; fileIdx++) {
         cropData.push(0);
         function receivedFirstMoveTime(str) {
@@ -201,4 +202,9 @@ function updateCroppingData(callback) {
             receivedFirstMoveTime
         );
     }
+}
+
+function standstillSecondsIsValid() {
+    let blankTime = document.getElementById("standstillTimeInput").value;
+    return !isNaN(blankTime) && blankTime.trim() !== "";
 }

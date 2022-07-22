@@ -75,16 +75,16 @@ def exportPointCloud(paths, targetTopic, outPathNoExt, maxPointsPerFile):
     print("Array time used = " + str(totalArrayTime * 1e-9))
 
 
-exportPointCloud(
-    "/home/sean/Documents/Github/rosbag-utils/testdata/nuc_2021-09-05-14-51-43_0.bag\n"
-    + "/home/sean/Documents/Github/rosbag-utils/testdata/nuc_2021-09-05-14-52-55_1.bag\n"
-    + "/home/sean/Documents/Github/rosbag-utils/testdata/nuc_2021-09-05-14-53-54_2.bag\n"
-    + "/home/sean/Documents/Github/rosbag-utils/testdata/nuc_2021-09-05-15-50-25_95.bag\n"
-    + "/home/sean/Documents/Github/rosbag-utils/testdata/nuc_2021-09-05-15-50-57_96.bag\n",
-    "/velodyne_cloud_registered",
-    "/media/sean/SSD/pointcloud_all",
-    50000000,
-)
+# exportPointCloud(
+#     "/home/sean/Documents/Github/rosbag-utils/testdata/nuc_2021-09-05-14-51-43_0.bag\n"
+#     + "/home/sean/Documents/Github/rosbag-utils/testdata/nuc_2021-09-05-14-52-55_1.bag\n"
+#     + "/home/sean/Documents/Github/rosbag-utils/testdata/nuc_2021-09-05-14-53-54_2.bag\n"
+#     + "/home/sean/Documents/Github/rosbag-utils/testdata/nuc_2021-09-05-15-50-25_95.bag\n"
+#     + "/home/sean/Documents/Github/rosbag-utils/testdata/nuc_2021-09-05-15-50-57_96.bag\n",
+#     "/velodyne_cloud_registered",
+#     "/media/sean/SSD/pointcloud_all",
+#     50000000,
+# )
 
 # exportPointCloud(
 #     "/home/sean/Documents/Github/rosbag-utils/testdata/nuc_2021-09-05-15-50-25_95.bag",

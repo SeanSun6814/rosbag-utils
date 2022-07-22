@@ -17,7 +17,6 @@ function showFileDialog() {
                 );
             }
             showBagInfoTable(files.length - 1);
-            generatePanel2();
             completedStep(1);
             hideLoading();
             checkIfBagsAreContinuous();
@@ -80,15 +79,5 @@ function checkIfBagsAreContinuous() {
     if (result !== "") {
         result += "<br>If that is intended, please ignore this warning."
         showAlert("Bags are not continuous", result, "warning", "Got it", () => {});
-    }
-}
-
-function checkTreatAsOneRun() {
-    let checkbox = document.getElementById("oneRunSwitch");
-    if (!checkbox.checked) {
-        document.getElementById("standstillSwitch").parentElement.MaterialSwitch.off();
-        document.getElementById("trajectoryLengthSwitch").parentElement.MaterialSwitch.off();
-        checkEnableStandstill();
-        checkTrajectoryLength();
     }
 }

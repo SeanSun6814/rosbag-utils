@@ -1,6 +1,6 @@
 <html>
     <head>
-        <title>Rosbag Ply</title>
+        <title>Rosbag Point</title>
         <script src="/lib/mdl/material.min.js"></script>
         <link rel="stylesheet" href="/lib/mdl/material.min.css" />
         <link rel="stylesheet" href="/lib/mdl/material-icons.css" />
@@ -13,7 +13,9 @@
     <body>
         <div class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer">
             <div class="mdl-layout__drawer">
-                <span class="mdl-layout-title"><a href="/" style="text-decoration: none; color: #424242;"><b>Rosbag Ply</b></a></span>
+                <span class="mdl-layout-title"
+                    ><a href="/" style="text-decoration: none; color: #424242"><b>Rosbag Point</b></a></span
+                >
                 <nav class="mdl-navigation">
                     <a id="nav1" class="mdl-navigation__link" href="javascript:void(0);" onclick="showPanel(1);"> </a>
                     <a id="nav2" class="mdl-navigation__link" href="javascript:void(0);" onclick="showPanel(2);"> </a>
@@ -49,19 +51,6 @@
                                         Add files
                                     </button>
                                     <br /><br /><br />
-                                    <div id="oneRunSwitchDiv" style="width: fit-content">
-                                        <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="oneRunSwitch" style="width: fit-content">
-                                            <input
-                                                type="checkbox"
-                                                id="oneRunSwitch"
-                                                onchange="checkTreatAsOneRun()"
-                                                class="mdl-switch__input"
-                                                style="width: fit-content"
-                                                checked
-                                            />
-                                            <span class="mdl-switch__label" style="width: fit-content">Treat as one run</span>
-                                        </label>
-                                    </div>
                                 </div>
                             </div>
                             <div class="column">
@@ -87,7 +76,7 @@
                     <div id="panel2" style="display: none">
                         <div style="top: 10%; padding-left: 7%">
                             <h2>Select topics</h2>
-                            <h4>Which topic to use for calculating trajectory length</h4>
+                            <h4>Which topic to generate point cloud</h4>
                             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
                                 <select
                                     class="mdl-textfield__input"
@@ -97,65 +86,28 @@
                                 >
                                     <option></option>
                                 </select>
-                                <label class="mdl-textfield__label" for="trajectoryTopicSelect">Odometry topic</label>
+                                <label class="mdl-textfield__label" for="trajectoryTopicSelect">sensor_msgs/PointCloud2</label>
                             </div>
-                        </div>
-                        <div style="top: 10%; padding-left: 7%">
-                            <h2>Crop data</h2>
-                            <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="standstillSwitch">
-                                <input type="checkbox" id="standstillSwitch" class="mdl-switch__input" onchange="checkEnableStandstill();" />
-                                <span class="mdl-switch__label" id="standstillSwitchLabel">Enabled</span>
-                            </label>
-                            <div class="disabled">
-                                <br />
-                                <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
-                                    <thead>
-                                        <tr>
-                                            <th class="mdl-data-table__cell--non-numeric">File</th>
-                                            <th class="mdl-data-table__cell--non-numeric">Duration</th>
-                                            <th class="mdl-data-table__cell--non-numeric">First moving at</th>
-                                            <th class="mdl-data-table__cell--non-numeric">Crop From</th>
-                                            <th class="mdl-data-table__cell--non-numeric">Crop To</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="croppingTable"></tbody>
-                                </table>
-                                <p style="color: #ff6200">
-                                    <i class="fa fa-info-circle fa-lg" aria-hidden="true"></i> &nbsp; Click the numbers to change cropping
-                                </p>
-                                <br />
-                                <h3>Auto crop when robot start moving</h3>
-                                <form action="#">
-                                    <h4>Keep how many seconds of standstill data in the beginning</h4>
-                                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                                        <input
-                                            class="mdl-textfield__input"
-                                            type="text"
-                                            pattern="-?[0-9]*(\.[0-9]+)?"
-                                            id="standstillTimeInput"
-                                            value="10"
-                                            size="10"
-                                        />
-                                        <label class="mdl-textfield__label" for="standstillTimeInput">Seconds</label>
-                                        <span class="mdl-textfield__error">Input is not a number!</span>
-                                    </div>
-                                </form>
-                                <h4>Which topic determines if robot is moving/standstill</h4>
+                            <br /><br />
+                            <h2>Split output into multiple files</h2>
+                            <form action="#">
+                                <h4>Max number of points per file</h4>
                                 <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                                    <select class="mdl-textfield__input" id="standstillTopicSelect" name="standstillTopicSelect">
-                                        <option></option>
-                                    </select>
-                                    <label class="mdl-textfield__label" for="standstillTopicSelect">Odometry topic</label>
+                                    <input
+                                        class="mdl-textfield__input"
+                                        type="text"
+                                        pattern="-?[0-9]*(\.[0-9]+)?"
+                                        id="standstillTimeInput"
+                                        value="50000000"
+                                        size="10"
+                                    />
+                                    <label class="mdl-textfield__label" for="standstillTimeInput">Max points</label>
+                                    <span class="mdl-textfield__error">Input is not a number!</span>
                                 </div>
-                                <br /><br />
-                                <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect" onclick="previewCropping()">
-                                    Scan & Update cropping
-                                </button>
-                                <br /><br /><br /><br />
-                            </div>
+                            </form>
                         </div>
                     </div>
-                    <div id="panel4" style="display: none">
+                    <div id="panel3" style="display: none">
                         <div class="" style="top: 10%; padding-left: 7%">
                             <h2>Summary</h2>
                             <h4 id="summaryLabel"></h4>
@@ -173,14 +125,10 @@
         </div>
         <div class="mdl-tooltip" data-mdl-for="addBagBtn">Import rosbag files to process</div>
         <div class="mdl-tooltip" data-mdl-for="fileTable">Click on bag to view info</div>
-        <div class="mdl-tooltip" data-mdl-for="oneRunSwitchDiv">
-            Treat all the bag files as one continuous run that was just split in multiple files. (The files must be sorted correctly!)
-        </div>
     </body>
     <script src="/common/utils.js"></script>
     <script src="./page1.js"></script>
     <script src="./page2.js"></script>
     <script src="./page3.js"></script>
-    <script src="./page4.js"></script>
     <script src="./script.js"></script>
 </html>
