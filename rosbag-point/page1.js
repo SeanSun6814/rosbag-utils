@@ -17,6 +17,7 @@ function showFileDialog() {
                 );
             }
             showBagInfoTable(files.length - 1);
+            initPointCloudDropdown();
             completedStep(1);
             hideLoading();
             checkIfBagsAreContinuous();
@@ -77,7 +78,7 @@ function checkIfBagsAreContinuous() {
     }
 
     if (result !== "") {
-        result += "<br>If that is intended, please ignore this warning."
+        result += "<br>If that is intended, please ignore this warning.";
         showAlert("Bags are not continuous", result, "warning", "Got it", () => {});
     }
 }

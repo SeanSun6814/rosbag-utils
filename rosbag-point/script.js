@@ -1,8 +1,5 @@
 let files = [];
 let outFiles = [];
-let combinedTopics = [];
-let selectedTopics = [];
-let cropData = [];
 
 window.onload = function () {
     showPanel(1);
@@ -10,7 +7,7 @@ window.onload = function () {
 };
 
 function showPanel(panelIdx) {
-    for (let i = 1; i < 3; i++) {
+    for (let i = 1; i < 4; i++) {
         document.getElementById("panel" + i).style.display = panelIdx === i ? "block" : "none";
         if (i > 0) document.getElementById("nav" + i).style.backgroundColor = panelIdx === i ? "rgb(224, 224, 224)" : "rgb(250, 250, 250)";
     }
@@ -25,6 +22,7 @@ function showPanel(panelIdx) {
             }
         );
     }
+    if (panelIdx === 2) onShowPanel2();
     if (panelIdx === 3) onShowPanel3();
 }
 

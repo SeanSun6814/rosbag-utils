@@ -20,7 +20,6 @@
                     <a id="nav1" class="mdl-navigation__link" href="javascript:void(0);" onclick="showPanel(1);"> </a>
                     <a id="nav2" class="mdl-navigation__link" href="javascript:void(0);" onclick="showPanel(2);"> </a>
                     <a id="nav3" class="mdl-navigation__link" href="javascript:void(0);" onclick="showPanel(3);"> </a>
-                    <a id="nav4" class="mdl-navigation__link" href="javascript:void(0);" onclick="showPanel(4);"> </a>
                 </nav>
             </div>
             <main class="mdl-layout__content">
@@ -80,13 +79,13 @@
                             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
                                 <select
                                     class="mdl-textfield__input"
-                                    id="trajectoryTopicSelect"
-                                    name="trajectoryTopicSelect"
-                                    onchange="updateStep3Finished();"
+                                    id="pointCloudTopicSelect"
+                                    name="pointCloudTopicSelect"
+                                    onchange="updateStep2Finished();"
                                 >
                                     <option></option>
                                 </select>
-                                <label class="mdl-textfield__label" for="trajectoryTopicSelect">sensor_msgs/PointCloud2</label>
+                                <label class="mdl-textfield__label" for="pointCloudTopicSelect">sensor_msgs/PointCloud2</label>
                             </div>
                             <br /><br />
                             <h2>Split output into multiple files</h2>
@@ -97,11 +96,12 @@
                                         class="mdl-textfield__input"
                                         type="text"
                                         pattern="-?[0-9]*(\.[0-9]+)?"
-                                        id="standstillTimeInput"
+                                        id="maxPointsInput"
                                         value="50000000"
                                         size="10"
+                                        onchange="updateStep2Finished();"
                                     />
-                                    <label class="mdl-textfield__label" for="standstillTimeInput">Max points</label>
+                                    <label class="mdl-textfield__label" for="maxPointsInput">Max points</label>
                                     <span class="mdl-textfield__error">Input is not a number!</span>
                                 </div>
                             </form>

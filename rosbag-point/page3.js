@@ -1,21 +1,11 @@
-function onShowPanel4() {
-    updateSelectedTopics();
+function onShowPanel3() {
     let label = document.getElementById("summaryLabel");
-    label.innerHTML = "We'll export " + selectedTopics.length + "/" + combinedTopics.length + " topics from " + files.length + " bag files.";
-}
-
-function updateSelectedTopics() {
-    let boxes = allTopicsTable.querySelectorAll("tbody .is-checked");
-    selectedTopics = [];
-    for (let i = 0; i < boxes.length; i++) {
-        selectedTopics.push(boxes[i].parentElement.nextSibling.innerHTML);
-    }
+    let value = document.getElementById("pointCloudTopicSelect").value;
+    label.innerHTML = "We'll export the point clouds of <b>" + value + "</b> from " + files.length + " bag files.";
 }
 
 function onExportButton() {
-    let trajectoryTopic = document.getElementById("trajectoryLengthSwitch").checked
-        ? document.getElementById("trajectoryTopicSelect").value
-        : "NOTOPIC";
+    let pointCloudTopic = document.getElementById("pointCloudTopicSelect").value;
     outFiles = [];
     for (let _ in files) {
         outFiles.push({ filename: "" });
@@ -142,7 +132,6 @@ function onExportButton() {
         }
     });
 }
-
 
 function saveDetailedResult(summary, path) {
     let result = "";
