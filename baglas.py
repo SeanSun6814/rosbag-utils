@@ -44,6 +44,7 @@ def exportPointCloud(paths, targetTopic, outPathNoExt, maxPointsPerFile):
     def createArrs():
         return FastArr(), FastArr(), FastArr()
 
+    maxPointsPerFile = int(maxPointsPerFile)
     paths = paths.split("\n")
     print("Exporting point cloud from " + targetTopic + " to " + outPathNoExt)
 
@@ -67,17 +68,17 @@ def exportPointCloud(paths, targetTopic, outPathNoExt, maxPointsPerFile):
                     arrayZ.update(p[2])
                 totalArrayTime += time.time_ns() - arrayTimeStart
                 if arrayX.size > maxPointsPerFile:
-                    writeToFile(arrayX, arrayY, arrayZ, outFileCount)
+                    writeToFile(arrayX, arrayY, arrayZ)
                     arrayX, arrayY, arrayZ = createArrs()
 
     if arrayX.size > 0:
-        writeToFile(arrayX, arrayY, arrayZ, outFileCount)
+        writeToFile(arrayX, arrayY, arrayZ)
 
     print("Total points: " + str(arrayX.size))
     endTime = time.time_ns()
     print("Total time used = " + str((endTime - startTime) * 1e-9))
     print("Array time used = " + str(totalArrayTime * 1e-9))
-    return {"numFiles": outFileCount, "numPoints": 456}
+    return {"numFiles": outFileCount, "numPoints": totalNumPoints}
 
 
 # exportPointCloud(
