@@ -39,6 +39,7 @@ function onExportButton() {
             result += "A more detailed report is saved to <b>" + exportDetailsPath + "</b>";
             result += "<br><br><i style='color: #757575;'>This is a beta release of Rosbag Utils. Please double check the results are correct.</i>";
             label.innerHTML = result;
+            completedStep(3);
             hideLoading();
         });
     });
