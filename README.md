@@ -18,7 +18,8 @@
 ### Installation
 
 1. Clone this repo
-2. `python3 app.py`
+2. `pip3 install pylas`
+3. `python3 app.py`
 
 _Tested on Ubuntu 20.04 with Python3, ROS Noetic, and Google Chrome._
 
