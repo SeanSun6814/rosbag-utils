@@ -1,5 +1,4 @@
 let files = [];
-let outFiles = [];
 
 window.onload = function () {
     showPanel(1);

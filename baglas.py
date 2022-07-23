@@ -26,16 +26,20 @@ class FastArr:
     def finalize(self):
         return self.data[: self.size]
 
-
 def exportPointCloud(paths, targetTopic, outPathNoExt, maxPointsPerFile):
-    def writeToFile(arrayX, arrayY, arrayZ, fileNum):
+    outFileCount = 0
+    totalNumPoints = 0
+    def writeToFile(arrayX, arrayY, arrayZ):
+        nonlocal outFileCount, totalNumPoints
+        totalNumPoints += arrayX.size
         las = pylas.create()
         las.x = arrayX.finalize()
         las.y = arrayY.finalize()
         las.z = arrayZ.finalize()
-        filename = outPathNoExt + "_" + str(fileNum) + ".las"
+        filename = outPathNoExt + "_" + str(outFileCount) + ".las"
         print("Writing to " + filename)
         las.write(filename)
+        outFileCount += 1
 
     def createArrs():
         return FastArr(), FastArr(), FastArr()
@@ -44,7 +48,6 @@ def exportPointCloud(paths, targetTopic, outPathNoExt, maxPointsPerFile):
     print("Exporting point cloud from " + targetTopic + " to " + outPathNoExt)
 
     print("Input bags: " + str(paths))
-    outFileCount = 0
     arrayX, arrayY, arrayZ = createArrs()
     startTime = time.time_ns()
     totalArrayTime = 0
@@ -66,13 +69,15 @@ def exportPointCloud(paths, targetTopic, outPathNoExt, maxPointsPerFile):
                 if arrayX.size > maxPointsPerFile:
                     writeToFile(arrayX, arrayY, arrayZ, outFileCount)
                     arrayX, arrayY, arrayZ = createArrs()
-                    outFileCount += 1
 
-    writeToFile(arrayX, arrayY, arrayZ, outFileCount)
+    if arrayX.size > 0:
+        writeToFile(arrayX, arrayY, arrayZ, outFileCount)
+
     print("Total points: " + str(arrayX.size))
     endTime = time.time_ns()
     print("Total time used = " + str((endTime - startTime) * 1e-9))
     print("Array time used = " + str(totalArrayTime * 1e-9))
+    return {"numFiles": outFileCount, "numPoints": 456}
 
 
 # exportPointCloud(

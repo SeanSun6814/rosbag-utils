@@ -1,6 +1,7 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from cgi import parse_header, parse_multipart
-import filter
+import bagfilter
+import baglas
 import urllib
 from urllib.parse import urlparse, parse_qs
 import json
@@ -37,7 +38,7 @@ class handler(BaseHTTPRequestHandler):
             path = data[b"path"][0].decode("utf-8")
             print("REQUEST bagInfo info for path: " + path)
             try:
-                msg = filter.getBagInfoJson(path)
+                msg = bagfilter.getBagInfoJson(path)
                 res(self, 200, "json", msg)
             except Exception as e:
                 res(self, 500, "html", str(e))
@@ -56,7 +57,7 @@ class handler(BaseHTTPRequestHandler):
             print("REQUEST findMoveStart")
             path = data[b"path"][0].decode("utf-8")
             topic = data[b"topic"][0].decode("utf-8")
-            result = filter.getFirstMoveTime(path, topic)
+            result = bagfilter.getFirstMoveTime(path, topic)
             res(self, 200, "json", json.dumps(result))
 
         elif self.path.startswith("/exportBag"):
@@ -67,9 +68,18 @@ class handler(BaseHTTPRequestHandler):
             startTime = data[b"startTime"][0].decode("utf-8")
             endTime = data[b"endTime"][0].decode("utf-8")
             trajectoryTopic = data[b"trajectoryTopic"][0].decode("utf-8")
-            result = filter.exportBag(
+            result = bagfilter.exportBag(
                 pathIn, pathOut, topics, startTime, endTime, trajectoryTopic
             )
+            res(self, 200, "json", json.dumps(result))
+
+        elif self.path.startswith("/exportPointCloud"):
+            print("REQUEST exportPointCloud")
+            pathIn = data[b"pathIn"][0].decode("utf-8")
+            pathOut = data[b"pathOut"][0].decode("utf-8")
+            topics = data[b"topics"][0].decode("utf-8")
+            maxPoints = data[b"maxPoints"][0].decode("utf-8")
+            result = baglas.exportPointCloud(pathIn, topics, pathOut, maxPoints)
             res(self, 200, "json", json.dumps(result))
 
         elif self.path.startswith("/saveFile"):
