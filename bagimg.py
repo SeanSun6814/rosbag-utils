@@ -56,8 +56,8 @@ def exportVideo(paths, pathOut, targetTopic, speed, printTimestamp):
     cv2.destroyAllWindows()
 
 
-exportVideo("/media/sean/SSD/thermal_data/thermal_outside.bag",
-           "/media/sean/SSD/thermal_data/thermal_outside.mp4",
-           "/thermal/image",
-           1, True
-           )
+# exportVideo("/media/sean/SSD/thermal_data/thermal_outside.bag",
+#            "/media/sean/SSD/thermal_data/thermal_outside.mp4",
+#            "/thermal/image",
+#            1, True
+#            )

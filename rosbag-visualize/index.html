@@ -1,6 +1,6 @@
 <html>
     <head>
-        <title>Rosbag Points</title>
+        <title>Rosbag Visualize</title>
         <script src="/lib/mdl/material.min.js"></script>
         <link rel="stylesheet" href="/lib/mdl/material.min.css" />
         <link rel="stylesheet" href="/lib/mdl/material-icons.css" />
@@ -14,7 +14,7 @@
         <div class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer">
             <div class="mdl-layout__drawer">
                 <span class="mdl-layout-title"
-                    ><a href="/" style="text-decoration: none; color: #424242"><b>Rosbag Points</b></a></span
+                    ><a href="/" style="text-decoration: none; color: #424242"><b>Rosbag Visualize</b></a></span
                 >
                 <nav class="mdl-navigation">
                     <a id="nav1" class="mdl-navigation__link" href="javascript:void(0);" onclick="showPanel(1);"> </a>
@@ -75,36 +75,38 @@
                     <div id="panel2" style="display: none">
                         <div style="top: 10%; padding-left: 7%">
                             <h2>Select topic</h2>
-                            <h4>Which topic to generate point cloud</h4>
+                            <h4>Which topic to generate video</h4>
                             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                                <select
-                                    class="mdl-textfield__input"
-                                    id="pointCloudTopicSelect"
-                                    name="pointCloudTopicSelect"
-                                    onchange="updateStep2Finished();"
-                                >
+                                <select class="mdl-textfield__input" id="imageTopicSelect" name="imageTopicSelect" onchange="updateStep2Finished();">
                                     <option></option>
                                 </select>
-                                <label class="mdl-textfield__label" for="pointCloudTopicSelect">sensor_msgs/PointCloud2</label>
+                                <label class="mdl-textfield__label" for="imageTopicSelect">sensor_msgs/PointCloud2</label>
                             </div>
                             <br /><br />
-                            <h2>Split output into multiple files</h2>
+                            <h2>Speed up video</h2>
                             <form action="#">
-                                <h4>Max number of points per file</h4>
+                                <h4>How many times speed up</h4>
                                 <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
                                     <input
                                         class="mdl-textfield__input"
                                         type="text"
-                                        pattern="-?[0-9]*(\.[0-9]+)?"
-                                        id="maxPointsInput"
-                                        value="50000000"
+                                        pattern="[0-9]*"
+                                        id="speedUpInput"
+                                        value="1"
                                         size="10"
                                         onchange="updateStep2Finished();"
                                     />
-                                    <label class="mdl-textfield__label" for="maxPointsInput">Max points</label>
-                                    <span class="mdl-textfield__error">Input is not a number!</span>
+                                    <label class="mdl-textfield__label" for="speedUpInput">Speed up</label>
+                                    <span class="mdl-textfield__error">Input is not a positive integer!</span>
                                 </div>
                             </form>
+                            <br /><br />
+                            <h2>Include timestamp</h2>
+                            <h4>Print the timestamp into the video</h4>
+                            <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="printTimestampSwitch">
+                                <input type="checkbox" id="printTimestampSwitch" class="mdl-switch__input" onchange="checkEnableStandstill();" checked/>
+                                <span class="mdl-switch__label" id="printTimestampSwitchLabel">Enabled</span>
+                            </label>
                         </div>
                     </div>
                     <div id="panel3" style="display: none">
@@ -125,7 +127,7 @@
         </div>
         <div class="mdl-tooltip" data-mdl-for="addBagBtn">Import rosbag files to process</div>
         <div class="mdl-tooltip" data-mdl-for="fileTable">Click on bag to view info</div>
-        <div class="mdl-tooltip" data-mdl-for="maxPointsInput">Decrease to decrease app memory usage</div>
+        <div class="mdl-tooltip" data-mdl-for="speedUpInput">Enter "2" for 60Hz cameras</div>
     </body>
     <script src="/common/utils.js"></script>
     <script src="./page1.js"></script>
