@@ -56,19 +56,18 @@ def getFirstMoveTime(path, targetTopic):
     count = 0
     resultTime = -2
     for topic, msg, t in bagIn.read_messages(topics=[targetTopic]):
-        if topic == targetTopic:
-            if resultTime == -2:
-                resultTime = -1
-            pose = msg.pose.pose.position
-            if abs(pose.x) > 0.5 or abs(pose.y) > 0.5 or abs(pose.z) > 0.5:
-                if count == 0:
-                    resultTime = str(t)
-                elif count > 5:
-                    print("Found first move time: " + str(resultTime))
-                    return resultTime
-                count += 1
-            else:
-                count = 0
+        if resultTime == -2:
+            resultTime = -1
+        pose = msg.pose.pose.position
+        if abs(pose.x) > 0.5 or abs(pose.y) > 0.5 or abs(pose.z) > 0.5:
+            if count == 0:
+                resultTime = str(t)
+            elif count > 5:
+                print("Found first move time: " + str(resultTime))
+                return resultTime
+            count += 1
+        else:
+            count = 0
 
     # >=0: result, -1: no movement, -2: topic not found
     return resultTime
