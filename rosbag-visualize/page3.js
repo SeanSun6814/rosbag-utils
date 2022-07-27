@@ -1,15 +1,17 @@
 function onShowPanel3() {
     let label = document.getElementById("summaryLabel");
-    let value = document.getElementById("pointCloudTopicSelect").value;
-    label.innerHTML = "We'll export the point clouds of <b>" + value + "</b> from " + files.length + " bag files.";
+    let value = document.getElementById("imageTopicSelect").value;
+    label.innerHTML = "We'll export the video of <b>" + value + "</b> from " + files.length + " bag files.";
 }
 
 function onExportButton() {
-    let pointCloudTopic = document.getElementById("pointCloudTopicSelect").value;
-    let maxPoints = document.getElementById("maxPointsInput").value;
+    let imageTopic = document.getElementById("imageTopicSelect").value;
+    let speed = document.getElementById("speedUpInput").value;
+    let fps = document.getElementById("fpsInput").value;
+    let printTimestamp = document.getElementById("printTimestampSwitch").checked ? "true" : "false";
     let exportStartTimestamp = new Date().getTime();
     let sourcePath = files[0].filename.replace(/\/[^\/]+$/, "");
-    let exportPath = sourcePath + "/pointcloud_" + getDateTime() + "/";
+    let exportPath = sourcePath + "/video_" + getDateTime() + "/";
     let pathIn = "";
     for (let fileIdx = 0; fileIdx < files.length; fileIdx++) {
         pathIn += files[fileIdx].filename + "\n";
@@ -18,22 +20,25 @@ function onExportButton() {
         "pathIn=" +
         encodeURIComponent(pathIn) +
         "&pathOut=" +
-        encodeURIComponent(exportPath + "pointcloud") +
-        "&topics=" +
-        encodeURIComponent(pointCloudTopic) +
-        "&maxPoints=" +
-        encodeURIComponent(maxPoints);
-    showLoading("Exporting PointCloud...");
+        encodeURIComponent(exportPath + "video.mp4") +
+        "&topic=" +
+        encodeURIComponent(imageTopic) +
+        "&speed=" +
+        encodeURIComponent(speed) +
+        "&fps=" +
+        encodeURIComponent(fps) +
+        "&printTimestamp=" +
+        encodeURIComponent(printTimestamp);
+    showLoading("Exporting Video...");
     makeRequest("/mkdir", "path=" + encodeURIComponent(exportPath), (str) => {
-        makeRequest("/exportPointCloud", dataUrl, (str) => {
+        makeRequest("/exportVideo", dataUrl, (str) => {
             let data = JSON.parse(str);
             console.log(data);
             let label = document.getElementById("finalResultsLabel");
             let timeUsed = msToTime(new Date().getTime() - exportStartTimestamp);
             let result = "";
-            let numPoints = data.numPoints;
-            let numFiles = data.numFiles;
-            result += "Finished exporting " + numPoints + " points to " + numFiles + " files in " + timeUsed + "<br><br>";
+            let numFrames = data.numFrames;
+            result += "Finished exporting " + numFrames + " images in " + timeUsed + "<br><br>";
             let exportDetailsPath = exportPath + "results.txt";
             saveDetailedResult(result, exportDetailsPath);
             result += "A more detailed report is saved to <b>" + exportDetailsPath + "</b>";
@@ -49,8 +54,10 @@ function saveDetailedResult(summary, path) {
     let result = "";
     result += "\n======================= Summary =======================\n";
     result += summary.replaceAll("<br>", "\n").replaceAll("<b>", "").replaceAll("</b>", "");
-    result += "\nSelected pointcloud topic: " + document.getElementById("pointCloudTopicSelect").value + "\n";
-    result += "Max number of points per file: " + document.getElementById("maxPointsInput").value;
+    result += "\nSelected image topic: " + document.getElementById("imageTopicSelect").value + "\n";
+    result += "Video speed up by: " + document.getElementById("speedUpInput").value + "x\n";
+    result += "Output video FPS: " + document.getElementById("fpsInput").value + "\n";
+    result += "Timestamp included: " + (document.getElementById("printTimestampSwitch").checked ? "true" : "false") + "\n";
 
     result += "\n\n\n\n======================= Imported bags =======================\n";
     result += "file, duration, start time, end time, total # messages, size\n";

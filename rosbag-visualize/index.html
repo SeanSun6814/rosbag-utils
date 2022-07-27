@@ -80,7 +80,7 @@
                                 <select class="mdl-textfield__input" id="imageTopicSelect" name="imageTopicSelect" onchange="updateStep2Finished();">
                                     <option></option>
                                 </select>
-                                <label class="mdl-textfield__label" for="imageTopicSelect">sensor_msgs/PointCloud2</label>
+                                <label class="mdl-textfield__label" for="imageTopicSelect">sensor_msgs/Image</label>
                             </div>
                             <br /><br />
                             <h2>Speed up video</h2>
@@ -101,10 +101,28 @@
                                 </div>
                             </form>
                             <br /><br />
+                            <h2>Frames Per Second</h2>
+                            <form action="#">
+                                <h4>The FPS of the output video</h4>
+                                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                                    <input
+                                        class="mdl-textfield__input"
+                                        type="text"
+                                        pattern="[0-9]*"
+                                        id="fpsInput"
+                                        value="30"
+                                        size="10"
+                                        onchange="updateStep2Finished();"
+                                    />
+                                    <label class="mdl-textfield__label" for="fpsInput">FPS</label>
+                                    <span class="mdl-textfield__error">Input is not a positive integer!</span>
+                                </div>
+                            </form>
+                            <br /><br />
                             <h2>Include timestamp</h2>
                             <h4>Print the timestamp into the video</h4>
                             <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="printTimestampSwitch">
-                                <input type="checkbox" id="printTimestampSwitch" class="mdl-switch__input" onchange="checkEnableStandstill();" checked/>
+                                <input type="checkbox" id="printTimestampSwitch" class="mdl-switch__input" onchange="" checked />
                                 <span class="mdl-switch__label" id="printTimestampSwitchLabel">Enabled</span>
                             </label>
                         </div>
@@ -127,7 +145,8 @@
         </div>
         <div class="mdl-tooltip" data-mdl-for="addBagBtn">Import rosbag files to process</div>
         <div class="mdl-tooltip" data-mdl-for="fileTable">Click on bag to view info</div>
-        <div class="mdl-tooltip" data-mdl-for="speedUpInput">Enter "2" for 60Hz cameras</div>
+        <div class="mdl-tooltip" data-mdl-for="speedUpInput">"2" will make video 2x faster</div>
+        <div class="mdl-tooltip" data-mdl-for="fpsInput">For best results, set this to be the same as your camera framerate</div>
     </body>
     <script src="/common/utils.js"></script>
     <script src="./page1.js"></script>

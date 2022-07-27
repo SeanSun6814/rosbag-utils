@@ -2,6 +2,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from cgi import parse_header, parse_multipart
 import bagfilter
 import baglas
+import bagimg
 import urllib
 from urllib.parse import urlparse, parse_qs
 import json
@@ -80,6 +81,17 @@ class handler(BaseHTTPRequestHandler):
             topics = data[b"topics"][0].decode("utf-8")
             maxPoints = data[b"maxPoints"][0].decode("utf-8")
             result = baglas.exportPointCloud(pathIn, topics, pathOut, maxPoints)
+            res(self, 200, "json", json.dumps(result))
+
+        elif self.path.startswith("/exportVideo"):
+            print("REQUEST exportVideo")
+            pathIn = data[b"pathIn"][0].decode("utf-8")
+            pathOut = data[b"pathOut"][0].decode("utf-8")
+            topic = data[b"topic"][0].decode("utf-8")
+            speed = data[b"speed"][0].decode("utf-8")
+            fps = data[b"fps"][0].decode("utf-8")
+            printTimestamp = data[b"printTimestamp"][0].decode("utf-8")
+            result = bagimg.exportVideo(pathIn, pathOut, topic, speed, fps, printTimestamp.strip() == "true")
             res(self, 200, "json", json.dumps(result))
 
         elif self.path.startswith("/saveFile"):

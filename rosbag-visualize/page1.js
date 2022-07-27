@@ -17,7 +17,7 @@ function showFileDialog() {
                 );
             }
             showBagInfoTable(files.length - 1);
-            initPointCloudDropdown();
+            initImageDropdown();
             completedStep(1);
             hideLoading();
             checkIfBagsAreContinuous();

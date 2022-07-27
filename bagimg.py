@@ -12,8 +12,13 @@ thickness = 2
 lineType = cv2.LINE_AA
 
 
-def exportVideo(paths, pathOut, targetTopic, speed, printTimestamp):
-    bagIn = rosbag.Bag(paths)
+def exportVideo(paths, pathOut, targetTopic, speed, fps, printTimestamp):
+    speed = int(speed)
+    fps = int(fps)
+    paths = paths.split("\n")
+    print("Exporting video from " + targetTopic + " to " + pathOut)
+    print("Input bags: " + str(paths))
+
     bridge = CvBridge()
     startTime = -1
     video = None
@@ -21,39 +26,46 @@ def exportVideo(paths, pathOut, targetTopic, speed, printTimestamp):
         return str(round((time - startime) * 1e-9, 3)) + "s"
     
     frameCount = -1
-    for topic, msg, t in bagIn.read_messages(topics=[targetTopic]):
-        if startTime == -1:
-            startTime = int(str(t))
-            video = cv2.VideoWriter(pathOut, cv2.VideoWriter_fourcc(*'mp4v'), 30, (msg.width,msg.height))
-            print("Video dimensions: " + str(msg.width) + "x" + str(msg.height))
 
-        frameCount += 1
-        if frameCount % speed != 0:
+    for path in paths:
+        if path.strip() == "":
             continue
+        print("Processing " + path)
+        bagIn = rosbag.Bag(path)
+        for topic, msg, t in bagIn.read_messages(topics=[targetTopic]):
+            if startTime == -1:
+                startTime = int(str(t))
+                video = cv2.VideoWriter(pathOut, cv2.VideoWriter_fourcc(*'mp4v'), fps, (msg.width,msg.height))
+                print("Video dimensions: " + str(msg.width) + "x" + str(msg.height))
 
-        if "16UC1" in msg.encoding or "mono16" in msg.encoding:
-            cv_img = np.array(bridge.imgmsg_to_cv2(msg))
-            cv_img = (cv_img / 256).astype("uint8")
-        elif "8UC1" in msg.encoding or "mono8" in msg.encoding:
-            cv_img = np.array(bridge.imgmsg_to_cv2(msg, desired_encoding="mono8"))
-        else:
-            cv_img = np.array(bridge.imgmsg_to_cv2(msg))
+            frameCount += 1
+            if frameCount % speed != 0:
+                continue
 
-        if (printTimestamp):
-            cv2.putText(cv_img, formatTime(int(str(t)), startTime), 
-                textLocation, 
-                font, 
-                fontScale,
-                fontColor,
-                thickness,
-                lineType)
+            if "16UC1" in msg.encoding or "mono16" in msg.encoding:
+                cv_img = np.array(bridge.imgmsg_to_cv2(msg))
+                cv_img = (cv_img / 256).astype("uint8")
+            elif "8UC1" in msg.encoding or "mono8" in msg.encoding:
+                cv_img = np.array(bridge.imgmsg_to_cv2(msg, desired_encoding="mono8"))
+            else:
+                cv_img = np.array(bridge.imgmsg_to_cv2(msg))
 
-        video.write(cv_img)
-        cv2.imshow('Video preview', cv_img)
-        cv2.waitKey(1)
+            if (printTimestamp):
+                cv2.putText(cv_img, formatTime(int(str(t)), startTime), 
+                    textLocation, 
+                    font, 
+                    fontScale,
+                    fontColor,
+                    thickness,
+                    lineType)
+
+            video.write(cv_img)
+            cv2.imshow('Video preview', cv_img)
+            cv2.waitKey(1)
 
     video.release()
     cv2.destroyAllWindows()
+    return { "numFrames": frameCount }
 
 
 # exportVideo("/media/sean/SSD/thermal_data/thermal_outside.bag",
