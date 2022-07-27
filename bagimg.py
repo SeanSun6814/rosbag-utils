@@ -1,9 +1,5 @@
 import rosbag
 import json
-import yaml
-import subprocess
-import traceback
-from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
 import cv2
 import numpy as np
@@ -16,20 +12,24 @@ thickness = 2
 lineType = cv2.LINE_AA
 
 
-def formatTime(time, startime):
-    return str(round((time - startime)*1e-9, 3)) + "s"
-
 def exportVideo(paths, pathOut, targetTopic, speed, printTimestamp):
     bagIn = rosbag.Bag(paths)
     bridge = CvBridge()
     startTime = -1
     video = None
+    def formatTime(time, startime):
+        return str(round((time - startime) * 1e-9, 3)) + "s"
     
+    frameCount = -1
     for topic, msg, t in bagIn.read_messages(topics=[targetTopic]):
         if startTime == -1:
             startTime = int(str(t))
             video = cv2.VideoWriter(pathOut, cv2.VideoWriter_fourcc(*'mp4v'), 30, (msg.width,msg.height))
             print("Video dimensions: " + str(msg.width) + "x" + str(msg.height))
+
+        frameCount += 1
+        if frameCount % speed != 0:
+            continue
 
         if "16UC1" in msg.encoding or "mono16" in msg.encoding:
             cv_img = np.array(bridge.imgmsg_to_cv2(msg))
@@ -57,7 +57,7 @@ def exportVideo(paths, pathOut, targetTopic, speed, printTimestamp):
 
 
 exportVideo("/media/sean/SSD/thermal_data/thermal_outside.bag",
-           "/media/sean/SSD/thermal_data/aaa.mp4",
+           "/media/sean/SSD/thermal_data/thermal_outside.mp4",
            "/thermal/image",
-           1.0, True
+           1, True
            )
