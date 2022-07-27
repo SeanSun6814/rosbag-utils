@@ -57,19 +57,18 @@ def exportPointCloud(paths, targetTopic, outPathNoExt, maxPointsPerFile):
             continue
         print("Processing " + path)
         bagIn = rosbag.Bag(path)
-        for topic, msg, t in bagIn.read_messages():
-            if topic == targetTopic:
-                arrayTimeStart = time.time_ns()
-                for p in pc2.read_points(
-                    msg, field_names=("x", "y", "z"), skip_nans=True
-                ):
-                    arrayX.update(p[0])
-                    arrayY.update(p[1])
-                    arrayZ.update(p[2])
-                totalArrayTime += time.time_ns() - arrayTimeStart
-                if arrayX.size > maxPointsPerFile:
-                    writeToFile(arrayX, arrayY, arrayZ)
-                    arrayX, arrayY, arrayZ = createArrs()
+        for topic, msg, t in bagIn.read_messages(topics=[targetTopic]):
+            arrayTimeStart = time.time_ns()
+            for p in pc2.read_points(
+                msg, field_names=("x", "y", "z"), skip_nans=True
+            ):
+                arrayX.update(p[0])
+                arrayY.update(p[1])
+                arrayZ.update(p[2])
+            totalArrayTime += time.time_ns() - arrayTimeStart
+            if arrayX.size > maxPointsPerFile:
+                writeToFile(arrayX, arrayY, arrayZ)
+                arrayX, arrayY, arrayZ = createArrs()
 
     if arrayX.size > 0:
         writeToFile(arrayX, arrayY, arrayZ)
@@ -88,11 +87,6 @@ def exportPointCloud(paths, targetTopic, outPathNoExt, maxPointsPerFile):
 #     + "/home/sean/Documents/Github/rosbag-utils/testdata/nuc_2021-09-05-15-50-25_95.bag\n"
 #     + "/home/sean/Documents/Github/rosbag-utils/testdata/nuc_2021-09-05-15-50-57_96.bag\n",
 #     "/velodyne_cloud_registered",
-#     "/media/sean/SSD/pointcloud_all",
+#     "/media/sean/SSD/pointcloud_all_test4",
 #     50000000,
-# )
-
-# exportPointCloud(
-#     "/home/sean/Documents/Github/rosbag-utils/testdata/nuc_2021-09-05-15-50-25_95.bag",
-#     "/velodyne_cloud_registered", "/media/sean/SSD/pointcloud95"
 # )

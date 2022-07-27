@@ -55,7 +55,7 @@ def getFirstMoveTime(path, targetTopic):
     bagIn = rosbag.Bag(path)
     count = 0
     resultTime = -2
-    for topic, msg, t in bagIn.read_messages():
+    for topic, msg, t in bagIn.read_messages(topics=[targetTopic]):
         if topic == targetTopic:
             if resultTime == -2:
                 resultTime = -1
@@ -92,7 +92,7 @@ def exportBag(pathIn, pathOut, targetTopics, startTime, endTime, trajectoryTopic
     lastPos = None
     length = 0.0
     with rosbag.Bag(pathOut, "w") as bagOut:
-        for topic, msg, t in bagIn.read_messages():
+        for topic, msg, t in bagIn.read_messages(topics=targetTopics):
             timestamp = float(str(t))
             if timestamp >= startTime and timestamp <= endTime:
                 if topic in targetTopics:
