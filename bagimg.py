@@ -42,13 +42,7 @@ def exportVideo(paths, pathOut, targetTopic, speed, fps, printTimestamp):
             if frameCount % speed != 0:
                 continue
 
-            if "16UC1" in msg.encoding or "mono16" in msg.encoding:
-                cv_img = np.array(bridge.imgmsg_to_cv2(msg))
-                cv_img = (cv_img / 256).astype("uint8")
-            elif "8UC1" in msg.encoding or "mono8" in msg.encoding:
-                cv_img = np.array(bridge.imgmsg_to_cv2(msg, desired_encoding="mono8"))
-            else:
-                cv_img = np.array(bridge.imgmsg_to_cv2(msg))
+            cv_img = np.array(bridge.imgmsg_to_cv2(msg))
 
             if (printTimestamp):
                 cv2.putText(cv_img, formatTime(int(str(t)), startTime), 
