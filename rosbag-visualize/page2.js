@@ -33,3 +33,14 @@ function fpsInputIsValid() {
     let value = document.getElementById("fpsInput").value;
     return !isNaN(value) && value.trim() !== "" && parseInt(value) > 0 && value.indexOf(".") === -1;
 }
+
+function checkTimestampSwitch() {
+    let checkbox = document.getElementById("printTimestampSwitch");
+    let checkboxLabel = document.getElementById("printTimestampSwitchLabel");
+
+    if (checkbox.checked) {
+        checkboxLabel.innerHTML = `Enabled`;
+    } else {
+        checkboxLabel.innerHTML = `Disabled`;
+    }
+}
