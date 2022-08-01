@@ -135,6 +135,6 @@ class handler(BaseHTTPRequestHandler):
 
 
 def startServer():
-    print("Starting server on 127.0.0.1:8080")
+    print("Starting server on 127.0.0.1:8000")
     with HTTPServer(("127.0.0.1", 8000), handler) as server:
         server.serve_forever()
