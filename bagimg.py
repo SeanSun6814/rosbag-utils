@@ -37,12 +37,20 @@ def exportVideo(paths, pathOut, targetTopic, speed, fps, printTimestamp):
                 startTime = int(str(t))
                 video = cv2.VideoWriter(pathOut, cv2.VideoWriter_fourcc(*'mp4v'), fps, (msg.width,msg.height))
                 print("Video dimensions: " + str(msg.width) + "x" + str(msg.height))
+                print("Input encoding: ", msg.encoding)
 
             frameCount += 1
             if frameCount % speed != 0:
                 continue
 
             cv_img = np.array(bridge.imgmsg_to_cv2(msg))
+            if "16UC1" in msg.encoding or "mono16" in msg.encoding:
+                maxVal = cv_img.max()
+                minVal = cv_img.min()
+                rangeVal = maxVal - minVal
+                cv_img = ((cv_img - minVal) * 256 / rangeVal).astype("uint8")
+                cv_img = cv2.cvtColor(cv_img, cv2.COLOR_GRAY2RGB)
+
 
             if (printTimestamp):
                 cv2.putText(cv_img, formatTime(int(str(t)), startTime), 
