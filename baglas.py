@@ -63,12 +63,13 @@ def exportPointCloud(paths, targetTopic, outPathNoExt, maxPointsPerFile, collaps
                 msg, field_names=("x", "y", "z"), skip_nans=True
             ):
                 x, y, z = p[0], p[1], p[2]
-                if collapseAxis == "x": x = 0
-                elif collapseAxis == "y": y = 0
-                elif collapseAxis == "z": z = 0
                 if xMinMax != None and (x < xMinMax[0] or x > xMinMax[1]): continue
                 if yMinMax != None and (y < yMinMax[0] or y > yMinMax[1]): continue
                 if zMinMax != None and (z < zMinMax[0] or z > zMinMax[1]): continue
+                
+                if collapseAxis == "x": x = 0
+                elif collapseAxis == "y": y = 0
+                elif collapseAxis == "z": z = 0
 
                 arrayX.update(x)
                 arrayY.update(y)

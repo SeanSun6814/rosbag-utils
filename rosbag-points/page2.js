@@ -3,9 +3,9 @@ function onShowPanel2() {
 }
 
 function updateStep2Finished() {
-    if (standstillSecondsIsValid() && document.getElementById("pointCloudTopicSelect").value.trim() !== "") {
-        return completedStep(2);
-    }
+    if (standstillSecondsIsValid() && document.getElementById("pointCloudTopicSelect").value.trim() !== "")
+        if (!document.getElementById("trimPointcloudSwitch").checked || trimDataIsValid())
+            return completedStep(2);
     return completedStep(1);
 }
 
@@ -27,4 +27,21 @@ function initPointCloudDropdown() {
 function standstillSecondsIsValid() {
     let value = document.getElementById("maxPointsInput").value;
     return !isNaN(value) && value.trim() !== "";
+}
+
+function trimDataIsValid() {
+    let value;
+    value = document.getElementById("minXInput").value;
+    if (!(!isNaN(value) && value.trim() !== "")) return false;
+    value = document.getElementById("maxXInput").value;
+    if (!(!isNaN(value) && value.trim() !== "")) return false;
+    value = document.getElementById("minYInput").value;
+    if (!(!isNaN(value) && value.trim() !== "")) return false;
+    value = document.getElementById("maxYInput").value;
+    if (!(!isNaN(value) && value.trim() !== "")) return false;
+    value = document.getElementById("minZInput").value;
+    if (!(!isNaN(value) && value.trim() !== "")) return false;
+    value = document.getElementById("maxZInput").value;
+    if (!(!isNaN(value) && value.trim() !== "")) return false;
+    return true;
 }
