@@ -1,4 +1,4 @@
-function makeRequest(url, data, callback) {
+function makeRequest(url, data, callback, errorCallback) {
     let httpRequest = new XMLHttpRequest();
     if (!httpRequest) return false;
 
@@ -9,6 +9,9 @@ function makeRequest(url, data, callback) {
                 console.log("RECEIVED RESPONSE: " + httpRequest.responseText);
                 callback(httpRequest.responseText);
             } else {
+                console.log("REQUEST ERROR: " + httpRequest.status);
+                if (errorCallback !== undefined)
+                    return errorCallback(httpRequest.status);
                 showAlert(
                     "Internal Error",
                     httpRequest.responseText +

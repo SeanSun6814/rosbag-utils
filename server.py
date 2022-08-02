@@ -1,5 +1,6 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from cgi import parse_header, parse_multipart
+import multiprocessing
 import bagfilter
 import baglas
 import bagimg
@@ -9,6 +10,11 @@ import json
 import os
 import tkinter as tk
 from tkinter import filedialog
+import time
+import webbrowser
+
+maxPortNum = multiprocessing.Value("i", -1)
+portNum = -1
 
 
 class handler(BaseHTTPRequestHandler):
@@ -29,11 +35,13 @@ class handler(BaseHTTPRequestHandler):
             this.send_header(
                 "Content-Type", "application/json" if type == "json" else "text/html"
             )
+            this.send_header("Access-Control-Allow-Origin", "*")
             this.end_headers()
             this.wfile.write(bytes(msg, "utf8"))
 
         data = self.parse_POST()
         # print("Received data: " + str(data))
+        print(f"Server on port {portNum}: POST ", self.path)
 
         if self.path.startswith("/bagInfo"):
             path = data[b"path"][0].decode("utf-8")
@@ -91,7 +99,9 @@ class handler(BaseHTTPRequestHandler):
             speed = data[b"speed"][0].decode("utf-8")
             fps = data[b"fps"][0].decode("utf-8")
             printTimestamp = data[b"printTimestamp"][0].decode("utf-8")
-            result = bagimg.exportVideo(pathIn, pathOut, topic, speed, fps, printTimestamp.strip() == "true")
+            result = bagimg.exportVideo(
+                pathIn, pathOut, topic, speed, fps, printTimestamp.strip() == "true"
+            )
             res(self, 200, "json", json.dumps(result))
 
         elif self.path.startswith("/saveFile"):
@@ -110,9 +120,17 @@ class handler(BaseHTTPRequestHandler):
                 os.makedirs(path)
             res(self, 200, "json", json.dumps("Folder created!"))
 
+        elif self.path.startswith("/newWindow"):
+            print("REQUEST newWindow")
+            port = createServer(False)
+            time.sleep(1)
+            res(self, 200, "json", json.dumps({"port": port}))
+        else:
+            res(self, 200, "json", json.dumps({"Info": "Nothing here to see"}))
+
     def do_GET(self):
         root = os.getcwd()
-        # print(self.path)
+        print(f"Server on port {portNum}: GET ", self.path)
         filename = root + self.path
         if self.path.endswith("/"):
             filename += "/index.html"
@@ -134,7 +152,31 @@ class handler(BaseHTTPRequestHandler):
             self.wfile.write(html)
 
 
-def startServer(port):
+def startServer(port, maxCountValue):
+    global maxPortNum, portNum
+    maxPortNum = maxCountValue
+    portNum = port
     print("Starting server on 127.0.0.1:" + str(port))
-    with HTTPServer(("127.0.0.1", int(port)), handler) as server:
+    with HTTPServer(("127.0.0.1", port), handler) as server:
         server.serve_forever()
+
+
+def createServer(openBrowser, port=-1):
+    if port < 0:
+        if maxPortNum.value > 0:
+            port = maxPortNum.value + 1
+        else:
+            port = 8000
+
+    maxPortNum.value = max(maxPortNum.value, port)
+    multiprocessing.Process(
+        target=startServer,
+        args=(
+            port,
+            maxPortNum,
+        ),
+    ).start()
+    if openBrowser:
+        print("Opening app in browser...")
+        webbrowser.open("127.0.0.1:" + str(port))
+    return port
