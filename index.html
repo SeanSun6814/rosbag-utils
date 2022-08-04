@@ -58,7 +58,7 @@
                         style="float: left; margin: 30px">
                         <div class="mdl-card__title ply_card_background">
                             <h2 class="mdl-card__title-text">Rosbag Points &nbsp; <span
-                                    style="color: #ccc;">v2.0.0</span></h2>
+                                    style="color: #ccc;">v2.1.0</span></h2>
                         </div>
                         <div class="mdl-card__supporting-text"> Rosbag Points can help you convert the cloud points from
                             multiple rosbags to .las format. </div>
@@ -82,6 +82,8 @@
                         </div>
                     </div>
                 </div>
+                <br>
+                <p style="margin-left: 40px; color: #777;" id="about"></p>
             </div>
         </main>
     </div>
@@ -97,6 +99,8 @@
             window.open("http://127.0.0.1:" + data.port.toString(), "_blank");
         });
     }
+
+    document.getElementById("about").innerHTML = "Designed by <a href='https://seansun.org'>Sean Sun</a> &copy; " + new Date().getFullYear();
 </script>
 
 </html>
