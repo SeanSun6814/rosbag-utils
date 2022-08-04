@@ -1,12 +1,24 @@
 function onShowPanel3() {
     let label = document.getElementById("summaryLabel");
     let value = document.getElementById("pointCloudTopicSelect").value;
-    label.innerHTML = "We'll export the point clouds of <b>" + value + "</b> from " + files.length + " bag files.";
+    label.innerHTML =
+        "We'll export the point clouds of <b>" + value + "</b> from " + files.length + " bag files.";
 }
 
 function onExportButton() {
     let pointCloudTopic = document.getElementById("pointCloudTopicSelect").value;
     let maxPoints = document.getElementById("maxPointsInput").value;
+    let collapseAxis = document.getElementById("collapseAxisSwitch").checked
+        ? document.getElementById("collapseAxisSelect").value.toLowerCase()
+        : "none";
+    let xMin = document.getElementById("minXInput").value;
+    let xMax = document.getElementById("maxXInput").value;
+    let yMin = document.getElementById("minYInput").value;
+    let yMax = document.getElementById("maxYInput").value;
+    let zMin = document.getElementById("minZInput").value;
+    let zMax = document.getElementById("maxZInput").value;
+    if (!document.getElementById("trimPointcloudSwitch").checked)
+        xMin = xMax = yMin = yMax = zMin = zMax = "none";
     let exportStartTimestamp = new Date().getTime();
     let sourcePath = files[0].filename.replace(/\/[^\/]+$/, "");
     let exportPath = sourcePath + "/pointcloud_" + getDateTime() + "/";
@@ -19,10 +31,24 @@ function onExportButton() {
         encodeURIComponent(pathIn) +
         "&pathOut=" +
         encodeURIComponent(exportPath + "pointcloud") +
-        "&topics=" +
+        "&topic=" +
         encodeURIComponent(pointCloudTopic) +
         "&maxPoints=" +
-        encodeURIComponent(maxPoints);
+        encodeURIComponent(maxPoints) +
+        "&collapseAxis=" +
+        encodeURIComponent(collapseAxis) +
+        "&xMax=" +
+        encodeURIComponent(xMax) +
+        "&xMin=" +
+        encodeURIComponent(xMin) +
+        "&yMax=" +
+        encodeURIComponent(yMax) +
+        "&yMin=" +
+        encodeURIComponent(yMin) +
+        "&zMax=" +
+        encodeURIComponent(zMax) +
+        "&zMin=" +
+        encodeURIComponent(zMin);
     showLoading("Exporting PointCloud...");
     makeRequest("/mkdir", "path=" + encodeURIComponent(exportPath), (str) => {
         makeRequest("/exportPointCloud", dataUrl, (str) => {
@@ -33,11 +59,19 @@ function onExportButton() {
             let result = "";
             let numPoints = data.numPoints;
             let numFiles = data.numFiles;
-            result += "Finished exporting " + numPoints + " points to " + numFiles + " files in " + timeUsed + "<br><br>";
+            result +=
+                "Finished exporting " +
+                numPoints +
+                " points to " +
+                numFiles +
+                " files in " +
+                timeUsed +
+                "<br><br>";
             let exportDetailsPath = exportPath + "results.txt";
             saveDetailedResult(result, exportDetailsPath);
             result += "A more detailed report is saved to <b>" + exportDetailsPath + "</b>";
-            result += "<br><br><i style='color: #757575;'>This is a beta release of Rosbag Utils. Please double check the results are correct.</i>";
+            result +=
+                "<br><br><i style='color: #757575;'>This is a beta release of Rosbag Utils. Please double check the results are correct.</i>";
             label.innerHTML = result;
             completedStep(3);
             hideLoading();

@@ -45,3 +45,31 @@ function trimDataIsValid() {
     if (!(!isNaN(value) && value.trim() !== "")) return false;
     return true;
 }
+
+function checkEnableTrim() {
+    let checkbox = document.getElementById("trimPointcloudSwitch");
+    let checkboxLabel = document.getElementById("trimPointcloudSwitchLabel");
+    if (checkbox.checked) {
+        checkboxLabel.innerHTML = `Enabled`;
+        document.getElementById("minXInput").parentElement.parentElement.classList.remove("disabled");
+    } else {
+        checkboxLabel.innerHTML = `Disabled`;
+        document.getElementById("minXInput").parentElement.parentElement.classList.add("disabled");
+    }
+    if (completedStepIdx >= 1) updateStep2Finished();
+}
+
+function checkEnableAxis() {
+    let checkbox = document.getElementById("collapseAxisSwitch");
+    let checkboxLabel = document.getElementById("collapseAxisSwitchLabel");
+    if (checkbox.checked) {
+        checkboxLabel.innerHTML = `Enabled`;
+        document
+            .getElementById("collapseAxisSelect")
+            .parentElement.parentElement.classList.remove("disabled");
+    } else {
+        checkboxLabel.innerHTML = `Disabled`;
+        document.getElementById("collapseAxisSelect").parentElement.parentElement.classList.add("disabled");
+    }
+    if (completedStepIdx >= 1) updateStep2Finished();
+}

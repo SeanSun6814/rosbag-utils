@@ -85,62 +85,66 @@
                         <h4>Set all the points' specified axis value to 0 </h4>
                         <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="collapseAxisSwitch">
                             <input type="checkbox" id="collapseAxisSwitch" class="mdl-switch__input"
-                                onchange="checkTimestampSwitch();" />
+                                onchange="checkEnableAxis();" />
                             <span class="mdl-switch__label" id="collapseAxisSwitchLabel">Disabled</span>
                         </label>
-                        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                            <select class="mdl-textfield__input" id="collapseAxisSelect" name="collapseAxisSelect"
-                                onchange="updateStep2Finished();">
-                                <option>X</option>
-                                <option>Y</option>
-                                <option>Z</option>
-                            </select>
-                            <label class="mdl-textfield__label" for="collapseAxisSelect">Axis</label>
+                        <div class="disabled">
+                            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                                <select class="mdl-textfield__input" id="collapseAxisSelect" name="collapseAxisSelect"
+                                    onchange="updateStep2Finished();">
+                                    <option>X</option>
+                                    <option>Y</option>
+                                    <option>Z</option>
+                                </select>
+                                <label class="mdl-textfield__label" for="collapseAxisSelect">Axis</label>
+                            </div>
                         </div>
                         <br /><br />
                         <h2>Trim pointcloud</h2>
                         <h4>Only export the points within range</h4>
                         <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="trimPointcloudSwitch">
                             <input type="checkbox" id="trimPointcloudSwitch" class="mdl-switch__input"
-                                onchange="checkTimestampSwitch();" />
+                                onchange="checkEnableTrim();" />
                             <span class="mdl-switch__label" id="trimPointcloudSwitchLabel">Disabled</span>
                         </label>
-                        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                            <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="minXInput"
-                                value="-2147483648" size="10" onchange="updateStep2Finished();" />
-                            <label class="mdl-textfield__label" for="minXInput">X min</label>
-                            <span class="mdl-textfield__error">Input is not a number!</span>
-                        </div>
-                        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                            <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="maxXInput"
-                                value="2147483647" size="10" onchange="updateStep2Finished();" />
-                            <label class="mdl-textfield__label" for="maxXInput">X max</label>
-                            <span class="mdl-textfield__error">Input is not a number!</span>
-                        </div>
-                        <br>
-                        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                            <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="minYInput"
-                                value="-2147483648" size="10" onchange="updateStep2Finished();" />
-                            <label class="mdl-textfield__label" for="minYInput">Y min</label>
-                            <span class="mdl-textfield__error">Input is not a number!</span>
-                        </div>
-                        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                            <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="maxYInput"
-                                value="2147483647" size="10" onchange="updateStep2Finished();" />
-                            <label class="mdl-textfield__label" for="maxYInput">Y max</label>
-                            <span class="mdl-textfield__error">Input is not a number!</span>
-                        </div><br>
-                        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                            <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="minZInput"
-                                value="-2147483648" size="10" onchange="updateStep2Finished();" />
-                            <label class="mdl-textfield__label" for="minZInput">Z min</label>
-                            <span class="mdl-textfield__error">Input is not a number!</span>
-                        </div>
-                        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                            <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="maxZInput"
-                                value="2147483647" size="10" onchange="updateStep2Finished();" />
-                            <label class="mdl-textfield__label" for="maxZInput">Z max</label>
-                            <span class="mdl-textfield__error">Input is not a number!</span>
+                        <div class="disabled">
+                            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                                <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?"
+                                    id="minXInput" value="-1000000000" size="10" onchange="updateStep2Finished();" />
+                                <label class="mdl-textfield__label" for="minXInput">X min</label>
+                                <span class="mdl-textfield__error">Input is not a number!</span>
+                            </div>
+                            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                                <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?"
+                                    id="maxXInput" value="1000000000" size="10" onchange="updateStep2Finished();" />
+                                <label class="mdl-textfield__label" for="maxXInput">X max</label>
+                                <span class="mdl-textfield__error">Input is not a number!</span>
+                            </div>
+                            <br>
+                            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                                <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?"
+                                    id="minYInput" value="-1000000000" size="10" onchange="updateStep2Finished();" />
+                                <label class="mdl-textfield__label" for="minYInput">Y min</label>
+                                <span class="mdl-textfield__error">Input is not a number!</span>
+                            </div>
+                            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                                <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?"
+                                    id="maxYInput" value="1000000000" size="10" onchange="updateStep2Finished();" />
+                                <label class="mdl-textfield__label" for="maxYInput">Y max</label>
+                                <span class="mdl-textfield__error">Input is not a number!</span>
+                            </div><br>
+                            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                                <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?"
+                                    id="minZInput" value="-1000000000" size="10" onchange="updateStep2Finished();" />
+                                <label class="mdl-textfield__label" for="minZInput">Z min</label>
+                                <span class="mdl-textfield__error">Input is not a number!</span>
+                            </div>
+                            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                                <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?"
+                                    id="maxZInput" value="1000000000" size="10" onchange="updateStep2Finished();" />
+                                <label class="mdl-textfield__label" for="maxZInput">Z max</label>
+                                <span class="mdl-textfield__error">Input is not a number!</span>
+                            </div>
                         </div>
                         <br /><br />
                         <h2>Split output into multiple files</h2>

@@ -86,9 +86,33 @@ class handler(BaseHTTPRequestHandler):
             print("REQUEST exportPointCloud")
             pathIn = data[b"pathIn"][0].decode("utf-8")
             pathOut = data[b"pathOut"][0].decode("utf-8")
-            topics = data[b"topics"][0].decode("utf-8")
+            topic = data[b"topic"][0].decode("utf-8")
             maxPoints = data[b"maxPoints"][0].decode("utf-8")
-            result = baglas.exportPointCloud(pathIn, topics, pathOut, maxPoints)
+            collapseAxis = data[b"collapseAxis"][0].decode("utf-8")
+            xMax = data[b"xMax"][0].decode("utf-8")
+            xMin = data[b"xMin"][0].decode("utf-8")
+            yMax = data[b"yMax"][0].decode("utf-8")
+            yMin = data[b"yMin"][0].decode("utf-8")
+            zMax = data[b"zMax"][0].decode("utf-8")
+            zMin = data[b"zMin"][0].decode("utf-8")
+
+            xMinMax, yMinMax, zMinMax = None, None, None
+            if xMax != "none" and xMin != "none":
+                xMinMax = (float(xMin), float(xMax))
+            if yMax != "none" and yMin != "none":
+                yMinMax = (float(yMin), float(yMax))
+            if zMax != "none" and zMin != "none":
+                zMinMax = (float(zMin), float(zMax))
+            result = baglas.exportPointCloud(
+                pathIn,
+                topic,
+                pathOut,
+                maxPoints,
+                collapseAxis,
+                xMinMax,
+                yMinMax,
+                zMinMax,
+            )
             res(self, 200, "json", json.dumps(result))
 
         elif self.path.startswith("/exportVideo"):

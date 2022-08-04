@@ -9,8 +9,6 @@ from std_msgs.msg import String
 from random import randrange
 
 
-
-
 def writeIMUAngles(topic, msg, t, bagOut):
     def quaternion_to_euler_angle_vectorized1(w, x, y, z):
         ysqr = y * y
@@ -61,7 +59,7 @@ def exportBag(pathIn, pathOut, targetTopics, startTime, endTime):
     endTime = float(endTime) * 1e9
 
     bagIn = rosbag.Bag(pathIn)
-    dt = rospy.Duration(1, 0 * 30 * 1e6)
+    dt = rospy.Duration(0, 45 * 1e6)
     with rosbag.Bag(pathOut, "w") as bagOut:
         for topic, msg, t in bagIn.read_messages():
             timestamp = float(str(t))
@@ -74,16 +72,18 @@ def exportBag(pathIn, pathOut, targetTopics, startTime, endTime):
                     bagOut.write("/imu_delayed/data", msg, t + dt)
                     writeIMUAngles("/imu/", msg, t, bagOut)
                     writeIMUAngles("/imu_delayed/", msg, t + dt, bagOut)
-                
-                elif topic == "/inverted_image":
-                    rndNum = randrange(16) - 8
-                    dt = rospy.Duration(0, rndNum * 1e6)
-                    bagOut.write("/inverted_image", msg, t + dt)
+
+                elif topic == "/cmu_rc3/imu/data":
+                    bagOut.write("/imu/data", msg, t)
+                    bagOut.write("/imu_delayed/data", msg, t + dt)
+                    writeIMUAngles("/imu/", msg, t, bagOut)
+                    writeIMUAngles("/imu_delayed/", msg, t + dt, bagOut)
 
             elif timestamp > endTime:
                 break
 
     print("Finished export bag")
+
 
 # exportBag(
 #     "/home/sean/Documents/Github/rosbag-utils/testdata/2022-07-21-15-04-32.bag",
@@ -93,10 +93,18 @@ def exportBag(pathIn, pathOut, targetTopics, startTime, endTime):
 #     "16584303310",
 # )
 
+# exportBag(
+#     "/mnt/e/thermal_data/thermal_test/2018-01-28-11-19-26.bag",
+#     "/mnt/e/thermal_data/thermal_test/thermal_test_delayed_45ms.bag",
+#     "/thermal/image",
+#     "0",
+#     "26584303310",
+# )
+
 exportBag(
-    "/media/sean/SSD/thermal_data/test1/test1.bag",
-    "/media/sean/SSD/thermal_data/test1/test1_delayed_imgrnd.bag",
-    "/inverted_image111",
+    "/mnt/e/multi_sensor_2022-07-29/run_0/big/2022-08-03-13-28-22.bag",
+    "/mnt/e/multi_sensor_2022-07-29/run_0/big/delayed45ms.bag",
+    "/thermal/image",
     "0",
-    "16584303310",
+    "26584303310",
 )
