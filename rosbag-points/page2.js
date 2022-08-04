@@ -5,7 +5,7 @@ function onShowPanel2() {
 function updateStep2Finished() {
     if (standstillSecondsIsValid() && document.getElementById("pointCloudTopicSelect").value.trim() !== "")
         if (!document.getElementById("trimPointcloudSwitch").checked || trimDataIsValid())
-            return completedStep(2);
+            if (speedUpInputIsValid()) return completedStep(2);
     return completedStep(1);
 }
 
@@ -72,4 +72,9 @@ function checkEnableAxis() {
         document.getElementById("collapseAxisSelect").parentElement.parentElement.classList.add("disabled");
     }
     if (completedStepIdx >= 1) updateStep2Finished();
+}
+
+function speedUpInputIsValid() {
+    let value = document.getElementById("speedUpInput").value;
+    return !isNaN(value) && value.trim() !== "" && parseInt(value) > 0 && value.indexOf(".") === -1;
 }

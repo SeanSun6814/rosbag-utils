@@ -147,6 +147,16 @@
                             </div>
                         </div>
                         <br /><br />
+                        <h2>Downsample pointcloud</h2>
+                        <form action="#">
+                            <h4>Only include one frame for every how many frames</h4>
+                            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                                <input class="mdl-textfield__input" type="text" pattern="[0-9]*" id="speedUpInput"
+                                    value="1" size="10" onchange="updateStep2Finished();" />
+                                <label class="mdl-textfield__label" for="speedUpInput">Downsample ratio</label>
+                                <span class="mdl-textfield__error">Input is not a positive integer!</span>
+                            </div>
+                        </form><br /><br />
                         <h2>Split output into multiple files</h2>
                         <form action="#">
                             <h4>Max number of points per file</h4>

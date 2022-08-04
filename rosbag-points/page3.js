@@ -8,6 +8,7 @@ function onShowPanel3() {
 function onExportButton() {
     let pointCloudTopic = document.getElementById("pointCloudTopicSelect").value;
     let maxPoints = document.getElementById("maxPointsInput").value;
+    let speed = document.getElementById("speedUpInput").value;
     let collapseAxis = document.getElementById("collapseAxisSwitch").checked
         ? document.getElementById("collapseAxisSelect").value.toLowerCase()
         : "none";
@@ -35,6 +36,8 @@ function onExportButton() {
         encodeURIComponent(pointCloudTopic) +
         "&maxPoints=" +
         encodeURIComponent(maxPoints) +
+        "&speed=" +
+        encodeURIComponent(speed) +
         "&collapseAxis=" +
         encodeURIComponent(collapseAxis) +
         "&xMax=" +
@@ -84,9 +87,27 @@ function saveDetailedResult(summary, path) {
     result += "\n======================= Summary =======================\n";
     result += summary.replaceAll("<br>", "\n").replaceAll("<b>", "").replaceAll("</b>", "");
     result += "\nSelected pointcloud topic: " + document.getElementById("pointCloudTopicSelect").value + "\n";
-    result += "Max number of points per file: " + document.getElementById("maxPointsInput").value;
+    result += "Max number of points per file: " + document.getElementById("maxPointsInput").value + "\n";
 
-    result += "\n\n\n\n======================= Imported bags =======================\n";
+    let speed = document.getElementById("speedUpInput").value;
+    let collapseAxis = document.getElementById("collapseAxisSwitch").checked
+        ? document.getElementById("collapseAxisSelect").value.toLowerCase()
+        : "none";
+    let xMin = document.getElementById("minXInput").value;
+    let xMax = document.getElementById("maxXInput").value;
+    let yMin = document.getElementById("minYInput").value;
+    let yMax = document.getElementById("maxYInput").value;
+    let zMin = document.getElementById("minZInput").value;
+    let zMax = document.getElementById("maxZInput").value;
+    if (!document.getElementById("trimPointcloudSwitch").checked)
+        xMin = xMax = yMin = yMax = zMin = zMax = "none";
+    result += "Collapse-axis: " + collapseAxis + "\n";
+    result += "Include one frame every how many frames: " + speed + "\n";
+    result += "Trim pointcloud in the X direction: " + xMin + " to " + xMax + "\n";
+    result += "Trim pointcloud in the Y direction: " + yMin + " to " + yMax + "\n";
+    result += "Trim pointcloud in the Z direction: " + zMin + " to " + zMax + "\n";
+
+    result += "\n\n\n======================= Imported bags =======================\n";
     result += "file, duration, start time, end time, total # messages, size\n";
     for (let idx = 0; idx < files.length; idx++) {
         result +=

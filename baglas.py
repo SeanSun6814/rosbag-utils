@@ -33,12 +33,14 @@ def exportPointCloud(
     outPathNoExt,
     maxPointsPerFile,
     collapseAxis,
+    speed,
     xMinMax,
     yMinMax,
     zMinMax,
 ):
     outFileCount = 0
     totalNumPoints = 0
+    speed = int(speed)
 
     def writeToFile(arrayX, arrayY, arrayZ):
         nonlocal outFileCount, totalNumPoints
@@ -63,12 +65,17 @@ def exportPointCloud(
     arrayX, arrayY, arrayZ = createArrs()
     startTime = time.time_ns()
     totalArrayTime = 0
+    count = -1
     for path in paths:
         if path.strip() == "":
             continue
         print("Processing " + path)
         bagIn = rosbag.Bag(path)
         for topic, msg, t in bagIn.read_messages(topics=[targetTopic]):
+            count += 1
+            if count % speed != 0:
+                continue
+
             arrayTimeStart = time.time_ns()
             for p in pc2.read_points(msg, field_names=("x", "y", "z"), skip_nans=True):
                 x, y, z = p[0], p[1], p[2]

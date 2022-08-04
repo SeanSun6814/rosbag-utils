@@ -89,6 +89,7 @@ class handler(BaseHTTPRequestHandler):
             topic = data[b"topic"][0].decode("utf-8")
             maxPoints = data[b"maxPoints"][0].decode("utf-8")
             collapseAxis = data[b"collapseAxis"][0].decode("utf-8")
+            speed = data[b"speed"][0].decode("utf-8")
             xMax = data[b"xMax"][0].decode("utf-8")
             xMin = data[b"xMin"][0].decode("utf-8")
             yMax = data[b"yMax"][0].decode("utf-8")
@@ -109,6 +110,7 @@ class handler(BaseHTTPRequestHandler):
                 pathOut,
                 maxPoints,
                 collapseAxis,
+                speed,
                 xMinMax,
                 yMinMax,
                 zMinMax,
