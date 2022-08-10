@@ -66,6 +66,6 @@ Coming soon...
 
 -   Batch processing
 
-## Support & Warrenty
+## Support & Warranty
 
 lmao
