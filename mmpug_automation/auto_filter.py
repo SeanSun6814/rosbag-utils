@@ -1,5 +1,7 @@
+import re
+from turtle import st
 import rosbag
-import json
+from datetime import datetime
 import yaml
 import subprocess
 import traceback
@@ -24,7 +26,7 @@ TF_TOPIC = "/tf"
 RGB_IMAGE_TOPIC = "/" + MMPUG_SYSTEM_ID + "/camera_1/image_raw" # front camera
 THERMAL_IMAGE_TOPIC = "/thermal/image" # thermal camera
 
-def getBagInfoJson(path):
+def getBagInfo(path):
     try:
         print("Getting rosbag info for " + path)
         info_dict = yaml.load(subprocess.Popen(['rosbag', 'info', '--yaml', path], stdout=subprocess.PIPE).communicate()[0], Loader=yaml.FullLoader)
@@ -56,7 +58,7 @@ def getBagInfoJson(path):
         print("Get bag info ERROR: ")
         traceback.print_exc()
     print("Finished getting bag info")
-    return json.dumps(info)
+    return info
 
 def getFirstMoveTime(path, targetTopic):
     print("Getting first move time on " + targetTopic + " for " + path)
@@ -163,6 +165,91 @@ def select_folders():
         dirs.append(d)
     return dirs
 
+def process_a_run(current_run):
+    global MMPUG_SYSTEM_ID
+    global ODOMETRY_TOPIC
+    global ALT_ODOMETRY_TOPIC
+    global IMU_TOPIC
+    global REGISTERED_POINTS_TOPIC
+    global ALT_REGISTERED_POINTS_TOPIC
+    global RAW_POINTS_TOPIC
+    global TF_TOPIC
+    global RGB_IMAGE_TOPIC
+    global THERMAL_IMAGE_TOPIC
+    print("Processing run " + current_run)
+    bags_location = os.path.join(current_run, "bags")
+    bag_files = extract_bag_files(bags_location)
+    if len(bag_files) == 0:
+        print("No bag file found in " + bags_location)
+        return None
+    MMPUG_SYSTEM_ID = extract_system_id(bag_files[0])
+    if MMPUG_SYSTEM_ID == "":
+        print("Failed to extract system id from bag file " + bag_files[0])
+        return None
+    print("System id: " + MMPUG_SYSTEM_ID)
+    # define the topics to filter:
+    ODOMETRY_TOPIC = "/" + MMPUG_SYSTEM_ID + "/aft_mapped_to_init_imu"
+    ALT_ODOMETRY_TOPIC = "/" + MMPUG_SYSTEM_ID + "/aft_mapped_to_init"
+
+    IMU_TOPIC = "/" + MMPUG_SYSTEM_ID + "/imu/data"
+
+    REGISTERED_POINTS_TOPIC = "/" + MMPUG_SYSTEM_ID + "/velodyne_cloud_registered_imu"
+    ALT_REGISTERED_POINTS_TOPIC = "/" + MMPUG_SYSTEM_ID + "/velodyne_cloud_registered"
+
+    RAW_POINTS_TOPIC = "/" + MMPUG_SYSTEM_ID + "/velodyne_packets"
+
+    TF_TOPIC = "/tf"
+
+    RGB_IMAGE_TOPIC = "/" + MMPUG_SYSTEM_ID + "/camera_1/image_raw"
+    THERMAL_IMAGE_TOPIC = "/" + MMPUG_SYSTEM_ID + "/camera_2/image_raw"
+
+    is_start_move = True
+    run_export_dir = os.path.join(current_run, "export_"+datetime.datetime.now().strftime("%Y%m%d_%H%M%S"))
+    last_pos = [0, 0, 0, 0, 0]
+    for current_bag in bag_files:
+        print("Processing bag file " + current_bag)
+        use_alt = False
+        current_bag_info = getBagInfo(current_bag)
+        if current_bag_info is None:    
+            print("Failed to get bag info from " + current_bag)
+            continue
+    
+        # find the start time of the move
+        if not is_start_move:
+            current_start_time = getFirstMoveTime(current_bag, ODOMETRY_TOPIC)
+            if current_start_time == -2:
+                use_alt = True
+                current_start_time = getFirstMoveTime(current_bag, ALT_ODOMETRY_TOPIC)
+                if current_start_time == -2:
+                    print("No odometry topic in " + current_bag)
+                    continue
+            elif current_start_time == -1:
+                print("No movement in " + current_bag)
+                continue
+            else:
+                is_start_move = True
+                current_bag_info["start_time"] = current_start_time
+
+        # setup all parameters for the current bag
+        current_export_path = os.path.join(run_export_dir, os.path.basename(current_bag)+"_processed")
+        current_target_topics = [ODOMETRY_TOPIC, IMU_TOPIC, REGISTERED_POINTS_TOPIC, RAW_POINTS_TOPIC, TF_TOPIC, RGB_IMAGE_TOPIC, THERMAL_IMAGE_TOPIC]
+        if use_alt:
+            current_target_topics = [ALT_ODOMETRY_TOPIC, IMU_TOPIC, ALT_REGISTERED_POINTS_TOPIC, RAW_POINTS_TOPIC, TF_TOPIC, RGB_IMAGE_TOPIC, THERMAL_IMAGE_TOPIC]
+        # export the bag
+        last_pos = exportBag(current_bag, current_export_path, current_target_topics, current_bag_info["start_time"], current_bag_info["end_time"])
+        print("Finished processing bag file " + current_bag)
+    print("Finished processing run " + current_run)
+    return last_pos
+        
+def process_payload(payload_dir):
+    all_runs = []
+    for root, dirs, files in os.walk(payload_dir):
+        for d in dirs:
+            all_runs.append(os.path.join(root, d))
+    for current_run in all_runs:
+        process_a_run(current_run)
+    return
+
 def main():
     global MMPUG_SYSTEM_ID
     global ODOMETRY_TOPIC
@@ -177,35 +264,16 @@ def main():
 
     # get system id from command line
     folders = select_folders()
+
     if len(folders) == 0:
         print("No folder selected")
         return
-    for folder in folders:
-        print("Processing folder " + folder)
-        bag_files = extract_bag_files(folder)
-        if len(bag_files) == 0:
-            print("No bag file found in " + folder)
-            continue
-        MMPUG_SYSTEM_ID = extract_system_id(bag_files[0])
-        if MMPUG_SYSTEM_ID == "":
-            print("Failed to extract system id from bag file " + bag_files[0])
-            continue
-        print("System id: " + MMPUG_SYSTEM_ID)
-        # define the topics to filter:
-        ODOMETRY_TOPIC = "/" + MMPUG_SYSTEM_ID + "/aft_mapped_to_init_imu"
-        ALT_ODOMETRY_TOPIC = "/" + MMPUG_SYSTEM_ID + "/aft_mapped_to_init"
+    for payload_dir in folders:
+        print("Processing folder " + payload_dir)
+        process_payload(payload_dir)
+        print("Finished processing folder " + payload_dir)
+    return
 
-        IMU_TOPIC = "/" + MMPUG_SYSTEM_ID + "/imu/data"
-
-        REGISTERED_POINTS_TOPIC = "/" + MMPUG_SYSTEM_ID + "/velodyne_cloud_registered_imu"
-        ALT_REGISTERED_POINTS_TOPIC = "/" + MMPUG_SYSTEM_ID + "/velodyne_cloud_registered"
-
-        RAW_POINTS_TOPIC = "/" + MMPUG_SYSTEM_ID + "/velodyne_packets"
-
-        TF_TOPIC = "/tf"
-
-        RGB_IMAGE_TOPIC = "/" + MMPUG_SYSTEM_ID + "/camera_1/image_raw"
-        
 if __name__ == "__main__":
     main()
 
