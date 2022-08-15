@@ -26,42 +26,46 @@ _Tested on Ubuntu 20.04 with Python3, ROS Noetic, and Google Chrome._
 
 ### Tutorial
 
-[video](https://drive.google.com/file/d/1CQdt6Wb7p-Y6IWatlXA0cpNmh8SU0kE1/view?usp=sharing)
+Coming soon...
 
-## Features
+## Rosbag Filter
 
 -   Filter topics from rosbags
 
--   Batch processing
-
 -   Calculate trajectory length
+
+-   Crop bag between specified time intervals
 
 -   Auto crop blank space at the beginning of rosbags
 
-## Change log
+-   Batch processing
 
-### 1.1.0
+## Rosbag Points
 
--   Added more output file information
--   Added non-continuous input file detection
+-   Exports pointcloud messages to `.las` files
 
-### 1.2.0
+-   Auto split las files into specified sizes
 
--   Importing bag files is now much, _much_ faster
+-   Downsample pointcloud
 
-### 1.3.0
+-   Flatten pointcloud into 2 dimensions
 
--   Supports manually specifying cropping timestamps
+-   Trim cloud based on x, y, z limits
 
+-   Batch processing
 
-### 1.4.0
+## Rosbag Visualize
 
-- Auto cropping defaults to include entire bag if topic is not found
-- Exports will be in a new, separate directory.
-- Cropping bug fixed: corner case of if the auto cropping topic is not found, it will display a negative start time
-- Cropping bug fixed: corner case of user manually changes cropping time of skipped bag
-- Bug fixed where empty bags will break the info api call and cause internal error
+-   Export 8-bit and 16-bit color and mono images to mp4 video
 
-### 1.4.1
+-   Speed up video by specified amount
 
-- Minor UI bugs fixed which are related to `Treat as one run` and the completion of step 3 
+-   Print timestamp into video
+
+-   Custom video fps
+
+-   Batch processing
+
+## Support & Warranty
+
+lmao
