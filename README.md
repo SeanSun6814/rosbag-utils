@@ -18,7 +18,7 @@
 ### Installation
 
 1. Clone this repo
-2. `pip3 install pylas`
+2. `pip3 install laspy`
 3. `python3 app.py`
 4. _Alternatively:_ `python3 app.py -n -p 8000 8001 8002` to open three instances of rosbag utils and don't automatically launch browser
 

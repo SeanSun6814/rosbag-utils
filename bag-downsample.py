@@ -1,10 +1,4 @@
 import rosbag
-import rospy
-import json
-import yaml
-import subprocess
-import traceback
-import numpy as np
 from std_msgs.msg import String
 from random import randrange
 
@@ -40,27 +34,11 @@ def exportBag(pathIn, pathOut, targetTopics):
                     bagOut.write("/camera_4/image_raw_500", msg, t)
                 count4 += 1
 
-    print("Finished export bag")
+    print("Finished exporting bag")
 
-
-# exportBag(
-#     "/home/sean/Documents/Github/rosbag-utils/testdata/2022-07-21-15-04-32.bag",
-#     "/home/sean/Documents/Github/rosbag-utils/testdata/2022-07-21-15-04-32_out.bag",
-#     "/thermal/image",
-#     "0",
-#     "16584303310",
-# )
-
-# exportBag(
-#     "/mnt/e/thermal_data/thermal_test/2018-01-28-11-19-26.bag",
-#     "/mnt/e/thermal_data/thermal_test/thermal_test_delayed_45ms.bag",
-#     "/thermal/image",
-#     "0",
-#     "26584303310",
-# )
 
 exportBag(
-    "/media/sean/SSD/360cam/g360_calib/test1.bag",
-    "/media/sean/SSD/360cam/g360_calib/test1_downsampled.bag",
+    "/mnt/f/360cam/g360_calib/test1.bag",
+    "/mnt/f/360cam/g360_calib/test1_downsampled1.bag",
     "/thermal/image /imu/data /camera_4/image_raw /camera_5/image_raw"
 )
