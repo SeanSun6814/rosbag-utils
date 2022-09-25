@@ -27,6 +27,10 @@ class FastArr:
         return self.data[: self.size]
 
 
+def dist3d(pos1, pos2):
+    return ((pos1[0] - pos2[0]) ** 2 + (pos1[1] - pos2[1]) ** 2 + (pos1[2] - pos2[2]) ** 2) ** 0.5
+
+
 def exportPointCloud(
     paths,
     targetTopic,
@@ -37,6 +41,8 @@ def exportPointCloud(
     xMinMax,
     yMinMax,
     zMinMax,
+    odomStatsTopic,
+    odomPosTopic,
 ):
     outFileCount = 0
     totalNumPoints = 0
@@ -71,12 +77,22 @@ def exportPointCloud(
     startTime = time.time_ns()
     totalArrayTime = 0
     count = -1
+    color_variable = 1
+    position_variable = (0, 0, 0)
     for path in paths:
         if path.strip() == "":
             continue
         print("Processing " + path)
         bagIn = rosbag.Bag(path)
-        for topic, msg, t in bagIn.read_messages(topics=[targetTopic]):
+        for topic, msg, t in bagIn.read_messages(topics=[targetTopic, odomStatsTopic, odomPosTopic]):
+
+            if topic == odomStatsTopic:
+                color_variable = 1 - msg.uncertainty_x
+                continue
+            elif topic == odomPosTopic:
+                position_variable = (msg.pose.pose.position.x, msg.pose.pose.position.y, msg.pose.pose.position.z)
+                continue
+
             count += 1
             if count % speed != 0:
                 continue
@@ -98,19 +114,37 @@ def exportPointCloud(
                 elif collapseAxis == "z":
                     z = 0
 
-                # arrayX.update(x)
-                # arrayY.update(y)
-                # arrayZ.update(z)
+                #####################  CONFIG  #####################
+                USE_IMU = True
+                USE_INVERT_FOR_WHITE_BACKGROUND = True
+                USE_DISCARD_RADIUS = 3
+                r_value = color_variable
+                g_value = 1 - color_variable
+                b_value = 0
+                ####################################################
 
-                # If data is not in _imu format:
-                arrayX.update(x)
-                arrayY.update(z)
-                arrayZ.update(y)
+                if dist3d((x, y, z), position_variable) > USE_DISCARD_RADIUS:
+                    continue
 
-                arrayR.update(255 * 256)
-                arrayG.update(127 * 256)
-                arrayB.update(80 * 256)
                 arrayT.update(int(str(t)))
+
+                if USE_IMU:
+                    arrayX.update(x)
+                    arrayY.update(y)
+                    arrayZ.update(z)
+                else:
+                    arrayX.update(x)
+                    arrayY.update(z)
+                    arrayZ.update(y)
+
+                if USE_INVERT_FOR_WHITE_BACKGROUND:
+                    r_value = 1 - r_value
+                    g_value = 1 - g_value
+                    b_value = 1 - b_value
+
+                arrayR.update(r_value * 65535)
+                arrayG.update(g_value * 65535)
+                arrayB.update(b_value * 65535)
 
             totalArrayTime += time.time_ns() - arrayTimeStart
             if arrayX.size > maxPointsPerFile:
@@ -128,13 +162,17 @@ def exportPointCloud(
 
 
 exportPointCloud(
-    "/mnt/f/_Datasets/tepper_snow/core_2022-03-12-07-47-23_8.bag\n",
-    "/cmu_sp1/velodyne_cloud_registered",
-    "/mnt/f/test_pointcloud",
-    500000000,
+    "/mnt/f/_Datasets/long_corridor/core_2018-01-28-11-32-32_0.bag\n"
+    + "/mnt/f/_Datasets/long_corridor/core_2018-01-28-11-34-59_1.bag\n"
+    + "/mnt/f/_Datasets/long_corridor/core_2018-01-28-11-37-23_2.bag\n",
+    "/cmu_rc2/velodyne_cloud_registered_imu",
+    "/mnt/f/long_corridor_uncertainty_white_3m",
+    1e12,
     "none",
-    5,
+    1,
     None,
     None,
     None,
+    "/cmu_rc2/super_odometry_stats",
+    "/cmu_rc2/aft_mapped_to_init_imu",
 )
