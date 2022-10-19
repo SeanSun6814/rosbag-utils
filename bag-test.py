@@ -42,16 +42,7 @@ def writeIMUAngles(topic, msg, t, bagOut):
 
 
 def exportBag(pathIn, pathOut, targetTopics, startTime, endTime):
-    print(
-        "Processing bag "
-        + pathIn
-        + " -> "
-        + pathOut
-        + " for time range "
-        + startTime
-        + "-"
-        + endTime
-    )
+    print("Processing bag " + pathIn + " -> " + pathOut + " for time range " + startTime + "-" + endTime)
     targetTopics = targetTopics.split(" ")
     print("Including topics: " + str(targetTopics))
 

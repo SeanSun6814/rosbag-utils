@@ -4,12 +4,7 @@ from random import randrange
 
 
 def exportBag(pathIn, pathOut, targetTopics):
-    print(
-        "Processing bag "
-        + pathIn
-        + " -> "
-        + pathOut
-    )
+    print("Processing bag " + pathIn + " -> " + pathOut)
     targetTopics = targetTopics.split(" ")
     print("Including topics: " + str(targetTopics))
 
@@ -40,5 +35,5 @@ def exportBag(pathIn, pathOut, targetTopics):
 exportBag(
     "/mnt/f/360cam/g360_calib/test1.bag",
     "/mnt/f/360cam/g360_calib/test1_downsampled1.bag",
-    "/thermal/image /imu/data /camera_4/image_raw /camera_5/image_raw"
+    "/thermal/image /imu/data /camera_4/image_raw /camera_5/image_raw",
 )

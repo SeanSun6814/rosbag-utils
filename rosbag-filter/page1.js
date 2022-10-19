@@ -41,7 +41,8 @@ function showFileDialog() {
                 if (count === numFiles) {
                     generateTable();
                 } else {
-                    document.getElementById("swal2-title").innerHTML = "Opening " + (count + 1) + "/" + numFiles + "...";
+                    document.getElementById("swal2-title").innerHTML =
+                        "Opening " + (count + 1) + "/" + numFiles + "...";
                     count++;
                 }
             }
@@ -68,7 +69,12 @@ function showBagInfoTable(idx) {
 
     let info = files[idx].info.topics;
     for (let topic in info) {
-        addToTable(table, [topic, info[topic][0], info[topic][1], info[topic][3] == null ? 0 : info[topic][3]]);
+        addToTable(table, [
+            topic,
+            info[topic][0],
+            info[topic][1],
+            info[topic][3] == null ? 0 : info[topic][3],
+        ]);
     }
 }
 
@@ -79,13 +85,15 @@ function checkIfBagsAreContinuous() {
     for (let fileIdx = 1; fileIdx < files.length; fileIdx++) {
         let startTime = files[fileIdx].info.start;
         if (Math.abs(startTime - prevEndTime) > 1) {
-            result += `Bag #${fileIdx} ends at time ${prevEndTime}<br>` + `but bag #${fileIdx + 1} starts at time ${startTime}<br><br>`;
+            result +=
+                `Bag #${fileIdx} ends at time ${prevEndTime}<br>` +
+                `but bag #${fileIdx + 1} starts at time ${startTime}<br><br>`;
         }
         prevEndTime = files[fileIdx].info.end;
     }
 
     if (result !== "") {
-        result += "<br>If that is intended, please ignore this warning."
+        result += "<br>If that is intended, please ignore this warning.";
         showAlert("Bags are not continuous", result, "warning", "Got it", () => {});
     }
 }

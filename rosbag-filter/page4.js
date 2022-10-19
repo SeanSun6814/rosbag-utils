@@ -1,7 +1,14 @@
 function onShowPanel4() {
     updateSelectedTopics();
     let label = document.getElementById("summaryLabel");
-    label.innerHTML = "We'll export " + selectedTopics.length + "/" + combinedTopics.length + " topics from " + files.length + " bag files.";
+    label.innerHTML =
+        "We'll export " +
+        selectedTopics.length +
+        "/" +
+        combinedTopics.length +
+        " topics from " +
+        files.length +
+        " bag files.";
 }
 
 function updateSelectedTopics() {
@@ -67,7 +74,13 @@ function onExportButton() {
                         if (!foundLastPos && info.t > 0) {
                             foundLastPos = true;
                             tmpResult =
-                                "The final trajectory position: <b>(" + round2(info.x) + ", " + round2(info.y) + ", " + round2(info.z) + ")</b><br>";
+                                "The final trajectory position: <b>(" +
+                                round2(info.x) +
+                                ", " +
+                                round2(info.y) +
+                                ", " +
+                                round2(info.z) +
+                                ")</b><br>";
                         }
                     }
                     result += "Total trajectory length: <b>" + round2(totalTrajectoryLength) + "</b><br><br>";
@@ -76,7 +89,8 @@ function onExportButton() {
                 let exportDetailsPath = exportPath + "results.txt";
                 saveDetailedResult(result, exportDetailsPath);
                 result += "A more detailed report for each bag is saved to <b>" + exportDetailsPath + "</b>";
-                result += "<br><br> <i>This is a beta release of Rosbag Utils. Please double check the results are correct.</i>";
+                result +=
+                    "<br><br> <i>This is a beta release of Rosbag Utils. Please double check the results are correct.</i>";
                 label.innerHTML = result;
             }
 
@@ -94,14 +108,19 @@ function onExportButton() {
                         outFiles[fileIdx].info = bagInfo;
                         count++;
                         if (count !== totalFiles) {
-                            document.getElementById("swal2-title").innerHTML = "Finishing up " + (count + 1) + "/" + totalFiles + "...";
+                            document.getElementById("swal2-title").innerHTML =
+                                "Finishing up " + (count + 1) + "/" + totalFiles + "...";
                         } else {
                             showFinalResults();
                             hideLoading();
                             completedStep(4);
                         }
                     }
-                    makeRequest("/bagInfo", "path=" + encodeURIComponent(outFiles[idx].filename), finishOutFileInfo);
+                    makeRequest(
+                        "/bagInfo",
+                        "path=" + encodeURIComponent(outFiles[idx].filename),
+                        finishOutFileInfo
+                    );
                 }
                 showLoading("Finishing up 1/" + totalFiles + "...");
             }
@@ -119,7 +138,8 @@ function onExportButton() {
                 }
                 count++;
                 if (count !== files.length) {
-                    document.getElementById("swal2-title").innerHTML = "Exporting " + (count + 1) + "/" + files.length + "...";
+                    document.getElementById("swal2-title").innerHTML =
+                        "Exporting " + (count + 1) + "/" + files.length + "...";
                 } else {
                     getOutFileInfo();
                 }
@@ -142,7 +162,6 @@ function onExportButton() {
         }
     });
 }
-
 
 function saveDetailedResult(summary, path) {
     let result = "";
@@ -169,7 +188,15 @@ function saveDetailedResult(summary, path) {
     result += "\n\n\n\n======================= All topics among bags =======================\n";
     result += "file, topic type, total # messages, appeared in # bags\n";
     for (let idx = 0; idx < combinedTopics.length; idx++) {
-        result += combinedTopics[idx][0] + ", " + combinedTopics[idx][1] + ", " + combinedTopics[idx][2] + ", " + combinedTopics[idx][3] + "\n";
+        result +=
+            combinedTopics[idx][0] +
+            ", " +
+            combinedTopics[idx][1] +
+            ", " +
+            combinedTopics[idx][2] +
+            ", " +
+            combinedTopics[idx][3] +
+            "\n";
     }
 
     result += "\n\n\n\n======================= Selected topics =======================\n";
@@ -230,7 +257,19 @@ function saveDetailedResult(summary, path) {
         for (let idx = 0; idx < outFiles.length; idx++) {
             let info = outFiles[idx].trajectory;
             if (info.t > 0) {
-                result += files[idx].filename + ", " + info.t + ", " + info.x + ", " + info.y + ", " + info.z + ", " + info.l + "\n";
+                result +=
+                    files[idx].filename +
+                    ", " +
+                    info.t +
+                    ", " +
+                    info.x +
+                    ", " +
+                    info.y +
+                    ", " +
+                    info.z +
+                    ", " +
+                    info.l +
+                    "\n";
             } else {
                 result += "Bag skipped or trajectory topic not found.\n";
             }
@@ -260,7 +299,17 @@ function saveDetailedResult(summary, path) {
                 cropFrom = round2(cropFrom) + "s";
                 cropTo = round2(cropTo) + "s";
             }
-            result += files[idx].filename + ", " + files[idx].info.duration + ", " + startMoving + ", " + cropFrom + ", " + cropTo + "\n";
+            result +=
+                files[idx].filename +
+                ", " +
+                files[idx].info.duration +
+                ", " +
+                startMoving +
+                ", " +
+                cropFrom +
+                ", " +
+                cropTo +
+                "\n";
         }
     } else {
         result += "Disabled\n";

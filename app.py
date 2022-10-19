@@ -4,9 +4,7 @@ import argparse
 import time
 
 parser = argparse.ArgumentParser(description="Rosbag Utils")
-parser.add_argument(
-    "-n", "--no_browser", action="store_true", help="Don't open browser by default."
-)
+parser.add_argument("-n", "--no_browser", action="store_true", help="Don't open browser by default.")
 parser.add_argument(
     "-p",
     "--ports",
