@@ -8,9 +8,8 @@ window.onload = function () {
 function showPanel(panelIdx) {
     for (let i = 1; i < 4; i++) {
         document.getElementById("panel" + i).style.display = panelIdx === i ? "block" : "none";
-        if (i > 0)
-            document.getElementById("nav" + i).style.backgroundColor =
-                panelIdx === i ? "rgb(224, 224, 224)" : "rgb(250, 250, 250)";
+        document.getElementById("nav" + i).style.backgroundColor =
+            panelIdx === i ? "rgb(224, 224, 224)" : "rgb(250, 250, 250)";
     }
     if (panelIdx - 1 > completedStepIdx) {
         return showAlert(
