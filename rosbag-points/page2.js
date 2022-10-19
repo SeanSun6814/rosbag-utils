@@ -3,7 +3,7 @@ function onShowPanel2() {
 }
 
 function updateStep2Finished() {
-    if (standstillSecondsIsValid() && document.getElementById("pointCloudTopicSelect").value.trim() !== "")
+    if (maxPointsIsValid() && document.getElementById("pointCloudTopicSelect").value.trim() !== "")
         if (!document.getElementById("trimPointcloudSwitch").checked || trimDataIsValid())
             if (speedUpInputIsValid()) return completedStep(2);
     return completedStep(1);
@@ -24,7 +24,7 @@ function initPointCloudDropdown() {
     document.getElementById("pointCloudTopicSelect").innerHTML = result;
 }
 
-function standstillSecondsIsValid() {
+function maxPointsIsValid() {
     let value = document.getElementById("maxPointsInput").value;
     return !isNaN(value) && value.trim() !== "";
 }

@@ -85,26 +85,10 @@ def exportBag(pathIn, pathOut, targetTopics, startTime, endTime):
     print("Finished export bag")
 
 
-# exportBag(
-#     "/home/sean/Documents/Github/rosbag-utils/testdata/2022-07-21-15-04-32.bag",
-#     "/home/sean/Documents/Github/rosbag-utils/testdata/2022-07-21-15-04-32_out.bag",
-#     "/thermal/image",
-#     "0",
-#     "16584303310",
-# )
-
-# exportBag(
-#     "/mnt/e/thermal_data/thermal_test/2018-01-28-11-19-26.bag",
-#     "/mnt/e/thermal_data/thermal_test/thermal_test_delayed_45ms.bag",
-#     "/thermal/image",
-#     "0",
-#     "26584303310",
-# )
-
 exportBag(
     "/mnt/e/multi_sensor_2022-07-29/run_0/big/2022-08-03-13-28-22.bag",
     "/mnt/e/multi_sensor_2022-07-29/run_0/big/delayed45ms.bag",
     "/thermal/image",
     "0",
-    "26584303310",
+    "26000000000000",
 )

@@ -3,7 +3,12 @@ function onShowPanel2() {
 }
 
 function updateStep2Finished() {
-    if (speedUpInputIsValid() && fpsInputIsValid && document.getElementById("imageTopicSelect").value.trim() !== "") {
+    if (
+        brightnessInputIsValid() &&
+        speedUpInputIsValid() &&
+        fpsInputIsValid &&
+        document.getElementById("imageTopicSelect").value.trim() !== ""
+    ) {
         return completedStep(2);
     }
     return completedStep(1);
@@ -29,18 +34,39 @@ function speedUpInputIsValid() {
     return !isNaN(value) && value.trim() !== "" && parseInt(value) > 0 && value.indexOf(".") === -1;
 }
 
+function brightnessInputIsValid() {
+    let value = document.getElementById("minBrightness").value;
+    if (!(!isNaN(value) && value.trim() !== "" && parseInt(value) >= 0 && value.indexOf(".") === -1))
+        return false;
+    value = document.getElementById("maxBrightness").value;
+    return !isNaN(value) && value.trim() !== "" && parseInt(value) >= 0 && value.indexOf(".") === -1;
+}
+
 function fpsInputIsValid() {
     let value = document.getElementById("fpsInput").value;
     return !isNaN(value) && value.trim() !== "" && parseInt(value) > 0 && value.indexOf(".") === -1;
 }
 
-function checkTimestampSwitch() {
-    let checkbox = document.getElementById("printTimestampSwitch");
-    let checkboxLabel = document.getElementById("printTimestampSwitchLabel");
+function checkInvertedSwitch() {
+    let checkbox = document.getElementById("invertImageSwitch");
+    let checkboxLabel = document.getElementById("invertImageSwitchLabel");
 
     if (checkbox.checked) {
         checkboxLabel.innerHTML = `Enabled`;
     } else {
         checkboxLabel.innerHTML = `Disabled`;
     }
+}
+
+function checkEnableBrightnessRange() {
+    let checkbox = document.getElementById("BrightnessRangeSwitch");
+    let checkboxLabel = document.getElementById("BrightnessRangeSwitchLabel");
+    if (checkbox.checked) {
+        checkboxLabel.innerHTML = `Enabled`;
+        document.getElementById("minBrightness").parentElement.parentElement.classList.remove("disabled");
+    } else {
+        checkboxLabel.innerHTML = `Disabled`;
+        document.getElementById("minBrightness").parentElement.parentElement.classList.add("disabled");
+    }
+    if (completedStepIdx >= 1) updateStep2Finished();
 }

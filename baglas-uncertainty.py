@@ -3,6 +3,7 @@ import sensor_msgs.point_cloud2 as pc2
 import numpy as np
 import laspy
 import time
+import csv
 
 
 class FastArr:
@@ -43,12 +44,13 @@ def exportPointCloud(
     zMinMax,
     odomStatsTopic,
     odomPosTopic,
+    colorCsvFile,
 ):
     outFileCount = 0
     totalNumPoints = 0
     speed = int(speed)
 
-    def writeToFile(arrayX, arrayY, arrayZ, arrayT, arrayR, arrayG, arrayB):
+    def writeToFile(arrayX, arrayY, arrayZ, arrayT, arrayR, arrayG, arrayB, arrayI):
         nonlocal outFileCount, totalNumPoints
         totalNumPoints += arrayX.size
         filename = outPathNoExt + "_" + str(outFileCount) + ".las"
@@ -61,24 +63,34 @@ def exportPointCloud(
         lasData.red = arrayR.finalize()
         lasData.green = arrayG.finalize()
         lasData.blue = arrayB.finalize()
+        lasData.intensity = arrayI.finalize()
         lasData.gps_time = arrayT.finalize()
         lasData.write(filename)
         outFileCount += 1
 
     def createArrs():
-        return FastArr(), FastArr(), FastArr(), FastArr(), FastArr(), FastArr(), FastArr()
+        return FastArr(), FastArr(), FastArr(), FastArr(), FastArr(), FastArr(), FastArr(), FastArr()
 
     maxPointsPerFile = int(maxPointsPerFile)
     paths = paths.split("\n")
     print("Exporting point cloud from " + targetTopic + " to " + outPathNoExt)
 
     print("Input bags: " + str(paths))
-    arrayX, arrayY, arrayZ, arrayT, arrayR, arrayG, arrayB = createArrs()
+    arrayX, arrayY, arrayZ, arrayT, arrayR, arrayG, arrayB, arrayI = createArrs()
     startTime = time.time_ns()
     totalArrayTime = 0
     count = -1
     color_variable = 1
     position_variable = (0, 0, 0)
+    color_variable_csv = []
+    color_variable_idx = 0
+    if colorCsvFile != "":
+        print("Using csv file: " + colorCsvFile)
+        with open(colorCsvFile) as csv_file:
+            csv_reader = csv.reader(csv_file, delimiter=",")
+            for row in csv_reader:
+                color_variable_csv.append([float(row[0]), float(row[1])])
+
     for path in paths:
         if path.strip() == "":
             continue
@@ -87,19 +99,25 @@ def exportPointCloud(
         for topic, msg, t in bagIn.read_messages(topics=[targetTopic, odomStatsTopic, odomPosTopic]):
 
             if topic == odomStatsTopic:
-                color_variable = 1 - msg.uncertainty_x
+                color_variable = msg.uncertainty_x
                 continue
             elif topic == odomPosTopic:
                 position_variable = (msg.pose.pose.position.x, msg.pose.pose.position.y, msg.pose.pose.position.z)
                 continue
+
+            if colorCsvFile != "":
+                while color_variable_idx + 1 < len(color_variable_csv) and color_variable_csv[color_variable_idx + 1][0] < int(str(t)):
+                    color_variable_idx += 1
+                color_variable = color_variable_csv[color_variable_idx][1]
 
             count += 1
             if count % speed != 0:
                 continue
 
             arrayTimeStart = time.time_ns()
-            for p in pc2.read_points(msg, field_names=("x", "y", "z"), skip_nans=True):
-                x, y, z = p[0], p[1], p[2]
+            for p in pc2.read_points(msg, skip_nans=True):
+                x, y, z, intensity = p[0], p[1], p[2], p[3]
+                print("intensity:", intensity)
                 if xMinMax != None and (x < xMinMax[0] or x > xMinMax[1]):
                     continue
                 if yMinMax != None and (y < yMinMax[0] or y > yMinMax[1]):
@@ -116,10 +134,10 @@ def exportPointCloud(
 
                 #####################  CONFIG  #####################
                 USE_IMU = True
-                USE_INVERT_FOR_WHITE_BACKGROUND = True
-                USE_DISCARD_RADIUS = 3
-                r_value = color_variable
-                g_value = 1 - color_variable
+                USE_INVERT_FOR_WHITE_BACKGROUND = False
+                USE_DISCARD_RADIUS = 6
+                r_value = 1 - color_variable
+                g_value = color_variable
                 b_value = 0
                 ####################################################
 
@@ -127,6 +145,7 @@ def exportPointCloud(
                     continue
 
                 arrayT.update(int(str(t)))
+                arrayI.update(intensity)
 
                 if USE_IMU:
                     arrayX.update(x)
@@ -148,11 +167,11 @@ def exportPointCloud(
 
             totalArrayTime += time.time_ns() - arrayTimeStart
             if arrayX.size > maxPointsPerFile:
-                writeToFile(arrayX, arrayY, arrayZ, arrayT, arrayR, arrayG, arrayB)
-                arrayX, arrayY, arrayZ, arrayT, arrayR, arrayG, arrayB = createArrs()
+                writeToFile(arrayX, arrayY, arrayZ, arrayT, arrayR, arrayG, arrayB, arrayI)
+                arrayX, arrayY, arrayZ, arrayT, arrayR, arrayG, arrayB, arrayI = createArrs()
 
     if arrayX.size > 0:
-        writeToFile(arrayX, arrayY, arrayZ, arrayT, arrayR, arrayG, arrayB)
+        writeToFile(arrayX, arrayY, arrayZ, arrayT, arrayR, arrayG, arrayB, arrayI)
 
     print("Total points: " + str(totalNumPoints))
     endTime = time.time_ns()
@@ -162,17 +181,21 @@ def exportPointCloud(
 
 
 exportPointCloud(
-    "/mnt/f/_Datasets/long_corridor/core_2018-01-28-11-32-32_0.bag\n"
-    + "/mnt/f/_Datasets/long_corridor/core_2018-01-28-11-34-59_1.bag\n"
-    + "/mnt/f/_Datasets/long_corridor/core_2018-01-28-11-37-23_2.bag\n",
-    "/cmu_rc2/velodyne_cloud_registered_imu",
-    "/mnt/f/long_corridor_uncertainty_white_3m",
+    # "/mnt/f/_Datasets/long_corridor/core_2018-01-28-11-32-32_0.bag\n"+
+    #  "/mnt/f/_Datasets/long_corridor/core_2018-01-28-11-34-59_1.bag\n"+
+    # "/mnt/f/_Datasets/long_corridor/core_2018-01-28-11-37-23_2.bag\n",
+    # "/mnt/f/_Datasets/tepper_snow/core_2022-03-12-07-26-57_0.bag",
+    # "/mnt/f/_Datasets/2022-08-18_spot_multi_floor/run_4/bags/core_2022-08-18-17-16-31_0.bag",
+    "/mnt/c/Users/Sean/Downloads/2022-10-05-12-55-18.bag",
+    "/velodyne_cloud_registered_imu",
+    "/mnt/f/long_corridor_uncertainty_intens_rad6_3m_smooth40_not",
     1e12,
     "none",
     1,
     None,
     None,
     None,
-    "/cmu_rc2/super_odometry_stats",
-    "/cmu_rc2/aft_mapped_to_init_imu",
+    "NOT/cmu_sp1/super_odometry_stats",
+    "/cmu_sp1/aft_mapped_to_init_imu",
+    "/mnt/f/long_corridor_uncertainty_40.csv",
 )

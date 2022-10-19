@@ -1,162 +1,179 @@
 <html>
-    <head>
-        <title>Rosbag Visualize</title>
-        <script src="/lib/mdl/material.min.js"></script>
-        <link rel="stylesheet" href="/lib/mdl/material.min.css" />
-        <link rel="stylesheet" href="/lib/mdl/material-icons.css" />
-        <script src="/lib/swal/sweetalert2.all.min.js"></script>
-        <link rel="stylesheet" href="/lib/font-awesome-4.7.0/css/font-awesome.min.css" />
-        <link rel="stylesheet" href="/common/style.css" />
-        <link rel="stylesheet" href="./style.css" />
-    </head>
 
-    <body>
-        <div class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer">
-            <div class="mdl-layout__drawer">
-                <span class="mdl-layout-title"
-                    ><a href="/" style="text-decoration: none; color: #424242"><b>Rosbag Visualize</b></a></span
-                >
-                <nav class="mdl-navigation">
-                    <a id="nav1" class="mdl-navigation__link" href="javascript:void(0);" onclick="showPanel(1);"> </a>
-                    <a id="nav2" class="mdl-navigation__link" href="javascript:void(0);" onclick="showPanel(2);"> </a>
-                    <a id="nav3" class="mdl-navigation__link" href="javascript:void(0);" onclick="showPanel(3);"> </a>
-                </nav>
-            </div>
-            <main class="mdl-layout__content">
-                <div class="page-content">
-                    <div id="panel1" style="display: none">
-                        <div class="row">
-                            <div class="column">
-                                <div class="" style="top: 10%">
-                                    <h2>Import files</h2>
-                                    <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
-                                        <thead>
-                                            <tr>
-                                                <th class="mdl-data-table__cell--non-numeric">#</th>
-                                                <th class="mdl-data-table__cell--non-numeric">Files</th>
-                                                <th class="mdl-data-table__cell--non-numeric">Duration</th>
-                                                <th class="mdl-data-table__cell--non-numeric">Size</th>
-                                                <th class="mdl-data-table__cell--non-numeric">Messages</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="fileTable"></tbody>
-                                    </table>
-                                    <br /><br />
-                                    <button
-                                        id="addBagBtn"
-                                        class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect"
-                                        onclick="showFileDialog();"
-                                    >
-                                        Add files
-                                    </button>
-                                    <br /><br /><br />
-                                </div>
-                            </div>
-                            <div class="column">
-                                <div class="" style="top: 10%">
-                                    <h2>Bag info</h2>
-                                    <p id="bagName"></p>
-                                    <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
-                                        <thead>
-                                            <tr>
-                                                <th class="mdl-data-table__cell--non-numeric">Topic</th>
-                                                <th class="mdl-data-table__cell--non-numeric">Type</th>
-                                                <th class="mdl-data-table__cell--non-numeric">Messages</th>
-                                                <th class="mdl-data-table__cell--non-numeric">Frequency</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="bagInfoTable"></tbody>
-                                    </table>
-                                    <br /><br /><br /><br />
-                                </div>
+<head>
+    <title>Rosbag Visualize</title>
+    <script src="/lib/mdl/material.min.js"></script>
+    <link rel="stylesheet" href="/lib/mdl/material.min.css" />
+    <link rel="stylesheet" href="/lib/mdl/material-icons.css" />
+    <script src="/lib/swal/sweetalert2.all.min.js"></script>
+    <link rel="stylesheet" href="/lib/font-awesome-4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="/common/style.css" />
+    <link rel="stylesheet" href="./style.css" />
+</head>
+
+<body>
+    <div class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer">
+        <div class="mdl-layout__drawer">
+            <span class="mdl-layout-title"><a href="/" style="text-decoration: none; color: #424242"><b>Rosbag
+                        Visualize</b></a></span>
+            <nav class="mdl-navigation">
+                <a id="nav1" class="mdl-navigation__link" href="javascript:void(0);" onclick="showPanel(1);"> </a>
+                <a id="nav2" class="mdl-navigation__link" href="javascript:void(0);" onclick="showPanel(2);"> </a>
+                <a id="nav3" class="mdl-navigation__link" href="javascript:void(0);" onclick="showPanel(3);"> </a>
+            </nav>
+        </div>
+        <main class="mdl-layout__content">
+            <div class="page-content">
+                <div id="panel1" style="display: none">
+                    <div class="row">
+                        <div class="column">
+                            <div class="" style="top: 10%">
+                                <h2>Import files</h2>
+                                <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
+                                    <thead>
+                                        <tr>
+                                            <th class="mdl-data-table__cell--non-numeric">#</th>
+                                            <th class="mdl-data-table__cell--non-numeric">Files</th>
+                                            <th class="mdl-data-table__cell--non-numeric">Duration</th>
+                                            <th class="mdl-data-table__cell--non-numeric">Size</th>
+                                            <th class="mdl-data-table__cell--non-numeric">Messages</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="fileTable"></tbody>
+                                </table>
+                                <br /><br />
+                                <button id="addBagBtn"
+                                    class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect"
+                                    onclick="showFileDialog();"> Add files </button>
+                                <br /><br /><br />
                             </div>
                         </div>
-                    </div>
-                    <div id="panel2" style="display: none">
-                        <div style="top: 10%; padding-left: 7%">
-                            <h2>Select topic</h2>
-                            <h4>Which topic to generate video</h4>
-                            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                                <select class="mdl-textfield__input" id="imageTopicSelect" name="imageTopicSelect" onchange="updateStep2Finished();">
-                                    <option></option>
-                                </select>
-                                <label class="mdl-textfield__label" for="imageTopicSelect">sensor_msgs/Image</label>
+                        <div class="column">
+                            <div class="" style="top: 10%">
+                                <h2>Bag info</h2>
+                                <p id="bagName"></p>
+                                <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
+                                    <thead>
+                                        <tr>
+                                            <th class="mdl-data-table__cell--non-numeric">Topic</th>
+                                            <th class="mdl-data-table__cell--non-numeric">Type</th>
+                                            <th class="mdl-data-table__cell--non-numeric">Messages</th>
+                                            <th class="mdl-data-table__cell--non-numeric">Frequency</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="bagInfoTable"></tbody>
+                                </table>
+                                <br /><br /><br /><br />
                             </div>
-                            <br /><br />
-                            <h2>Video speed</h2>
-                            <form action="#">
-                                <h4>Speed up video by how many times</h4>
-                                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                                    <input
-                                        class="mdl-textfield__input"
-                                        type="text"
-                                        pattern="[0-9]*"
-                                        id="speedUpInput"
-                                        value="1"
-                                        size="10"
-                                        onchange="updateStep2Finished();"
-                                    />
-                                    <label class="mdl-textfield__label" for="speedUpInput">Speed up</label>
-                                    <span class="mdl-textfield__error">Input is not a positive integer!</span>
-                                </div>
-                            </form>
-                            <br /><br />
-                            <h2>Frames Per Second</h2>
-                            <form action="#">
-                                <h4>The FPS of the output video</h4>
-                                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                                    <input
-                                        class="mdl-textfield__input"
-                                        type="text"
-                                        pattern="[0-9]*"
-                                        id="fpsInput"
-                                        value="30"
-                                        size="10"
-                                        onchange="updateStep2Finished();"
-                                    />
-                                    <label class="mdl-textfield__label" for="fpsInput">FPS</label>
-                                    <span class="mdl-textfield__error">Input is not a positive integer!</span>
-                                </div>
-                            </form>
-                            <br /><br />
-                            <h2>Include timestamp</h2>
-                            <h4>Print the timestamp into the video</h4>
-                            <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="printTimestampSwitch">
-                                <input
-                                    type="checkbox"
-                                    id="printTimestampSwitch"
-                                    class="mdl-switch__input"
-                                    onchange="checkTimestampSwitch();"
-                                    checked
-                                />
-                                <span class="mdl-switch__label" id="printTimestampSwitchLabel">Enabled</span>
-                            </label>
-                        </div>
-                    </div>
-                    <div id="panel3" style="display: none">
-                        <div class="" style="top: 10%; padding-left: 7%">
-                            <h2>Summary</h2>
-                            <h4 id="summaryLabel"></h4>
-                            <br />
-                            <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect" onclick="onExportButton()">
-                                Start export
-                            </button>
-                            <br /><br />
-                            <h4 id="finalResultsLabel"></h4>
-                            <br /><br /><br /><br />
                         </div>
                     </div>
                 </div>
-            </main>
-        </div>
-        <div class="mdl-tooltip" data-mdl-for="addBagBtn">Import rosbag files to process</div>
-        <div class="mdl-tooltip" data-mdl-for="fileTable">Click on bag to view info</div>
-        <div class="mdl-tooltip" data-mdl-for="speedUpInput">"2" will make video 2x faster</div>
-        <div class="mdl-tooltip" data-mdl-for="fpsInput">For best results, set this to be the same as your camera framerate</div>
-    </body>
-    <script src="/common/utils.js"></script>
-    <script src="./page1.js"></script>
-    <script src="./page2.js"></script>
-    <script src="./page3.js"></script>
-    <script src="./script.js"></script>
+                <div id="panel2" style="display: none">
+                    <div style="top: 10%; padding-left: 7%">
+                        <h2>Select topic</h2>
+                        <h4>Which topic to generate video</h4>
+                        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                            <select class="mdl-textfield__input" id="imageTopicSelect" name="imageTopicSelect"
+                                onchange="updateStep2Finished();">
+                                <option></option>
+                            </select>
+                            <label class="mdl-textfield__label" for="imageTopicSelect">sensor_msgs/Image</label>
+                        </div>
+                        <br /><br />
+                        <h2>Video speed</h2>
+                        <form action="#">
+                            <h4>Speed up video by how many times</h4>
+                            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                                <input class="mdl-textfield__input" type="text" pattern="[0-9]*" id="speedUpInput"
+                                    value="1" size="10" onchange="updateStep2Finished();" />
+                                <label class="mdl-textfield__label" for="speedUpInput">Speed up</label>
+                                <span class="mdl-textfield__error">Input is not a positive integer!</span>
+                            </div>
+                        </form>
+                        <br /><br />
+                        <h2>Frames Per Second</h2>
+                        <form action="#">
+                            <h4>The FPS of the output video</h4>
+                            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                                <input class="mdl-textfield__input" type="text" pattern="[0-9]*" id="fpsInput"
+                                    value="30" size="10" onchange="updateStep2Finished();" />
+                                <label class="mdl-textfield__label" for="fpsInput">FPS</label>
+                                <span class="mdl-textfield__error">Input is not a positive integer!</span>
+                            </div>
+                        </form>
+                        <br><br>
+                        <h2>Invert Image</h2>
+                        <h4>Invert the colors in the video</h4>
+                        <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="invertImageSwitch">
+                            <input type="checkbox" id="invertImageSwitch" class="mdl-switch__input"
+                                onchange="checkInvertedSwitch();" />
+                            <span class="mdl-switch__label" id="invertImageSwitchLabel">Disabled</span>
+                        </label>
+                        <br><br><br>
+                        <h2>Include timestamp</h2>
+                        <h4>Print the timestamp into the video</h4>
+                        <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="printSecondSwitch">
+                            <input type="checkbox" id="printSecondSwitch" class="mdl-switch__input" onchange=""
+                                checked />
+                            <span class="mdl-switch__label" id="printSecondSwitchLabel">Display Seconds</span>
+                        </label>
+                        <br><br>
+                        <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="printTimestampSwitch">
+                            <input type="checkbox" id="printTimestampSwitch" class="mdl-switch__input" onchange="" />
+                            <span class="mdl-switch__label" id="printTimestampSwitchLabel">Display ROS Timestamp</span>
+                        </label>
+                        <br><br><br>
+                        <h2>Brightness Range <i>(16-bit only)</i></h2>
+                        <h4>Manually specify the brightness range of the 16-bit image to display</h4>
+                        <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="BrightnessRangeSwitch">
+                            <input type="checkbox" id="BrightnessRangeSwitch" class="mdl-switch__input"
+                                onchange="checkEnableBrightnessRange();" />
+                            <span class="mdl-switch__label" id="BrightnessRangeSwitchLabel">Disabled</span>
+                        </label>
+                        <br><br>
+                        <div class="disabled">
+                            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                                <input class="mdl-textfield__input" type="text" pattern="[0-9]+" id="minBrightness"
+                                    value="0" size="10" onchange="updateStep2Finished();" />
+                                <label class="mdl-textfield__label" for="minBrightness">min brightness</label>
+                                <span class="mdl-textfield__error">Input is not a positive integer!</span>
+                            </div>
+                            <br>
+                            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                                <input class="mdl-textfield__input" type="text" pattern="[0-9]+" id="maxBrightness"
+                                    value="65535" size="10" onchange="updateStep2Finished();" />
+                                <label class="mdl-textfield__label" for="maxBrightness">max brightness</label>
+                                <span class="mdl-textfield__error">Input is not a positive integer!</span>
+                            </div>
+                        </div>
+                        <br><br><br><br>
+                    </div>
+                </div>
+                <div id="panel3" style="display: none">
+                    <div class="" style="top: 10%; padding-left: 7%">
+                        <h2>Summary</h2>
+                        <h4 id="summaryLabel"></h4>
+                        <br />
+                        <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect"
+                            onclick="onExportButton()"> Start export </button>
+                        <br /><br />
+                        <h4 id="finalResultsLabel"></h4>
+                        <br /><br /><br /><br />
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <div class="mdl-tooltip" data-mdl-for="addBagBtn">Import rosbag files to process</div>
+    <div class="mdl-tooltip" data-mdl-for="fileTable">Click on bag to view info</div>
+    <div class="mdl-tooltip" data-mdl-for="speedUpInput">"2" will make video 2x faster</div>
+    <div class="mdl-tooltip" data-mdl-for="fpsInput">For best results, set this to be the same as your camera framerate
+    </div>
+</body>
+<script src="/common/utils.js"></script>
+<script src="./page1.js"></script>
+<script src="./page2.js"></script>
+<script src="./page3.js"></script>
+<script src="./script.js"></script>
+
 </html>

@@ -32,9 +32,7 @@ class handler(BaseHTTPRequestHandler):
     def do_POST(self):
         def res(this, code, type, msg):
             this.send_response(code)
-            this.send_header(
-                "Content-Type", "application/json" if type == "json" else "text/html"
-            )
+            this.send_header("Content-Type", "application/json" if type == "json" else "text/html")
             this.send_header("Access-Control-Allow-Origin", "*")
             this.end_headers()
             this.wfile.write(bytes(msg, "utf8"))
@@ -77,9 +75,7 @@ class handler(BaseHTTPRequestHandler):
             startTime = data[b"startTime"][0].decode("utf-8")
             endTime = data[b"endTime"][0].decode("utf-8")
             trajectoryTopic = data[b"trajectoryTopic"][0].decode("utf-8")
-            result = bagfilter.exportBag(
-                pathIn, pathOut, topics, startTime, endTime, trajectoryTopic
-            )
+            result = bagfilter.exportBag(pathIn, pathOut, topics, startTime, endTime, trajectoryTopic)
             res(self, 200, "json", json.dumps(result))
 
         elif self.path.startswith("/exportPointCloud"):
@@ -125,9 +121,13 @@ class handler(BaseHTTPRequestHandler):
             speed = data[b"speed"][0].decode("utf-8")
             fps = data[b"fps"][0].decode("utf-8")
             printTimestamp = data[b"printTimestamp"][0].decode("utf-8")
-            result = bagimg.exportVideo(
-                pathIn, pathOut, topic, speed, fps, printTimestamp.strip() == "true"
-            )
+            invertImage = data[b"invertImage"][0].decode("utf-8") == "true"
+            minFor16Bit = data[b"minBrightness"][0].decode("utf-8")
+            maxFor16Bit = data[b"maxBrightness"][0].decode("utf-8")
+            rangeFor16Bit = None
+            if minFor16Bit.strip() != "" and maxFor16Bit.strip() != "":
+                rangeFor16Bit = (int(minFor16Bit), int(maxFor16Bit))
+            result = bagimg.exportVideo(pathIn, pathOut, topic, speed, fps, printTimestamp, invertImage, rangeFor16Bit)
             res(self, 200, "json", json.dumps(result))
 
         elif self.path.startswith("/saveFile"):
