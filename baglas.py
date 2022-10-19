@@ -3,6 +3,7 @@ import sensor_msgs.point_cloud2 as pc2
 import numpy as np
 import laspy
 import time
+import os
 
 
 class FastArr:
@@ -38,10 +39,6 @@ def exportPointCloud(
     yMinMax,
     zMinMax,
 ):
-    outFileCount = 0
-    totalNumPoints = 0
-    speed = int(speed)
-
     def writeToFile(arrayX, arrayY, arrayZ, arrayT):
         nonlocal outFileCount, totalNumPoints
         totalNumPoints += arrayX.size
@@ -57,9 +54,14 @@ def exportPointCloud(
         outFileCount += 1
 
     maxPointsPerFile = int(maxPointsPerFile)
+    outFileCount = 0
+    totalNumPoints = 0
+    speed = int(speed)
     paths = paths.split("\n")
+    paths = list(filter(lambda path: path.strip() != "", paths))
+    outPathNoExt += os.path.basename(os.path.splitext(paths[0])[0])
+    outPathNoExt += (" (and " + str(len(paths) - 1) + " more)") if len(paths) > 1 else ""
     print("Exporting point cloud from " + targetTopic + " to " + outPathNoExt)
-
     print("Input bags: " + str(paths))
     arrayX, arrayY, arrayZ, arrayT = FastArr(), FastArr(), FastArr(), FastArr()
     startTime = time.time_ns()

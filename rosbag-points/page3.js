@@ -31,7 +31,7 @@ function onExportButton() {
         "pathIn=" +
         encodeURIComponent(pathIn) +
         "&pathOut=" +
-        encodeURIComponent(exportPath + "pointcloud") +
+        encodeURIComponent(exportPath) +
         "&topic=" +
         encodeURIComponent(pointCloudTopic) +
         "&maxPoints=" +
