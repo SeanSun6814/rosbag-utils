@@ -39,7 +39,7 @@ def exportPointCloud(
     yMinMax,
     zMinMax,
 ):
-    def writeToFile(arrayX, arrayY, arrayZ, arrayT):
+    def writeToFile(arrayX, arrayY, arrayZ, arrayT, arrayR, arrayG, arrayB):
         nonlocal outFileCount, totalNumPoints
         totalNumPoints += arrayX.size
         filename = outPathNoExt + "_" + str(outFileCount) + ".las"
@@ -50,8 +50,15 @@ def exportPointCloud(
         lasData.y = arrayY.finalize()
         lasData.z = arrayZ.finalize()
         lasData.gps_time = arrayT.finalize()
+        if arrayR.size > 0 and arrayG.size > 0 and arrayB.size > 0:
+            lasData.red = arrayR.finalize()
+            lasData.green = arrayG.finalize()
+            lasData.blue = arrayB.finalize()
         lasData.write(filename)
         outFileCount += 1
+
+    def createArrs():
+        return FastArr(), FastArr(), FastArr(), FastArr(), FastArr(), FastArr(), FastArr()
 
     maxPointsPerFile = int(maxPointsPerFile)
     outFileCount = 0
@@ -63,7 +70,8 @@ def exportPointCloud(
     outPathNoExt += (" (and " + str(len(paths) - 1) + " more)") if len(paths) > 1 else ""
     print("Exporting point cloud from " + targetTopic + " to " + outPathNoExt)
     print("Input bags: " + str(paths))
-    arrayX, arrayY, arrayZ, arrayT = FastArr(), FastArr(), FastArr(), FastArr()
+
+    arrayX, arrayY, arrayZ, arrayT, arrayR, arrayG, arrayB = createArrs()
     startTime = time.time_ns()
     totalArrayTime = 0
     count = -1
@@ -78,8 +86,17 @@ def exportPointCloud(
                 continue
 
             arrayTimeStart = time.time_ns()
-            for p in pc2.read_points(msg, field_names=("x", "y", "z"), skip_nans=True):
+            for p in pc2.read_points(msg, field_names=("x", "y", "z", "rgba"), skip_nans=True):
                 x, y, z = p[0], p[1], p[2]
+                if len(p) > 3:
+                    rgb = p[3]
+                    r_value = (rgb & 0x00FF0000) >> 16
+                    g_value = (rgb & 0x0000FF00) >> 8
+                    b_value = rgb & 0x000000FF
+                    arrayR.update(r_value)
+                    arrayG.update(g_value)
+                    arrayB.update(b_value)
+
                 if xMinMax != None and (x < xMinMax[0] or x > xMinMax[1]):
                     continue
                 if yMinMax != None and (y < yMinMax[0] or y > yMinMax[1]):
@@ -106,14 +123,27 @@ def exportPointCloud(
 
             totalArrayTime += time.time_ns() - arrayTimeStart
             if arrayX.size > maxPointsPerFile:
-                writeToFile(arrayX, arrayY, arrayZ, arrayT)
-                arrayX, arrayY, arrayZ, arrayT = FastArr(), FastArr(), FastArr(), FastArr()
+                writeToFile(arrayX, arrayY, arrayZ, arrayT, arrayR, arrayG, arrayB)
+                arrayX, arrayY, arrayZ, arrayT, arrayR, arrayG, arrayB = createArrs()
 
     if arrayX.size > 0:
-        writeToFile(arrayX, arrayY, arrayZ, arrayT)
+        writeToFile(arrayX, arrayY, arrayZ, arrayT, arrayR, arrayG, arrayB)
 
     print("Total points: " + str(totalNumPoints))
     endTime = time.time_ns()
     print("Total time used = " + str((endTime - startTime) * 1e-9))
     print("Array time used = " + str(totalArrayTime * 1e-9))
     return {"numFiles": outFileCount, "numPoints": totalNumPoints}
+
+
+# exportPointCloud(
+#     "/mnt/c/Users/Sean/Downloads/2022-12-01-11-31-44-001.bag",
+#     "/velodyne_cloud_registered_imu_rgb",
+#     "/mnt/c/Users/Sean/Downloads/point_4",
+#     "500000000",
+#     None,
+#     2,
+#     None,
+#     None,
+#     None,
+# )
