@@ -152,3 +152,7 @@ cython_debug/
 
 
 testdata/
+
+# Mac related
+.DS_Store
+*/.DS_Store

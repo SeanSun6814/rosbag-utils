@@ -1,0 +1,1 @@
+docker run --name rosbag-util -it -v $(readlink -f "../."):/root/rosbag-util -p 8000:8000 -e DISPLAY=$DISPLAY --privileged airlab/rosbag-util:latest /bin/bash

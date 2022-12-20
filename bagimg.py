@@ -1,7 +1,7 @@
 import rosbag
 import json
-from cv_bridge import CvBridge
 import cv2
+from cv_bridge import CvBridge
 import numpy as np
 import os
 

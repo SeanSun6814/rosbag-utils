@@ -182,8 +182,8 @@ def startServer(port, maxCountValue):
     global maxPortNum, portNum
     maxPortNum = maxCountValue
     portNum = port
-    print("Starting server on 127.0.0.1:" + str(port))
-    with HTTPServer(("127.0.0.1", port), handler) as server:
+    print("Starting server on 0.0.0.0:" + str(port))
+    with HTTPServer(("0.0.0.0", port), handler) as server:
         server.serve_forever()
 
 
