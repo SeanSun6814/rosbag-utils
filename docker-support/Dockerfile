@@ -18,6 +18,12 @@ RUN apt install -y python3-rosdep python3-rosinstall python3-rosinstall-generato
 # install cv_bridge
 RUN apt-get install -y ros-noetic-cv-bridge
 
+RUN apt-get install -y --no-install-recommends x11-apps
 
+RUN mkdir datasets
+
+RUN echo "cd /root/rosbag-utils && python3 app.py -n" >> start.sh
+
+CMD ["sh", "start.sh"]
 
 
