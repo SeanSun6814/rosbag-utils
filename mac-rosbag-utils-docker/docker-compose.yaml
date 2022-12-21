@@ -2,15 +2,15 @@ version: "3"
 
 services:
   rosbag-utils:
+    environment:
+      - DISPLAY=host.docker.internal:0
     image: airlab/rosbag-utils:latest
     container_name: rosbag-utils
     build: docker-support/
     volumes:
-      - ./:/root/rosbag-utils
+      - ../:/root/rosbag-utils
       - /tmp/.X11-unix:/tmp/.X11-unix
-      - /Users/jonasjiang/Workspace/AirLab/dataset:/datasets
-    environment:
-      - DISPLAY=host.docker.internal:0
+      - ${DATASET_LOCATION}:/datasets
     ports:
       - 8000:8000
     privileged: true
