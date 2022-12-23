@@ -4,6 +4,7 @@ from cv_bridge import CvBridge
 import cv2
 import numpy as np
 import os
+from tdigest import TDigest
 
 font = cv2.FONT_HERSHEY_SIMPLEX
 textLocation = (10, 30)
@@ -28,6 +29,7 @@ def exportVideo(paths, pathOut, targetTopic, speed, fps, printTimestamp, invertI
     startTime = -1
     video = None
     frameCount = -1
+    minDigest, maxDigest = None, None
 
     def formatTime(time, startime):
         return str(round((time - startime) * 1e-9, 3)) + "s"
@@ -40,6 +42,8 @@ def exportVideo(paths, pathOut, targetTopic, speed, fps, printTimestamp, invertI
         for topic, msg, t in bagIn.read_messages(topics=[targetTopic]):
             if startTime == -1:
                 startTime = int(str(t))
+                if rangeFor16Bit is None:
+                    minDigest, maxDigest = TDigest(), TDigest()
                 video = cv2.VideoWriter(pathOut, cv2.VideoWriter_fourcc(*"mp4v"), fps, (msg.width, msg.height))
                 print("Video dimensions: " + str(msg.width) + "x" + str(msg.height))
                 print("Input encoding: ", msg.encoding)
@@ -53,6 +57,8 @@ def exportVideo(paths, pathOut, targetTopic, speed, fps, printTimestamp, invertI
                 if rangeFor16Bit is None:
                     minVal = cv_img.min()
                     maxVal = cv_img.max()
+                    minDigest.update(minVal)
+                    maxDigest.update(maxVal)
                 else:
                     minVal = rangeFor16Bit[0]
                     maxVal = rangeFor16Bit[1]
@@ -76,18 +82,31 @@ def exportVideo(paths, pathOut, targetTopic, speed, fps, printTimestamp, invertI
             cv2.imshow("Video preview", cv_img)
             cv2.waitKey(1)
 
+    if rangeFor16Bit is None:
+        for i in range(0, 100, 10):
+            print("max", i, "%: ", maxDigest.percentile(i))
+        print("")
+        for i in range(0, 100, 10):
+            print("min", i, "%: ", minDigest.percentile(i))
+
     video.release()
     cv2.destroyAllWindows()
+
     return {"numFrames": frameCount}
 
 
 # exportVideo(
-#     "/mnt/f/_Datasets/new_thermal_calib/2022-09-02-13-07-49.bag",
-#     "/mnt/f/_Datasets/new_thermal_calib/video1/",
+#     "/mnt/e/_Datasets/thermal_data_after_jiahe_fix/2022-11-08_super_odom/run_0/bags/core_2022-11-08-23-02-50_0.bag\n"
+#     + "/mnt/e/_Datasets/thermal_data_after_jiahe_fix/2022-11-08_super_odom/run_0/bags/core_2022-11-08-23-04-04_1.bag\n"
+#     + "/mnt/e/_Datasets/thermal_data_after_jiahe_fix/2022-11-08_super_odom/run_0/bags/core_2022-11-08-23-05-09_2.bag\n"
+#     + "/mnt/e/_Datasets/thermal_data_after_jiahe_fix/2022-11-08_super_odom/run_0/bags/core_2022-11-08-23-06-15_3.bag\n"
+#     + "/mnt/e/_Datasets/thermal_data_after_jiahe_fix/2022-11-08_super_odom/run_0/bags/core_2022-11-08-23-07-21_4.bag\n"
+#     + "/mnt/e/_Datasets/thermal_data_after_jiahe_fix/2022-11-08_super_odom/run_0/bags/core_2022-11-08-23-08-26_5.bag",
+#     "/mnt/e/_Datasets/thermal_data_after_jiahe_fix/2022-11-08_super_odom/run_0/bags",
 #     "/thermal/image",
 #     1,
 #     30,
 #     "both",
 #     False,
-#     (0, 4000),
+#     None,
 # )
