@@ -1,9 +1,9 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from cgi import parse_header, parse_multipart
 import multiprocessing
-import bagfilter
-import baglas
-import bagimg
+import server.bagfilter
+import server.baglas
+import server.bagimg
 import urllib
 from urllib.parse import urlparse, parse_qs
 import json
@@ -12,9 +12,7 @@ import tkinter as tk
 from tkinter import filedialog
 import time
 import webbrowser
-
-maxPortNum = multiprocessing.Value("i", -1)
-portNum = -1
+from threading import Thread
 
 
 class handler(BaseHTTPRequestHandler):
@@ -178,31 +176,17 @@ class handler(BaseHTTPRequestHandler):
             self.wfile.write(html)
 
 
-def startServer(port, maxCountValue):
-    global maxPortNum, portNum
-    maxPortNum = maxCountValue
-    portNum = port
-    print("Starting server on 127.0.0.1:" + str(port))
-    with HTTPServer(("127.0.0.1", port), handler) as server:
-        server.serve_forever()
-
-
-def createServer(openBrowser, port=-1):
-    if port < 0:
-        if maxPortNum.value > 0:
-            port = maxPortNum.value + 1
-        else:
-            port = 8000
-
-    maxPortNum.value = max(maxPortNum.value, port)
-    multiprocessing.Process(
-        target=startServer,
-        args=(
-            port,
-            maxPortNum,
-        ),
-    ).start()
-    if openBrowser:
+def startServer(openBrowser, port):
+    def openBrowser():
+        time.sleep(500)
         print("Opening app in browser...")
         webbrowser.open("127.0.0.1:" + str(port))
-    return port
+
+    def createServer():
+        print("Starting server on 127.0.0.1:" + str(port))
+        with HTTPServer(("127.0.0.1", port), handler) as server:
+            server.serve_forever()
+
+    if openBrowser:
+        Thread(target=openBrowser).start()
+    Thread(target=createServer).start()
