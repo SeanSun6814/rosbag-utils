@@ -4,21 +4,22 @@ import { Link } from "react-router-dom";
 import Button from "@mui/material/Button";
 import ProgressStepper from "./ProgressStepper";
 import Topbar from "./TopBar";
+import BagPage from "./BagPage";
+import TaskRunner from "./TaskRunner";
 
 const HomePage = (props) => {
     console.log(props.bags);
     return (
         <div>
             <Topbar />
-            <ProgressStepper />
+            <ProgressStepper>
+                <BagPage />
+            </ProgressStepper>
+            <TaskRunner />
         </div>
     );
 };
 
-const mapStateToProps = (state) => {
-    return {
-        bags: state.bags,
-    };
-};
-
-export default connect(mapStateToProps)(HomePage);
+export default connect((state) => ({
+    bags: state.bags,
+}))(HomePage);

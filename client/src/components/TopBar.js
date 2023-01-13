@@ -21,7 +21,6 @@ import WifiTetheringOffIcon from "@mui/icons-material/WifiTetheringOff";
 function TopBar(props) {
     const dispatch = useDispatch();
     const changeTheme = () => {
-        console.log("Changing theme");
         dispatch(toggleTheme());
     };
     return (

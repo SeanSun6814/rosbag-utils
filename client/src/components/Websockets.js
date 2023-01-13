@@ -1,32 +1,16 @@
 import React, { useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, connect } from "react-redux";
 import { addBag } from "../actions/rosbag";
 import { setWSConnection } from "../actions/settings";
+import * as TASK from "../actions/task";
 
-const WebSocketContext = React.createContext(null);
+export const WebSocketContext = React.createContext();
 let client;
 
-export { WebSocketContext };
-
-export default ({ children }) => {
+const Ws = ({ children, allTasks }) => {
     const dispatch = useDispatch();
 
-    const processMessage = (message) => {
-        const data = message.data;
-        console.log(data);
-        // dispatch(
-        //     addBag({
-        //         path: "/home/Downloads/2020-10-01-14-00-00.bag" + data,
-        //         size: 100,
-        //         startTime: 100,
-        //         endTime: 200,
-        //         duration: 100,
-        //         messages: 100,
-        //         topics: 100,
-        //     })
-        // );
-    };
-    let sendJsonMessage;
+    let [sendJsonMessage, setSendJsonMessage] = React.useState(null);
 
     const connect = () => {
         if (client && client.readyState === WebSocket.OPEN) return;
@@ -38,7 +22,7 @@ export default ({ children }) => {
         };
 
         client.onmessage = (message) => {
-            processMessage(message);
+            processMessage(message, dispatch, allTasks);
         };
 
         client.onerror = (e) => console.error(e);
@@ -50,11 +34,51 @@ export default ({ children }) => {
                 connect();
             }, 1000);
         };
-        sendJsonMessage = (jsonObj) => client.send(JSON.stringify(jsonObj));
+        const sendMsg = { send: (jsonObj) => client.send(JSON.stringify(jsonObj)) };
+        setSendJsonMessage(sendMsg);
+        console.log("sendJsonMessage", sendJsonMessage);
     };
 
     useEffect(() => {
         connect();
     }, []);
     return <WebSocketContext.Provider value={sendJsonMessage}>{children}</WebSocketContext.Provider>;
+};
+
+export default connect((state) => ({
+    allTasks: state.tasks,
+}))(Ws);
+
+const processMessage = (message, dispatch, allTasks) => {
+    const data = JSON.parse(message.data);
+    console.log("PROCESS_DATA", data);
+    if (data.type === "progress") processProgress(data, dispatch, allTasks);
+    else if (data.type === "result") processResult(data, dispatch, allTasks);
+    else if (data.type === "error") processError(data, dispatch, allTasks);
+};
+
+const processProgress = (message, dispatch, allTasks) => {
+    dispatch(TASK.updateTask(message.id, { progress: message.progress }));
+    console.log("Progress: " + message.progress);
+};
+
+const processResult = (message, dispatch, allTasks) => {
+    if (allTasks.some((task) => task.id === message.id && task.status === "COMPLETE")) return;
+    dispatch(TASK.updateTask(message.id, { status: "COMPLETE", progress: 1, endTime: new Date().getTime(), result: message.result }));
+    if (message.action === TASK.OPEN_BAG_TASK) {
+        JSON.parse(message.result).forEach((element) => {
+            const task = TASK.addTask(TASK.makeBagInfoTask(element), true);
+            const taskId = task.task.id;
+            dispatch(task);
+            dispatch(TASK.startTask(taskId));
+        });
+    } else if (message.action === TASK.BAG_INFO_TASK) {
+        dispatch(addBag(message.result));
+    }
+    console.log("Result: " + message.result);
+};
+
+const processError = (message, dispatch, allTasks) => {
+    dispatch(TASK.updateTask(message.id, { status: "ERROR", progress: 1, endTime: new Date().getTime(), result: message.error }));
+    console.log("Error: " + message.error);
 };

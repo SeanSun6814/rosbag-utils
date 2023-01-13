@@ -1,5 +1,6 @@
 from websocket_server import WebsocketServer
 from threading import Thread
+from server.apis import processWebsocketRequest
 import json
 import time
 
@@ -24,6 +25,7 @@ def clientLeft(obj1, obj2):
 
 def messageReceived(client, server, message):
     print("RECEIVED:", message)
+    processWebsocketRequest(json.loads(message), sendMessage)
 
 
 def startServer(port):
@@ -37,10 +39,11 @@ def startServer(port):
         websockets_server.allow_new_connections()
         websockets_server.run_forever()
 
-    def sendMsg():
-        while True:
-            time.sleep(1)
-            sendMessage({"test": "test"})
+    # def sendMsg():
+    #     while True:
+    #         time.sleep(1)
+    #         sendMessage({"test": "test"})
 
-    Thread(target=createServer).start()
+    createServer()
+    # Thread(target=createServer).start()
     # Thread(target=sendMsg).start()

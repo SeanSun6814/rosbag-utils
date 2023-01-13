@@ -24,15 +24,15 @@ def getBagInfoJson(path):
         info = {}
         info["size"] = 0
         info["path"] = ""
-        info["start"] = 0
-        info["end"] = 0
+        info["startTime"] = 0
+        info["endTime"] = 0
         info["duration"] = 0
         info["messages"] = 0
         info["topics"] = {}
         info["size"] = info_dict["size"]
         info["path"] = info_dict["path"]
-        info["start"] = info_dict["start"]
-        info["end"] = info_dict["end"]
+        info["startTime"] = info_dict["start"]
+        info["endTime"] = info_dict["end"]
         info["duration"] = info_dict["duration"]
         info["messages"] = info_dict["messages"]
 

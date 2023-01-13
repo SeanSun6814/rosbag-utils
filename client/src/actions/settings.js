@@ -11,3 +11,9 @@ export const setWSConnection = ({ ws_connected } = {}) => ({
     type: "SET_WS_CONNECTION",
     ws_connected,
 });
+
+
+export const setPageComplete = ({ complete } = {}) => ({
+    type: "SET_PAGE_COMPLETE",
+    complete,
+});

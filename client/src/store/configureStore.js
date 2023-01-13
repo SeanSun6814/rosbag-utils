@@ -11,6 +11,7 @@ let initialState = {
     settings: {
         theme: "light",
         ws_connected: false,
+        page_complete: false,
     },
 };
 
@@ -20,6 +21,7 @@ const loadState = () => {
         if (serialState) {
             const settings = JSON.parse(serialState);
             settings.ws_connected = false;
+            settings.page_complete = false;
             initialState.settings = settings;
         }
     } catch (err) {
