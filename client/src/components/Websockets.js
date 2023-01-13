@@ -13,7 +13,7 @@ const Ws = ({ children, allTasks }) => {
     let [sendJsonMessage, setSendJsonMessage] = React.useState(null);
 
     const connect = () => {
-        if (client && client.readyState === WebSocket.OPEN) return;
+        if (client && client.readyState !== client.CLOSED) return;
         console.log("Connecting to WebSocket server...");
         client = new WebSocket("ws://127.0.0.1:8001");
         client.onopen = () => {
@@ -63,7 +63,6 @@ const processProgress = (message, dispatch, allTasks) => {
 };
 
 const processResult = (message, dispatch, allTasks) => {
-    if (allTasks.some((task) => task.id === message.id && task.status === "COMPLETE")) return;
     dispatch(TASK.updateTask(message.id, { status: "COMPLETE", progress: 1, endTime: new Date().getTime(), result: message.result }));
     if (message.action === TASK.OPEN_BAG_TASK) {
         JSON.parse(message.result).forEach((element) => {

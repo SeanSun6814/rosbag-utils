@@ -45,5 +45,5 @@ def startServer(port):
     #         sendMessage({"test": "test"})
 
     createServer()
-    # Thread(target=createServer).start()
+    Thread(target=createServer).start()
     # Thread(target=sendMsg).start()

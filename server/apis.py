@@ -4,6 +4,7 @@ import server.bagimg
 import tkinter as tk
 from tkinter import filedialog
 import json
+from mttkinter import *
 
 
 def processWebsocketRequest(req, res):
@@ -18,11 +19,16 @@ def processWebsocketRequest(req, res):
 
     if req["action"] == "OPEN_BAG_TASK":
         print("REQUEST Opening new select file dialog")
-        root = tk.Tk()
-        root.withdraw()
-        msg = tk.filedialog.askopenfiles(filetypes=[("Rosbag", "*.bag")])
-        file_names = [file.name for file in msg]
-        print(file_names)
+        file_names = []
+        try:
+            root = tk.Tk()
+            root.withdraw()
+            msg = tk.filedialog.askopenfiles(filetypes=[("Rosbag", "*.bag")])
+            root.destroy()
+            file_names = [file.name for file in msg]
+            print(file_names)
+        except Exception as e:
+            print(e)
         sendResult(json.dumps(file_names))
     elif req["action"] == "BAG_INFO_TASK":
         path = req["path"]
