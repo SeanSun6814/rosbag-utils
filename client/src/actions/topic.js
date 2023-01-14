@@ -4,13 +4,18 @@ export const addTopic = (topic) => ({
 });
 
 export const addAllTopicsFromBags = (bags) => ({
-    type: "ADD_ALL_TOPICS_FROM_BAG",
+    type: "ADD_ALL_TOPICS_FROM_BAG_ARR",
     bags,
 });
 
 export const removeTopic = (name) => ({
     type: "REMOVE_TOPIC",
     name,
+});
+
+export const setSelectedTopics = (selectedIdxs) => ({
+    type: "SET_SELECTED_TOPICS",
+    selectedIdxs,
 });
 
 export const clearTopics = () => ({

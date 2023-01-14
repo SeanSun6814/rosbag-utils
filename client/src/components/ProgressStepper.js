@@ -17,7 +17,10 @@ const HorizontalLinearStepper = ({ children, status }) => {
     };
 
     const handleBack = () => {
-        setActiveStep((prevActiveStep) => prevActiveStep - 1);
+        setActiveStep((prevActiveStep) => {
+            if (prevActiveStep === 3) return 1;
+            return prevActiveStep - 1;
+        });
     };
 
     let nextButton;

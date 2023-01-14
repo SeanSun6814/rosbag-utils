@@ -46,7 +46,7 @@ const Ws = ({ children, state: database }) => {
             };
 
             const data = JSON.parse(message.data);
-            console.log("PROCESS_DATA", data);
+            console.log("PROCESS_RECEIVED_DATA", data);
             if (data.type === "progress") processProgress(data);
             else if (data.type === "result") processResult(data);
             else if (data.type === "error") processError(data);

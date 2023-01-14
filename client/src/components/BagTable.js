@@ -2,9 +2,6 @@ import * as React from "react";
 import Button from "@mui/material/Button";
 import {
     DataGrid,
-    GridRowsProp,
-    GridColDef,
-    GridToolbar,
     GridToolbarContainer,
     GridToolbarColumnsButton,
     GridToolbarFilterButton,
@@ -15,7 +12,6 @@ import { connect, useDispatch } from "react-redux";
 import * as convert from "../utils/convert";
 import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 import { setSelectedBags } from "../actions/rosbag";
-import { BAG_INFO_TASK } from "../actions/task";
 
 const columns = [
     { field: "id", headerName: "#", flex: 0.5 },
@@ -47,7 +43,6 @@ const BagTable = (props) => {
     }, [props.status.server_busy]);
 
     React.useEffect(() => {
-        console.log(selectionModel);
         dispatch(setSelectedBags(selectionModel));
     }, [selectionModel]);
 

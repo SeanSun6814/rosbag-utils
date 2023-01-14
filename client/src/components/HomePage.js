@@ -7,7 +7,6 @@ import TaskRunner from "./TaskRunner";
 import TopicPage from "./TopicPage";
 
 const HomePage = (props) => {
-    console.log(props.bags);
     return (
         <div>
             <Topbar />

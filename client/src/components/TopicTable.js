@@ -8,29 +8,37 @@ import {
     GridToolbarDensitySelector,
     GridToolbarExport,
 } from "@mui/x-data-grid";
-import { connect } from "react-redux";
-import * as convert from "../utils/convert";
-import FolderOpenIcon from "@mui/icons-material/FolderOpen";
+import { connect, useDispatch } from "react-redux";
+import { setSelectedBags } from "../actions/rosbag";
+import { addAllTopicsFromBags, addTopic, clearTopics, setSelectedTopics } from "../actions/topic";
 
 const columns = [
-    { field: "file", headerName: "Files", flex: 5 },
-    { field: "duration", headerName: "Duration", flex: 1 },
-    { field: "size", headerName: "Size", flex: 1 },
-    { field: "topic_count", headerName: "Topics", flex: 1 },
-    { field: "messages", headerName: "Messages", flex: 1 },
+    { field: "name", headerName: "Topic", flex: 5 },
+    { field: "type", headerName: "Type", flex: 3 },
+    { field: "messages", headerName: "Messages", flex: 2 },
+    { field: "appeared_in_bags", headerName: "In # bags", flex: 1 },
 ];
 
 const TopicTable = (props) => {
-    const [useFullPath, setUseFullPath] = React.useState(false);
+    const [selectionModel, setSelectionModel] = React.useState([]);
+    const dispatch = useDispatch();
 
-    const display_format = props.bags.map((bag) => {
+    const display_format = Object.keys(props.topics).map((topic, idx) => {
         return {
-            ...bag,
-            size: convert.humanFileSize(bag.size),
-            topic_count: Object.keys(bag.topics).length,
-            file: useFullPath ? bag.path : bag.path.split("/").pop(),
+            ...props.topics[topic],
+            id: idx + 1,
         };
     });
+
+    React.useEffect(() => {
+        const selectedBags = props.bags.filter((bag) => bag.selected);
+        dispatch(clearTopics());
+        dispatch(addAllTopicsFromBags(selectedBags));
+    }, []);
+
+    React.useEffect(() => {
+        dispatch(setSelectedTopics(selectionModel));
+    }, [selectionModel]);
 
     function CustomToolbar() {
         return (
@@ -44,14 +52,19 @@ const TopicTable = (props) => {
     }
 
     return (
-        <div style={{ width: "50vw" }}>
-            <div style={{ height: "70vh" }}>
+        <div style={{ width: "100%" }}>
+            <div style={{ height: "calc(100vh - 290px)" }}>
                 <DataGrid
+                    checkboxSelection
                     rows={display_format}
                     columns={columns}
                     components={{
                         Toolbar: CustomToolbar,
                     }}
+                    onSelectionModelChange={(newSelectionModel) => {
+                        setSelectionModel(newSelectionModel);
+                    }}
+                    selectionModel={selectionModel}
                 />
             </div>
         </div>
@@ -59,4 +72,6 @@ const TopicTable = (props) => {
 };
 export default connect((state) => ({
     bags: state.bags,
+    topics: state.topics,
+    status: state.status,
 }))(TopicTable);

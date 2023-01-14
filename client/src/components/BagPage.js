@@ -19,8 +19,11 @@ const BagPage = (props) => {
     };
 
     React.useEffect(() => {
+        dispatch(setPageComplete(false));
+    }, []);
+
+    React.useEffect(() => {
         const selectedBags = props.bags.filter((bag) => bag.selected);
-        console.log("SELECTED BAGS:", selectedBags);
         dispatch(setPageComplete(selectedBags.length > 0));
     }, [props.bags]);
 
