@@ -14,10 +14,10 @@ const TaskRunner = ({ allTasks }) => {
             const tasks = allTasks.filter((task) => task.status === "READY");
             if (tasks.length > 0) {
                 const task = tasks[0];
+                dispatch(setServerBusy(true));
                 dispatch(updateTask(task.id, { status: "RUNNING", startTime: new Date().getTime(), progress: 0 }));
                 const message = { ...task.config, id: task.id };
                 sendJsonMessage.send(message);
-                dispatch(setServerBusy(true));
                 console.log("START_TASK:", message);
             }
         }

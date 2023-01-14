@@ -9,7 +9,7 @@ const TopicPage = (props) => {
     const dispatch = useDispatch();
 
     const handleClick = () => {
-        dispatch(setPageComplete(false));
+        // dispatch(setPageComplete(false));
         dispatch(setBagOpening(true));
         const task = addTask(makeOpenBagTask(), true);
         const taskId = task.task.id;
@@ -17,9 +17,9 @@ const TopicPage = (props) => {
         dispatch(startTask(taskId));
     };
 
-    React.useEffect(() => {
-        dispatch(setPageComplete(props.bags.length > 0));
-    }, [props.bags]);
+    // React.useEffect(() => {
+    //     dispatch(setPageComplete(props.bags.length > 0));
+    // }, [props.bags]);
 
     return (
         <Stack direction="row" spacing={2}>

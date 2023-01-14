@@ -2,7 +2,7 @@ export const addBag = ({ id, path, size, startTime, endTime, duration, messages,
     type: "ADD_BAG",
     bag: {
         id,
-        selected: false,
+        selected: true,
         path,
         size,
         startTime,
@@ -13,7 +13,12 @@ export const addBag = ({ id, path, size, startTime, endTime, duration, messages,
     },
 });
 
-export const removeBag = ({ path } = {}) => ({
+export const removeBag = (path) => ({
     type: "REMOVE_BAG",
     path,
+});
+
+export const setSelectedBags = (selectedIdxs) => ({
+    type: "SET_SELECTED_BAGS",
+    selectedIdxs,
 });

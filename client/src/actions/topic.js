@@ -3,6 +3,11 @@ export const addTopic = (topic) => ({
     topic,
 });
 
+export const addAllTopicsFromBags = (bags) => ({
+    type: "ADD_ALL_TOPICS_FROM_BAG",
+    bags,
+});
+
 export const removeTopic = (name) => ({
     type: "REMOVE_TOPIC",
     name,

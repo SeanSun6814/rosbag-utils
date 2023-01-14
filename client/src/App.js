@@ -1,10 +1,9 @@
 import * as React from "react";
 import "./App.css";
 import AppRouter from "./routers/AppRouter";
-import WebSocketProvider, { WebSocketContext } from "./components/Websockets";
+import WebSocketProvider from "./components/Websockets";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
-import { connect, useDispatch } from "react-redux";
-import { Box } from "@mui/system";
+import { connect } from "react-redux";
 import { CssBaseline } from "@mui/material";
 
 function App(props) {

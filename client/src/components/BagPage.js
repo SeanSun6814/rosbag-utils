@@ -11,7 +11,6 @@ const BagPage = (props) => {
     const dispatch = useDispatch();
 
     const handleClick = () => {
-        dispatch(setPageComplete(false));
         dispatch(setBagOpening(true));
         const task = addTask(makeOpenBagTask(), true);
         const taskId = task.task.id;
@@ -20,13 +19,15 @@ const BagPage = (props) => {
     };
 
     React.useEffect(() => {
-        dispatch(setPageComplete(props.bags.length > 0));
+        const selectedBags = props.bags.filter((bag) => bag.selected);
+        console.log("SELECTED BAGS:", selectedBags);
+        dispatch(setPageComplete(selectedBags.length > 0));
     }, [props.bags]);
 
     return (
         <Stack direction="column" spacing={2}>
             <BagTable />
-            <LoadingButton loading={props.status.bag_opening} startIcon={<AddIcon />} variant="contained" size="large" onClick={(e) => handleClick()}>
+            <LoadingButton loading={props.status.server_busy} startIcon={<AddIcon />} variant="contained" size="large" onClick={(e) => handleClick()}>
                 Add Bags
             </LoadingButton>
         </Stack>

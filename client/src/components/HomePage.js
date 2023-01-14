@@ -11,7 +11,7 @@ const HomePage = (props) => {
     return (
         <div>
             <Topbar />
-            <ProgressStepper>{[<BagPage />, <TopicPage />]}</ProgressStepper>
+            <ProgressStepper>{[<BagPage key={1} />, <TopicPage key={2} />]}</ProgressStepper>
             <TaskRunner />
         </div>
     );

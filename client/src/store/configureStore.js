@@ -7,7 +7,7 @@ import status from "../reducers/status";
 
 let initialState = {
     bags: [],
-    topics: [],
+    topics: {},
     tasks: [],
     settings: {
         theme: "light",

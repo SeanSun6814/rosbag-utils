@@ -22,7 +22,6 @@ const Ws = ({ children, state: database }) => {
             const processResult = (message) => {
                 dispatch(TASK.updateTask(message.id, { status: "COMPLETE", progress: 1, endTime: new Date().getTime(), result: message.result }));
                 console.log("TASK_COMPLETE", message.id);
-                dispatch(setServerBusy(false));
                 if (message.action === TASK.OPEN_BAG_TASK) {
                     const paths = JSON.parse(message.result);
                     paths.forEach((element) => {
@@ -38,6 +37,7 @@ const Ws = ({ children, state: database }) => {
                     dispatch(addBag(bagInfo));
                     dispatch(setBagOpening(false));
                 }
+                dispatch(setServerBusy(false));
             };
 
             const processError = (message) => {
@@ -54,7 +54,6 @@ const Ws = ({ children, state: database }) => {
         client.onmessage = (message) => {
             processMessage(message);
         };
-        console.log("WEBSOCKET_HANDLERS_SET");
     };
 
     useEffect(() => {

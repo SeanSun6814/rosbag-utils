@@ -11,9 +11,11 @@ import {
     GridToolbarDensitySelector,
     GridToolbarExport,
 } from "@mui/x-data-grid";
-import { connect } from "react-redux";
+import { connect, useDispatch } from "react-redux";
 import * as convert from "../utils/convert";
 import FolderOpenIcon from "@mui/icons-material/FolderOpen";
+import { setSelectedBags } from "../actions/rosbag";
+import { BAG_INFO_TASK } from "../actions/task";
 
 const columns = [
     { field: "id", headerName: "#", flex: 0.5 },
@@ -27,6 +29,8 @@ const columns = [
 
 const BagTable = (props) => {
     const [useFullPath, setUseFullPath] = React.useState(false);
+    const [selectionModel, setSelectionModel] = React.useState([]);
+    const dispatch = useDispatch();
 
     const display_format = props.bags.map((bag) => {
         return {
@@ -37,6 +41,15 @@ const BagTable = (props) => {
             time: convert.getDateTime(bag.startTime * 1000, true),
         };
     });
+
+    React.useEffect(() => {
+        setSelectionModel(props.bags.filter((bag) => bag.selected).map((bag) => bag.id));
+    }, [props.status.server_busy]);
+
+    React.useEffect(() => {
+        console.log(selectionModel);
+        dispatch(setSelectedBags(selectionModel));
+    }, [selectionModel]);
 
     function CustomToolbar() {
         return (
@@ -62,6 +75,10 @@ const BagTable = (props) => {
                     components={{
                         Toolbar: CustomToolbar,
                     }}
+                    onSelectionModelChange={(newSelectionModel) => {
+                        setSelectionModel(newSelectionModel);
+                    }}
+                    selectionModel={selectionModel}
                 />
             </div>
         </div>
@@ -69,4 +86,5 @@ const BagTable = (props) => {
 };
 export default connect((state) => ({
     bags: state.bags,
+    status: state.status,
 }))(BagTable);

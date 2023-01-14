@@ -4,13 +4,12 @@ import Stepper from "@mui/material/Stepper";
 import Step from "@mui/material/Step";
 import StepLabel from "@mui/material/StepLabel";
 import Button from "@mui/material/Button";
-import { connect } from "react-redux";
+import { useDispatch, connect } from "react-redux";
 
 const steps = ["Add bags files", "Add message topics", "Add processing tasks", "Finish"];
 
-const HorizontalLinearStepper = ({ children, page_complete }) => {
+const HorizontalLinearStepper = ({ children, status }) => {
     const [activeStep, setActiveStep] = React.useState(0);
-    const [skipped, setSkipped] = React.useState(new Set());
 
     const handleNext = () => {
         if (activeStep === steps.length) return setActiveStep((prevActiveStep) => 0);
@@ -22,22 +21,23 @@ const HorizontalLinearStepper = ({ children, page_complete }) => {
     };
 
     let nextButton;
-
+    const enableNextButton = status.page_complete && !status.server_busy;
+    const enablePrevButton = activeStep !== 0 && activeStep !== steps.length && !status.server_busy;
     if (activeStep === steps.length - 1)
         nextButton = (
-            <Button disabled={!page_complete} onClick={handleNext}>
+            <Button disabled={!enableNextButton} onClick={handleNext}>
                 {"Finish"}
             </Button>
         );
     else if (activeStep === steps.length)
         nextButton = (
-            <Button disabled={!page_complete} onClick={handleNext}>
+            <Button disabled={!enableNextButton} onClick={handleNext}>
                 {"Done"}
             </Button>
         );
     else
         nextButton = (
-            <Button disabled={!page_complete} onClick={handleNext}>
+            <Button disabled={!enableNextButton} onClick={handleNext}>
                 {"Next"}
             </Button>
         );
@@ -60,7 +60,7 @@ const HorizontalLinearStepper = ({ children, page_complete }) => {
                 {/* <Typography sx={{ mt: 2, mb: 1 }}>Step {activeStep + 1}</Typography> */}
                 <Box sx={{ height: "100%" }}>{children[activeStep]}</Box>
                 <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
-                    <Button color="inherit" disabled={activeStep === 0 || activeStep === steps.length} onClick={handleBack} sx={{ mr: 1 }}>
+                    <Button color="inherit" disabled={!enablePrevButton} onClick={handleBack} sx={{ mr: 1 }}>
                         Back
                     </Button>
                     <Box sx={{ flex: "1 1 auto" }} />
@@ -72,5 +72,5 @@ const HorizontalLinearStepper = ({ children, page_complete }) => {
 };
 
 export default connect((state) => ({
-    page_complete: state.status.page_complete,
+    status: state.status,
 }))(HorizontalLinearStepper);
