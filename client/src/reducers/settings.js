@@ -3,10 +3,6 @@ export default (state = [], action) => {
         return { ...state, theme: action.theme };
     } else if (action.type === "TOGGLE_THEME") {
         return { ...state, theme: state.theme === "light" ? "dark" : "light" };
-    } else if (action.type === "SET_WS_CONNECTION") {
-        return { ...state, ws_connected: action.ws_connected };
-    } else if (action.type === "SET_PAGE_COMPLETE") {
-        return { ...state, page_complete: action.complete };
     } else {
         return state;
     }

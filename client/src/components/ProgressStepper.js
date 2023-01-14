@@ -4,8 +4,7 @@ import Stepper from "@mui/material/Stepper";
 import Step from "@mui/material/Step";
 import StepLabel from "@mui/material/StepLabel";
 import Button from "@mui/material/Button";
-import Typography from "@mui/material/Typography";
-import { useDispatch, connect } from "react-redux";
+import { connect } from "react-redux";
 
 const steps = ["Add bags files", "Add message topics", "Add processing tasks", "Finish"];
 
@@ -59,7 +58,7 @@ const HorizontalLinearStepper = ({ children, page_complete }) => {
             </Stepper>
             <React.Fragment>
                 {/* <Typography sx={{ mt: 2, mb: 1 }}>Step {activeStep + 1}</Typography> */}
-                <Box sx={{ height: "100%" }}>{children}</Box>
+                <Box sx={{ height: "100%" }}>{children[activeStep]}</Box>
                 <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
                     <Button color="inherit" disabled={activeStep === 0 || activeStep === steps.length} onClick={handleBack} sx={{ mr: 1 }}>
                         Back
@@ -73,5 +72,5 @@ const HorizontalLinearStepper = ({ children, page_complete }) => {
 };
 
 export default connect((state) => ({
-    page_complete: state.settings.page_complete,
+    page_complete: state.status.page_complete,
 }))(HorizontalLinearStepper);

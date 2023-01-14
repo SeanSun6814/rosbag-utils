@@ -1,83 +1,100 @@
 import React, { useEffect } from "react";
 import { useDispatch, connect } from "react-redux";
 import { addBag } from "../actions/rosbag";
-import { setWSConnection } from "../actions/settings";
+import { setBagOpening, setServerBusy, setWSConnection } from "../actions/status";
 import * as TASK from "../actions/task";
 
 export const WebSocketContext = React.createContext();
 let client;
 
-const Ws = ({ children, allTasks }) => {
+const Ws = ({ children, state: database }) => {
     const dispatch = useDispatch();
-
     let [sendJsonMessage, setSendJsonMessage] = React.useState(null);
 
-    const connect = () => {
-        if (client && client.readyState !== client.CLOSED) return;
-        console.log("Connecting to WebSocket server...");
-        client = new WebSocket("ws://127.0.0.1:8001");
-        client.onopen = () => {
-            console.log("WebSocket connection established.");
-            dispatch(setWSConnection({ ws_connected: true }));
-        };
+    const updateHandlers = () => {
+        if (!client) return console.log("WEBSOCKET_NOT_CONNECTED, CANNOT_SET_HANDLERS");
+        const processMessage = (message) => {
+            const processProgress = (message) => {
+                dispatch(TASK.updateTask(message.id, { progress: message.progress }));
+                console.log("Progress: " + message.progress);
+            };
 
+            const processResult = (message) => {
+                dispatch(TASK.updateTask(message.id, { status: "COMPLETE", progress: 1, endTime: new Date().getTime(), result: message.result }));
+                console.log("TASK_COMPLETE", message.id);
+                dispatch(setServerBusy(false));
+                if (message.action === TASK.OPEN_BAG_TASK) {
+                    const paths = JSON.parse(message.result);
+                    paths.forEach((element) => {
+                        const task = TASK.addTask(TASK.makeBagInfoTask(element), true);
+                        const taskId = task.task.id;
+                        dispatch(task);
+                        dispatch(TASK.startTask(taskId));
+                    });
+                    if (paths.length === 0) dispatch(setBagOpening(false));
+                } else if (message.action === TASK.BAG_INFO_TASK) {
+                    let bagInfo = JSON.parse(message.result);
+                    bagInfo = { ...bagInfo, id: database.bags.length + 1 };
+                    dispatch(addBag(bagInfo));
+                    dispatch(setBagOpening(false));
+                }
+            };
+
+            const processError = (message) => {
+                dispatch(TASK.updateTask(message.id, { status: "ERROR", progress: 1, endTime: new Date().getTime(), result: message.error }));
+                console.log("Error: " + message.error);
+            };
+
+            const data = JSON.parse(message.data);
+            console.log("PROCESS_DATA", data);
+            if (data.type === "progress") processProgress(data);
+            else if (data.type === "result") processResult(data);
+            else if (data.type === "error") processError(data);
+        };
         client.onmessage = (message) => {
-            processMessage(message, dispatch, allTasks);
+            processMessage(message);
         };
-
-        client.onerror = (e) => console.error(e);
-
-        client.onclose = (e) => {
-            console.log("WebSocket connection closed.", e);
-            dispatch(setWSConnection({ ws_connected: false }));
-            setTimeout(() => {
-                connect();
-            }, 1000);
-        };
-        const sendMsg = { send: (jsonObj) => client.send(JSON.stringify(jsonObj)) };
-        setSendJsonMessage(sendMsg);
-        console.log("sendJsonMessage", sendJsonMessage);
+        console.log("WEBSOCKET_HANDLERS_SET");
     };
 
     useEffect(() => {
+        const connect = () => {
+            if (client && client.readyState !== client.CLOSED) return;
+            console.log("Connecting to WebSocket server...");
+            client = new WebSocket("ws://127.0.0.1:8001");
+            client.onopen = () => {
+                console.log("WebSocket connection established.");
+                dispatch(setWSConnection(true));
+                updateHandlers(database);
+            };
+
+            client.onmessage = (message) => {
+                console.log("WEBSOCKET_RECEIVED_MESSAGE_BUT_STATE_IS_NOT_INITIALIZED");
+            };
+
+            client.onerror = (e) => console.error(e);
+
+            client.onclose = (e) => {
+                console.log("WebSocket connection closed.", e);
+                dispatch(setWSConnection(false));
+                dispatch(setServerBusy(false));
+                setTimeout(() => {
+                    connect();
+                }, 1000);
+            };
+            const sendMsg = {
+                send: (jsonObj) => {
+                    if (client.readyState !== client.OPEN) return console.log("ERROR: WEBSOCKET_NOT_CONNECTED!");
+                    client.send(JSON.stringify(jsonObj));
+                },
+            };
+            setSendJsonMessage(sendMsg);
+        };
         connect();
     }, []);
+
+    useEffect(() => updateHandlers(), [database]);
     return <WebSocketContext.Provider value={sendJsonMessage}>{children}</WebSocketContext.Provider>;
 };
 
-export default connect((state) => ({
-    allTasks: state.tasks,
-}))(Ws);
-
-const processMessage = (message, dispatch, allTasks) => {
-    const data = JSON.parse(message.data);
-    console.log("PROCESS_DATA", data);
-    if (data.type === "progress") processProgress(data, dispatch, allTasks);
-    else if (data.type === "result") processResult(data, dispatch, allTasks);
-    else if (data.type === "error") processError(data, dispatch, allTasks);
-};
-
-const processProgress = (message, dispatch, allTasks) => {
-    dispatch(TASK.updateTask(message.id, { progress: message.progress }));
-    console.log("Progress: " + message.progress);
-};
-
-const processResult = (message, dispatch, allTasks) => {
-    dispatch(TASK.updateTask(message.id, { status: "COMPLETE", progress: 1, endTime: new Date().getTime(), result: message.result }));
-    if (message.action === TASK.OPEN_BAG_TASK) {
-        JSON.parse(message.result).forEach((element) => {
-            const task = TASK.addTask(TASK.makeBagInfoTask(element), true);
-            const taskId = task.task.id;
-            dispatch(task);
-            dispatch(TASK.startTask(taskId));
-        });
-    } else if (message.action === TASK.BAG_INFO_TASK) {
-        dispatch(addBag(message.result));
-    }
-    console.log("Result: " + message.result);
-};
-
-const processError = (message, dispatch, allTasks) => {
-    dispatch(TASK.updateTask(message.id, { status: "ERROR", progress: 1, endTime: new Date().getTime(), result: message.error }));
-    console.log("Error: " + message.error);
-};
+export default connect((state) => ({ state }))(Ws);

@@ -1,20 +1,17 @@
 import React from "react";
 import { connect } from "react-redux";
-import { Link } from "react-router-dom";
-import Button from "@mui/material/Button";
 import ProgressStepper from "./ProgressStepper";
 import Topbar from "./TopBar";
 import BagPage from "./BagPage";
 import TaskRunner from "./TaskRunner";
+import TopicPage from "./TopicPage";
 
 const HomePage = (props) => {
     console.log(props.bags);
     return (
         <div>
             <Topbar />
-            <ProgressStepper>
-                <BagPage />
-            </ProgressStepper>
+            <ProgressStepper>{[<BagPage />, <TopicPage />]}</ProgressStepper>
             <TaskRunner />
         </div>
     );

@@ -2,7 +2,6 @@ export default (state = [], action) => {
     if (action.type === "ADD_TASK") {
         return [...state, action.task];
     } else if (action.type === "UPDATE_TASK") {
-        console.log("UPDATE_TASK", action.id, action.updates);
         return state.map((task) => {
             if (task.id === action.id) {
                 return {

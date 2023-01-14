@@ -4,19 +4,14 @@ import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
-import Menu from "@mui/material/Menu";
-import MenuIcon from "@mui/icons-material/Menu";
 import Container from "@mui/material/Container";
-import Avatar from "@mui/material/Avatar";
-import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
-import MenuItem from "@mui/material/MenuItem";
-import AdbIcon from "@mui/icons-material/Adb";
 import Brightness4Icon from "@mui/icons-material/Brightness4";
 import { toggleTheme } from "../actions/settings";
 import { connect, useDispatch } from "react-redux";
 import WifiTetheringIcon from "@mui/icons-material/WifiTethering";
 import WifiTetheringOffIcon from "@mui/icons-material/WifiTetheringOff";
+import { CircularProgress } from "@mui/material";
 
 function TopBar(props) {
     const dispatch = useDispatch();
@@ -54,12 +49,20 @@ function TopBar(props) {
                         </Tooltip>
                     </Box>
                     <Box sx={{ flexGrow: 0, marginLeft: "20px" }}>
-                        {props.ws_connected ? (
-                            <Tooltip title="Connected to backend server">
-                                <IconButton>
-                                    <WifiTetheringIcon color="action" />
-                                </IconButton>
-                            </Tooltip>
+                        {props.status.ws_connected ? (
+                            props.status.server_busy ? (
+                                <Tooltip title="Backend server busy">
+                                    <IconButton>
+                                        <CircularProgress color="inherit" size="1.5rem" />
+                                    </IconButton>
+                                </Tooltip>
+                            ) : (
+                                <Tooltip title="Connected to backend server">
+                                    <IconButton>
+                                        <WifiTetheringIcon color="action" />
+                                    </IconButton>
+                                </Tooltip>
+                            )
                         ) : (
                             <Tooltip title="Disconnected from backend server">
                                 <IconButton>
@@ -75,5 +78,5 @@ function TopBar(props) {
 }
 
 export default connect((state) => ({
-    ws_connected: state.settings.ws_connected,
+    status: state.status,
 }))(TopBar);

@@ -1,9 +1,9 @@
-export const addTopic = ({ topic } = {}) => ({
+export const addTopic = (topic) => ({
     type: "ADD_TOPIC",
     topic,
 });
 
-export const removeTopic = ({ name } = {}) => ({
+export const removeTopic = (name) => ({
     type: "REMOVE_TOPIC",
     name,
 });

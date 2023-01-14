@@ -3,6 +3,7 @@ import bags from "../reducers/rosbag";
 import topics from "../reducers/topic";
 import tasks from "../reducers/task";
 import settings from "../reducers/settings";
+import status from "../reducers/status";
 
 let initialState = {
     bags: [],
@@ -10,20 +11,19 @@ let initialState = {
     tasks: [],
     settings: {
         theme: "light",
+    },
+    status: {
         ws_connected: false,
+        server_busy: false,
         page_complete: false,
+        bag_opening: false,
     },
 };
 
 const loadState = () => {
     try {
         const serialState = localStorage.getItem("settings");
-        if (serialState) {
-            const settings = JSON.parse(serialState);
-            settings.ws_connected = false;
-            settings.page_complete = false;
-            initialState.settings = settings;
-        }
+        if (serialState) initialState.settings = JSON.parse(serialState);
     } catch (err) {
         console.log(err);
     }
@@ -45,11 +45,12 @@ const store = configureStore({
         topics,
         tasks,
         settings,
+        status,
     },
     preloadedState: initialState,
 });
 
-store.subscribe((state) => {
+store.subscribe(() => {
     saveState(store.getState().settings);
 });
 

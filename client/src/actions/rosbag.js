@@ -1,6 +1,8 @@
-export const addBag = ({ path, size, startTime, endTime, duration, messages, topics } = {}) => ({
+export const addBag = ({ id, path, size, startTime, endTime, duration, messages, topics } = {}) => ({
     type: "ADD_BAG",
     bag: {
+        id,
+        selected: false,
         path,
         size,
         startTime,

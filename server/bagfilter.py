@@ -38,7 +38,7 @@ def getBagInfoJson(path):
 
         topics = {}
         for t in info_dict["topics"]:
-            topics[t["topic"]] = [t["type"], t["messages"], -1, int(t["messages"]) / info["duration"]]
+            topics[t["topic"]] = {"type": t["type"], "messages": t["messages"], "frequency": int(t["messages"]) / info["duration"]}
         info["topics"] = topics
     except Exception:
         print("Get bag info ERROR: ")
