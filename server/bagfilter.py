@@ -23,6 +23,10 @@ def getFolderFromPath(path):
     return path[: path.rfind("/") + 1]
 
 
+def getFilenameFromPath(path):
+    return path[path.rfind("/") + 1 :]
+
+
 def mkdir(path):
     if not os.path.exists(path):
         os.makedirs(path)
@@ -65,8 +69,21 @@ def getBagInfoJson(path):
 
 def exportBag(pathIns, pathOuts, targetTopics, cropType, cropTimes, autoCropTimes, mergeBags, trajectoryTopic, sendProgress):
     print("Including topics: " + str(targetTopics))
+    progressPerBag = 1.0 / (len(pathIns) + 0.0) / (3.0 if cropType == "AUTO" else 1.0)
+    progressSoFar = 0.0
+
+    def openBagWithProgress(pathIn, detailsThen=""):
+        nonlocal progressSoFar
+        progressSoFar += progressPerBag
+        sendProgress(percentage=progressSoFar, details="Opening " + getFilenameFromPath(pathIn))
+        bagIn = rosbag.Bag(pathIn)
+        if detailsThen != "":
+            sendProgress(details=detailsThen)
+        return bagIn
 
     def autoGetCroppingArray():
+        nonlocal progressSoFar
+
         def getFirstMoveTime(bagIn):
             initialPosition = None
             for topic, msg, t in bagIn.read_messages(topics=[trajectoryTopic]):
@@ -80,7 +97,7 @@ def exportBag(pathIns, pathOuts, targetTopics, cropType, cropTimes, autoCropTime
 
         def getFinalPosition(pathIn):
             finalPosition = None
-            bagIn = rosbag.Bag(pathIn)
+            bagIn = openBagWithProgress(pathIn, "Finding final location")
             for topic, msg, t in bagIn.read_messages(topics=[trajectoryTopic]):
                 pose = msg.pose.pose.position
                 finalPosition = pose
@@ -98,7 +115,7 @@ def exportBag(pathIns, pathOuts, targetTopics, cropType, cropTimes, autoCropTime
         cropTimes = []
         # first set cropStart using the first move time
         for pathIn, idx in zip(pathIns, range(len(pathIns))):
-            bagIn = rosbag.Bag(pathIn)
+            bagIn = openBagWithProgress(pathIn, "Finding first move time")
             duration = bagIn.get_end_time() - bagIn.get_start_time()
             firstMoveTime = getFirstMoveTime(bagIn)
             if firstMoveTime >= 0:
@@ -109,15 +126,19 @@ def exportBag(pathIns, pathOuts, targetTopics, cropType, cropTimes, autoCropTime
             else:
                 cropTimes.append({"cropStart": duration + 1, "cropEnd": duration})
 
+        sendProgress(percentage=0.33, details="Finding last move time")
+        progressSoFar = 0.33
         finalPosition = getFinalPosition(pathIns[-1])
         for pathIn, cropTime in zip(pathIns[::-1], cropTimes[::-1]):
-            bagIn = rosbag.Bag(pathIn)
+            bagIn = openBagWithProgress(pathIn, "Finding last move time")
             lastMoveTime = getLastMoveTime(bagIn, finalPosition)
             if lastMoveTime >= 0:
                 cropTime["cropEnd"] = lastMoveTime
                 break
             else:
                 cropTime["cropEnd"] = -1
+        sendProgress(percentage=0.66, details="Writing to bags")
+        progressSoFar = 0.66
         return cropTimes
 
     def exportToOneFileUsingManualCropping(pathIns, pathOut, cropTimes):
@@ -127,7 +148,7 @@ def exportBag(pathIns, pathOuts, targetTopics, cropType, cropTimes, autoCropTime
                 if cropTime["cropStart"] >= cropTime["cropEnd"]:
                     print("Skipping bag: " + pathIn + " because cropStart >= cropEnd")
                     continue
-                bagIn = rosbag.Bag(pathIn)
+                bagIn = openBagWithProgress(pathIn, "Writing to " + getFilenameFromPath(pathOut))
                 startTime = rospy.Time.from_sec(bagIn.get_start_time() + cropTime["cropStart"])
                 endTime = rospy.Time.from_sec(bagIn.get_start_time() + cropTime["cropEnd"])
                 for topic, msg, t in bagIn.read_messages(topics=targetTopics, start_time=startTime, end_time=endTime):
@@ -144,19 +165,22 @@ def exportBag(pathIns, pathOuts, targetTopics, cropType, cropTimes, autoCropTime
     def exportToSeparateFilesUsingAutoCropping():
         cropTimes = autoGetCroppingArray()
         exportToSeparateFilesUsingManualCropping(cropTimes)
+        return cropTimes
 
     def exportToOneFileUsingAutoCropping():
         cropTimes = autoGetCroppingArray()
         exportToOneFileUsingManualCropping(pathIns, pathOuts[0], cropTimes)
+        return cropTimes
 
     if cropType == "AUTO" and mergeBags:
-        exportToOneFileUsingAutoCropping()
+        cropTimes = exportToOneFileUsingAutoCropping()
     elif cropType == "AUTO" and not mergeBags:
-        exportToSeparateFilesUsingAutoCropping()
+        cropTimes = exportToSeparateFilesUsingAutoCropping()
     elif cropType == "MANUAL" and mergeBags:
         exportToOneFileUsingManualCropping(pathIns, pathOuts[0], cropTimes)
     elif cropType == "MANUAL" and not mergeBags:
         exportToSeparateFilesUsingManualCropping(cropTimes)
+    return cropTimes
 
 
 # def measureTrajectory(pathIn, pathOut, targetTopics, startTime, endTime, trajectoryTopic):

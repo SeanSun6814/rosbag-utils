@@ -90,6 +90,10 @@ const BagFilterTask = (props) => {
                     cropEnd: bag.cropEnd,
                 };
             });
+            const autoCropDataNum = {
+                start: parseFloat(autoCropDataGlobal.start),
+                end: parseFloat(autoCropDataGlobal.end),
+            };
             dispatch(
                 setTempTasks([
                     {
@@ -99,7 +103,7 @@ const BagFilterTask = (props) => {
                         cropType: cropBagsGlobal,
                         cropData: cropDataSmall,
                         targetTopics,
-                        autoCropData: autoCropDataGlobal,
+                        autoCropData: autoCropDataNum,
                         mergeBags: mergeBagsGlobal,
                         odometryTopic: odometryTopicGlobal,
                     },

@@ -15,7 +15,7 @@ const HorizontalLinearStepper = ({ children, status }) => {
     const setActiveStep = (step) => dispatch(setPageNumber(step));
 
     const handleNext = () => {
-        if (activeStep === steps.length) return setActiveStep(0);
+        if (activeStep === steps.length - 1) return setActiveStep(0);
         setActiveStep(activeStep + 1);
     };
 

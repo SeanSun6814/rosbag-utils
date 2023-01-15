@@ -7,9 +7,22 @@ import json
 from mttkinter import *
 import time
 
+progressPercentage = 0
+progressDetails = ""
+
 
 def processWebsocketRequest(req, res):
-    def sendProgress(percentage, details="", status="RUNNING"):
+    def sendProgress(percentage=-1, details="", status="RUNNING"):
+        global progressPercentage, progressDetails
+        if percentage == -1:
+            percentage = progressPercentage
+        else:
+            progressPercentage = max(min(percentage, 1), 0)
+        if details == "":
+            details = progressDetails
+        else:
+            progressDetails = details
+        print("PROGRESS", percentage, details)
         res({"type": "progress", "id": req["id"], "action": req["action"], "status": status, "progressDetails": details, "progress": percentage})
 
     def sendResult(result):
@@ -43,7 +56,7 @@ def processWebsocketRequest(req, res):
             print(e)
     elif req["action"] == "FILTER_BAG_TASK":
         print("REQUEST BAG_FILTER_TASK", str(req))
-        server.bagfilter.exportBag(
+        result = server.bagfilter.exportBag(
             req["pathIn"],
             req["pathOut"],
             req["targetTopics"],
@@ -54,7 +67,7 @@ def processWebsocketRequest(req, res):
             req["odometryTopic"],
             sendProgress,
         )
-        sendResult({"success": True})
+        sendResult({"finalCropTimes": result})
     else:
         sendError("Unknown action: " + req["action"])
 
