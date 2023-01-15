@@ -17,7 +17,7 @@ def processWebsocketRequest(req, res):
         if percentage == -1:
             percentage = progressPercentage
         else:
-            progressPercentage = max(min(percentage, 1), 0)
+            progressPercentage = max(min(percentage * 0.99, 1), 0)
         if details == "":
             details = progressDetails
         else:
