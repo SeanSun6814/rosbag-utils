@@ -10,15 +10,15 @@ import * as TASK from "../reducers/task";
 import { setPageNumber, setTaskType } from "../reducers/status";
 
 const TaskTypes = (props) => {
+    const dispatch = useDispatch();
     const [expanded, setExpanded] = React.useState(false);
     const [filterBagEnabled, setFilterBagEnabled] = React.useState(false);
     const [exportPointcloudEnabled, setExportPointcloudEnabled] = React.useState(false);
     const [exportVideoEnabled, setExportVideoEnabled] = React.useState(false);
     const [measureTrajectoryEnabled, setMeasureTrajectoryEnabled] = React.useState(false);
-    const dispatch = useDispatch();
 
     const handleChange = (panel) => (event, isExpanded) => {
-        setExpanded(isExpanded ? panel : false);
+        setExpanded(() => (isExpanded ? panel : false));
     };
 
     React.useEffect(() => {
@@ -37,10 +37,10 @@ const TaskTypes = (props) => {
             }
         });
 
-        setFilterBagEnabled(filterBagEnabled && numSelected > 0);
-        setExportPointcloudEnabled(exportPointcloudEnabled && numSelected > 0);
-        setExportVideoEnabled(exportVideoEnabled && numSelected > 0);
-        setMeasureTrajectoryEnabled(measureTrajectoryEnabled && numSelected > 0);
+        setFilterBagEnabled(() => filterBagEnabled && numSelected > 0);
+        setExportPointcloudEnabled(() => exportPointcloudEnabled && numSelected > 0);
+        setExportVideoEnabled(() => exportVideoEnabled && numSelected > 0);
+        setMeasureTrajectoryEnabled(() => measureTrajectoryEnabled && numSelected > 0);
     }, [props.topics]);
 
     const buttonHandler = (event, task) => {

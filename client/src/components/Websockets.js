@@ -15,6 +15,7 @@ const Ws = ({ children, state: database }) => {
         if (!client) return console.log("WEBSOCKET_NOT_CONNECTED, CANNOT_SET_HANDLERS");
         const processMessage = (message) => {
             const processProgress = (message) => {
+                console.log("MESSAGE: ", Object.keys(message));
                 dispatch(TASK.updateTask(message.id, { progress: message.progress }));
                 console.log("Progress: " + message.progress);
             };
@@ -22,8 +23,9 @@ const Ws = ({ children, state: database }) => {
             const processResult = (message) => {
                 dispatch(TASK.updateTask(message.id, { status: "COMPLETE", progress: 1, endTime: new Date().getTime(), result: message.result }));
                 console.log("TASK_COMPLETE", message.id);
+                const result = message.result;
                 if (message.action === TASK.OPEN_BAG_TASK) {
-                    const paths = JSON.parse(message.result);
+                    const paths = result;
                     paths.forEach((element) => {
                         const task = TASK.addTask(TASK.makeBagInfoTask(element), true);
                         const taskId = task.task.id;
@@ -32,8 +34,7 @@ const Ws = ({ children, state: database }) => {
                     });
                     if (paths.length === 0) dispatch(setBagOpening(false));
                 } else if (message.action === TASK.BAG_INFO_TASK) {
-                    let bagInfo = JSON.parse(message.result);
-                    bagInfo = { ...bagInfo, id: database.bags.length + 1 };
+                    const bagInfo = { ...result, id: database.bags.length + 1 };
                     dispatch(addBag(bagInfo));
                     dispatch(setBagOpening(false));
                 }
@@ -87,7 +88,7 @@ const Ws = ({ children, state: database }) => {
                     client.send(JSON.stringify(jsonObj));
                 },
             };
-            setSendJsonMessage(sendMsg);
+            setSendJsonMessage(() => sendMsg);
         };
         connect();
     }, []);

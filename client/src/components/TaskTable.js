@@ -12,18 +12,14 @@ import { connect, useDispatch } from "react-redux";
 import * as convert from "../utils/convert";
 import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 import { renderProgress } from "./CellProgressBar";
-import { Box, Stack } from "@mui/system";
-import PlayArrowIcon from "@mui/icons-material/PlayArrow";
-import CancelIcon from "@mui/icons-material/Cancel";
-import { Typography } from "@mui/material";
+
+import { renderStatus } from "./CellProgressChip";
 
 const TaskTable = (props) => {
     const dispatch = useDispatch();
     const [useMoreInfo, setUseMoreInfo] = React.useState(false);
-    const [startedTasks, setStartedTasks] = React.useState(false);
     const [displayFormat, setDisplayFormat] = React.useState([]);
     const [columns, setColumns] = React.useState([]);
-
     React.useEffect(() => {
         if (useMoreInfo)
             setColumns(() => [
@@ -40,7 +36,7 @@ const TaskTable = (props) => {
             setColumns(() => [
                 { field: "id", headerName: "#", flex: 0.5 },
                 { field: "type", headerName: "Task", flex: 2 },
-                { field: "status", headerName: "Status", flex: 1 },
+                { field: "status", headerName: "Status", flex: 1, renderCell: renderStatus },
                 { field: "progress", headerName: "Progress", flex: 1.4, renderCell: renderProgress },
             ]);
     }, [useMoreInfo]);
@@ -66,7 +62,7 @@ const TaskTable = (props) => {
     function CustomToolbar() {
         return (
             <GridToolbarContainer>
-                <Button variant="text" size="small" onClick={() => setUseMoreInfo(!useMoreInfo)} startIcon={<FolderOpenIcon />}>
+                <Button variant="text" size="small" onClick={() => setUseMoreInfo(() => !useMoreInfo)} startIcon={<FolderOpenIcon />}>
                     {useMoreInfo ? "Less" : "More"} info
                 </Button>
                 <GridToolbarColumnsButton />
@@ -77,37 +73,18 @@ const TaskTable = (props) => {
         );
     }
 
-    function handleStartStop() {
-        setStartedTasks((prevState) => !prevState);
-    }
-
     return (
-        <Stack direction="row" spacing={2}>
-            <div style={{ width: "66%" }}>
-                <div style={{ height: "calc(100vh - 290px)" }}>
-                    <DataGrid
-                        rows={displayFormat}
-                        columns={columns}
-                        components={{
-                            Toolbar: CustomToolbar,
-                        }}
-                    />
-                    <Button
-                        startIcon={startedTasks ? <CancelIcon /> : <PlayArrowIcon />}
-                        variant="contained"
-                        size="large"
-                        sx={{ width: "100%" }}
-                        onClick={(e) => handleStartStop()}
-                        color={startedTasks ? "error" : "success"}
-                    >
-                        {startedTasks ? "Stop" : "Start"}
-                    </Button>
-                </div>
+        <div style={{ width: "100%" }}>
+            <div style={{ height: "calc(100vh - 290px)" }}>
+                <DataGrid
+                    rows={displayFormat}
+                    columns={columns}
+                    components={{
+                        Toolbar: CustomToolbar,
+                    }}
+                />
             </div>
-            <Box>
-                <Typography fontSize={"3em"}>Running task</Typography>
-            </Box>
-        </Stack>
+        </div>
     );
 };
 export default connect((state) => ({

@@ -61,7 +61,7 @@ const BagFilterTask = (props) => {
                 };
             });
         });
-        
+
         return () => {
             const targetTopics = selectedTopics;
             const sourcePath = selectedBags[0].path.replace(/\/[^\/]+$/, "");
@@ -111,8 +111,8 @@ const BagFilterTask = (props) => {
     };
 
     return (
-        <Box sx={{ width: "100%" }}>
-            <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
+        <Box sx={{ width: "100%", height: "calc(100vh - 18em)", overflow: "hidden", overflowY: "scroll" }}>
+            <Grid container sx={{}} rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
                 <Grid
                     width={"fit-content"}
                     minWidth={"300px"}

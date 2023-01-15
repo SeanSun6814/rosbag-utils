@@ -49,7 +49,7 @@ def getBagInfoJson(path):
         print("Get bag info ERROR: ")
         traceback.print_exc()
     print("Finished getting bag info")
-    return json.dumps(info)
+    return info
 
 
 def getFirstMoveTime(path, targetTopic):

@@ -60,7 +60,7 @@ const BagTable = (props) => {
     function CustomToolbar() {
         return (
             <GridToolbarContainer>
-                <Button variant="text" size="small" onClick={() => setUseFullPath(!useFullPath)} startIcon={<FolderOpenIcon />}>
+                <Button variant="text" size="small" onClick={() => setUseFullPath(() => !useFullPath)} startIcon={<FolderOpenIcon />}>
                     {useFullPath ? "Hide" : "Show"} path
                 </Button>
                 <GridToolbarColumnsButton />
@@ -82,7 +82,7 @@ const BagTable = (props) => {
                         Toolbar: CustomToolbar,
                     }}
                     onSelectionModelChange={(newSelectionModel) => {
-                        setSelectionModel(newSelectionModel);
+                        setSelectionModel(() => newSelectionModel);
                     }}
                     selectionModel={selectionModel}
                 />

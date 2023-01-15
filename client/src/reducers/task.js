@@ -9,12 +9,14 @@ export const addTask = (config, isSystem) => ({
         startTime: -1,
         endTime: -1,
         progress: 0,
+        progressDetails: "Not started",
         isSystem,
         result: null,
     },
 });
 
 export const startTask = (id) => updateTask(id, { status: "READY" });
+export const stopTask = (id) => updateTask(id, { status: "WAITING" });
 
 export const updateTask = (id, updates) => ({
     type: "UPDATE_TASK",

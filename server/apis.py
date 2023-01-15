@@ -5,13 +5,15 @@ import tkinter as tk
 from tkinter import filedialog
 import json
 from mttkinter import *
+import time
 
 
 def processWebsocketRequest(req, res):
-    def sendProgress(percentage, status):
-        res({"type": "progress", "id": req["id"], "action": req["action"], "status": status, "percentage": percentage})
+    def sendProgress(percentage, details="", status="RUNNING"):
+        res({"type": "progress", "id": req["id"], "action": req["action"], "status": status, "progressDetails": details, "progress": percentage})
 
     def sendResult(result):
+        sendProgress(1, "COMPLETE")
         res({"type": "result", "id": req["id"], "action": req["action"], "result": result})
 
     def sendError(error):
@@ -29,7 +31,7 @@ def processWebsocketRequest(req, res):
             print(file_names)
         except Exception as e:
             print(e)
-        sendResult(json.dumps(file_names))
+        sendResult(file_names)
     elif req["action"] == "BAG_INFO_TASK":
         path = req["path"]
         print("REQUEST BAG_INFO_TASK: " + path)
@@ -39,3 +41,11 @@ def processWebsocketRequest(req, res):
         except Exception as e:
             sendError(str(e))
             print(e)
+    elif req["action"] == "FILTER_BAG_TASK":
+        print("REQUEST BAG_FILTER_TASK: ")
+        for i in range(5):
+            sendProgress(i / 5, "Doing something")
+            time.sleep(1)
+        sendResult({"hello": "world"})
+    else:
+        sendError("Unknown action: " + req["action"])
