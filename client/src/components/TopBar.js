@@ -7,7 +7,7 @@ import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import Tooltip from "@mui/material/Tooltip";
 import Brightness4Icon from "@mui/icons-material/Brightness4";
-import { toggleTheme } from "../actions/settings";
+import { toggleTheme } from "../reducers/settings";
 import { connect, useDispatch } from "react-redux";
 import WifiTetheringIcon from "@mui/icons-material/WifiTethering";
 import WifiTetheringOffIcon from "@mui/icons-material/WifiTetheringOff";

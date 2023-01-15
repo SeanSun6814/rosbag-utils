@@ -5,45 +5,44 @@ import Step from "@mui/material/Step";
 import StepLabel from "@mui/material/StepLabel";
 import Button from "@mui/material/Button";
 import { useDispatch, connect } from "react-redux";
+import { setPageNumber } from "../reducers/status";
 
 const steps = ["Add bags files", "Add message topics", "Add processing tasks", "Finish"];
 
 const HorizontalLinearStepper = ({ children, status }) => {
-    const [activeStep, setActiveStep] = React.useState(0);
+    const dispatch = useDispatch();
+    const activeStep = status.page_number;
+    const setActiveStep = (step) => dispatch(setPageNumber(step));
 
     const handleNext = () => {
-        if (activeStep === steps.length) return setActiveStep((prevActiveStep) => 0);
-        setActiveStep((prevActiveStep) => prevActiveStep + 1);
+        if (activeStep === steps.length) return setActiveStep(0);
+        setActiveStep(activeStep + 1);
     };
 
     const handleBack = () => {
-        setActiveStep((prevActiveStep) => {
-            if (prevActiveStep === 3) return 1;
-            return prevActiveStep - 1;
-        });
+        if (activeStep === 3) return 1;
+        setActiveStep(activeStep - 1);
     };
 
-    let nextButton;
+    let nextButton, prevButton;
     const enableNextButton = status.page_complete && !status.server_busy;
     const enablePrevButton = activeStep !== 0 && activeStep !== steps.length && !status.server_busy;
-    if (activeStep === steps.length - 1)
-        nextButton = (
-            <Button disabled={!enableNextButton} onClick={handleNext}>
-                {"Finish"}
-            </Button>
-        );
-    else if (activeStep === steps.length)
-        nextButton = (
-            <Button disabled={!enableNextButton} onClick={handleNext}>
-                {"Done"}
-            </Button>
-        );
-    else
-        nextButton = (
-            <Button disabled={!enableNextButton} onClick={handleNext}>
-                {"Next"}
-            </Button>
-        );
+    if (activeStep === 0) {
+        nextButton = "Next";
+        prevButton = "Batch Mode";
+    } else if (activeStep === 1) {
+        nextButton = "Next";
+        prevButton = "Back";
+    } else if (activeStep === 2) {
+        nextButton = "Add task";
+        prevButton = "Back";
+    } else if (activeStep === 3) {
+        nextButton = "Finish";
+        prevButton = "Add more tasks";
+    } else if (activeStep === 4) {
+        nextButton = "Done";
+        prevButton = "Add more tasks";
+    }
 
     return (
         <Box sx={{ width: "90%", marginLeft: "5%", marginRight: "5%", marginTop: "25px", height: "calc(100vh - 220px)" }}>
@@ -60,14 +59,15 @@ const HorizontalLinearStepper = ({ children, status }) => {
                 })}
             </Stepper>
             <React.Fragment>
-                {/* <Typography sx={{ mt: 2, mb: 1 }}>Step {activeStep + 1}</Typography> */}
                 <Box sx={{ height: "100%" }}>{children[activeStep]}</Box>
-                <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
+                <Box sx={{ position: "fixed", bottom: "3vh", width: "90vw", display: "flex", flexDirection: "row", pt: 2 }}>
                     <Button color="inherit" disabled={!enablePrevButton} onClick={handleBack} sx={{ mr: 1 }}>
-                        Back
+                        {prevButton}
                     </Button>
                     <Box sx={{ flex: "1 1 auto" }} />
-                    {nextButton}
+                    <Button disabled={!enableNextButton} onClick={handleNext}>
+                        {nextButton}
+                    </Button>
                 </Box>
             </React.Fragment>
         </Box>

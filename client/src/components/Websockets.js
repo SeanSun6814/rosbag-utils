@@ -1,8 +1,8 @@
 import React, { useEffect } from "react";
 import { useDispatch, connect } from "react-redux";
-import { addBag } from "../actions/rosbag";
-import { setBagOpening, setServerBusy, setWSConnection } from "../actions/status";
-import * as TASK from "../actions/task";
+import { addBag } from "../reducers/rosbag";
+import { setBagOpening, setServerBusy, setWSConnection } from "../reducers/status";
+import * as TASK from "../reducers/task";
 
 export const WebSocketContext = React.createContext();
 let client;

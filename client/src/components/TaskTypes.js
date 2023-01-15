@@ -5,10 +5,13 @@ import AccordionSummary from "@mui/material/AccordionSummary";
 import Typography from "@mui/material/Typography";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { Button, Grid, Paper } from "@mui/material";
-import { connect } from "react-redux";
+import { connect, useDispatch } from "react-redux";
+import * as TASK from "../reducers/task";
+import { setPageNumber, setTaskType } from "../reducers/status";
 
 const TaskTypes = (props) => {
     const [expanded, setExpanded] = React.useState(false);
+    const dispatch = useDispatch();
 
     const handleChange = (panel) => (event, isExpanded) => {
         setExpanded(isExpanded ? panel : false);
@@ -36,11 +39,16 @@ const TaskTypes = (props) => {
 
     const buttonHandler = (event, task) => {
         event.stopPropagation();
+        if (task) {
+            console.log(task);
+            dispatch(setTaskType(task));
+            dispatch(setPageNumber(2));
+        }
     };
 
     return (
         <Grid container justifyContent="center" sx={{ width: "35vw" }}>
-            <Paper elevation={12} sx={{ marginTop: "50px", marginBottom: "50px", padding: "15px", backgroundColor: "inactive" }}>
+            <Paper elevation={12} sx={{ borderRadius: "15px", marginTop: "50px", marginBottom: "50px", padding: "15px", backgroundColor: "inactive" }}>
                 <Typography sx={{ fontSize: "2em", textAlign: "center", marginBottom: "15px" }}>Tasks</Typography>
                 <Accordion expanded={expanded === "panel1"} onChange={handleChange("panel1")}>
                     <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1bh-content" id="panel1bh-header">
@@ -57,7 +65,7 @@ const TaskTypes = (props) => {
                                             variant="contained"
                                             sx={{ marginRight: "10px" }}
                                             onClick={(e) => {
-                                                buttonHandler(e, "filter_bag");
+                                                buttonHandler(e, TASK.FILTER_BAG_TASK);
                                             }}
                                             onChange={buttonHandler}
                                         >
@@ -87,7 +95,7 @@ const TaskTypes = (props) => {
                                             variant="contained"
                                             sx={{ marginRight: "10px" }}
                                             onClick={(e) => {
-                                                buttonHandler(e, "export_pointcloud");
+                                                buttonHandler(e, TASK.POINTCLOUD_EXPORT_TASK);
                                             }}
                                             onChange={buttonHandler}
                                         >
@@ -117,7 +125,7 @@ const TaskTypes = (props) => {
                                             variant="contained"
                                             sx={{ marginRight: "10px" }}
                                             onClick={(e) => {
-                                                buttonHandler(e, "export_video");
+                                                buttonHandler(e, TASK.VIDEO_EXPORT_TASK);
                                             }}
                                             onChange={buttonHandler}
                                         >
@@ -147,7 +155,7 @@ const TaskTypes = (props) => {
                                             variant="contained"
                                             sx={{ marginRight: "10px" }}
                                             onClick={(e) => {
-                                                buttonHandler(e, "measure_trajectory");
+                                                buttonHandler(e, TASK.MEASURE_TRAJECTORY_TASK);
                                             }}
                                             onChange={buttonHandler}
                                         >

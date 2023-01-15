@@ -2,10 +2,14 @@ import * as React from "react";
 import LoadingButton from "@mui/lab/LoadingButton";
 import AddIcon from "@mui/icons-material/Add";
 import Stack from "@mui/material/Stack";
-import { setBagOpening, setPageComplete } from "../actions/status";
+import { setBagOpening, setPageComplete } from "../reducers/status";
 import { useDispatch, connect } from "react-redux";
-import { addTask, startTask, makeOpenBagTask } from "../actions/task";
+import { addTask, startTask, makeOpenBagTask } from "../reducers/task";
 import BagTable from "./BagTable";
+import { addAllTopicsFromBags, clearTopics } from "../reducers/topic";
+
+
+let selectedBags;
 
 const BagPage = (props) => {
     const dispatch = useDispatch();
@@ -20,10 +24,14 @@ const BagPage = (props) => {
 
     React.useEffect(() => {
         dispatch(setPageComplete(false));
+        return () => {
+            dispatch(clearTopics());
+            dispatch(addAllTopicsFromBags(selectedBags));
+        };
     }, []);
 
     React.useEffect(() => {
-        const selectedBags = props.bags.filter((bag) => bag.selected);
+        selectedBags = props.bags.filter((bag) => bag.selected);
         dispatch(setPageComplete(selectedBags.length > 0));
     }, [props.bags]);
 

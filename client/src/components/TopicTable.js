@@ -7,10 +7,10 @@ import {
     GridToolbarFilterButton,
     GridToolbarDensitySelector,
     GridToolbarExport,
+    GridToolbar,
 } from "@mui/x-data-grid";
 import { connect, useDispatch } from "react-redux";
-import { setSelectedBags } from "../actions/rosbag";
-import { addAllTopicsFromBags, addTopic, clearTopics, setSelectedTopics } from "../actions/topic";
+import { addTopic, clearTopics, setSelectedTopics } from "../reducers/topic";
 
 const columns = [
     { field: "name", headerName: "Topic", flex: 5 },
@@ -26,30 +26,21 @@ const TopicTable = (props) => {
     const display_format = Object.keys(props.topics).map((topic, idx) => {
         return {
             ...props.topics[topic],
-            id: idx + 1,
+            id: props.topics[topic].name,
         };
     });
 
     React.useEffect(() => {
-        const selectedBags = props.bags.filter((bag) => bag.selected);
-        dispatch(clearTopics());
-        dispatch(addAllTopicsFromBags(selectedBags));
+        let newSelectionModel = [];
+        Object.keys(props.topics).forEach((topic) => {
+            if (props.topics[topic].selected) newSelectionModel.push(props.topics[topic].name);
+        });
+        setSelectionModel(newSelectionModel);
     }, []);
 
     React.useEffect(() => {
         dispatch(setSelectedTopics(selectionModel));
     }, [selectionModel]);
-
-    function CustomToolbar() {
-        return (
-            <GridToolbarContainer>
-                <GridToolbarColumnsButton />
-                <GridToolbarFilterButton />
-                <GridToolbarDensitySelector />
-                <GridToolbarExport />
-            </GridToolbarContainer>
-        );
-    }
 
     return (
         <div style={{ width: "100%" }}>
@@ -59,7 +50,7 @@ const TopicTable = (props) => {
                     rows={display_format}
                     columns={columns}
                     components={{
-                        Toolbar: CustomToolbar,
+                        Toolbar: GridToolbar,
                     }}
                     onSelectionModelChange={(newSelectionModel) => {
                         setSelectionModel(newSelectionModel);

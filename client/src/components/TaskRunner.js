@@ -1,8 +1,8 @@
 import React, { useEffect } from "react";
 import { WebSocketContext } from "./Websockets";
-import { updateTask } from "../actions/task";
+import { updateTask } from "../reducers/task";
 import { useDispatch, connect } from "react-redux";
-import { setServerBusy } from "../actions/status";
+import { setServerBusy } from "../reducers/status";
 
 const TaskRunner = ({ allTasks }) => {
     const dispatch = useDispatch();

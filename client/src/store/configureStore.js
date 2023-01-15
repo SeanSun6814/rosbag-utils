@@ -17,6 +17,9 @@ let initialState = {
         server_busy: false,
         page_complete: false,
         bag_opening: false,
+        page_number: 0,
+        task_type: "",
+        temp_tasks: [],
     },
 };
 

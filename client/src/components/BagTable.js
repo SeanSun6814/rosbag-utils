@@ -11,7 +11,7 @@ import {
 import { connect, useDispatch } from "react-redux";
 import * as convert from "../utils/convert";
 import FolderOpenIcon from "@mui/icons-material/FolderOpen";
-import { setSelectedBags } from "../actions/rosbag";
+import { setSelectedBags } from "../reducers/rosbag";
 
 const columns = [
     { field: "id", headerName: "#", flex: 0.5 },
@@ -26,6 +26,7 @@ const columns = [
 const BagTable = (props) => {
     const [useFullPath, setUseFullPath] = React.useState(false);
     const [selectionModel, setSelectionModel] = React.useState([]);
+    
     const dispatch = useDispatch();
 
     const display_format = props.bags.map((bag) => {
