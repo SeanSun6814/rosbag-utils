@@ -17,6 +17,7 @@ const columns = [
 ];
 
 let selectedBags, selectedTopics;
+let mergeBagsGlobal, cropBagsGlobal, cropDataGlobal, autoCropDataGlobal, odometryTopicGlobal;
 
 const BagFilterTask = (props) => {
     const dispatch = useDispatch();
@@ -45,10 +46,24 @@ const BagFilterTask = (props) => {
     React.useEffect(() => {
         selectedBags = props.bags.filter((bag) => bag.selected);
     }, [props.bags]);
-
     React.useEffect(() => {
         selectedTopics = Object.keys(props.topics).filter((topic) => props.topics[topic].selected);
     }, [props.topics]);
+    React.useEffect(() => {
+        mergeBagsGlobal = mergeBags;
+    }, [mergeBags]);
+    React.useEffect(() => {
+        cropBagsGlobal = cropBags;
+    }, [cropBags]);
+    React.useEffect(() => {
+        cropDataGlobal = cropData;
+    }, [cropData]);
+    React.useEffect(() => {
+        autoCropDataGlobal = autoCropData;
+    }, [autoCropData]);
+    React.useEffect(() => {
+        odometryTopicGlobal = odometryTopic;
+    }, [odometryTopic]);
 
     React.useEffect(() => {
         setCropData((prevState) => {
@@ -69,7 +84,7 @@ const BagFilterTask = (props) => {
             const filenames = selectedBags.map((bag) => bag.path.replace(/^.*[\\\/]/, ""));
             const pathIns = selectedBags.filter((bag) => bag.selected).map((bag) => bag.path);
             const pathOuts = filenames.map((filename) => exportPath + filename);
-            const cropDataSmall = cropData.map((bag) => {
+            const cropDataSmall = cropDataGlobal.map((bag) => {
                 return {
                     cropStart: bag.cropStart,
                     cropEnd: bag.cropEnd,
@@ -81,12 +96,12 @@ const BagFilterTask = (props) => {
                         action: TASK.FILTER_BAG_TASK,
                         pathIn: pathIns,
                         pathOut: pathOuts,
-                        cropType: cropBags,
+                        cropType: cropBagsGlobal,
                         cropData: cropDataSmall,
                         targetTopics,
-                        autoCropData,
-                        mergeBags,
-                        odometryTopic,
+                        autoCropData: autoCropDataGlobal,
+                        mergeBags: mergeBagsGlobal,
+                        odometryTopic: odometryTopicGlobal,
                     },
                 ])
             );
