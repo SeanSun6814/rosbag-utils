@@ -1,8 +1,10 @@
 import rosbag
+import rospy
 import json
 import yaml
 import subprocess
 import traceback
+import os
 
 
 class bcolors:
@@ -15,6 +17,15 @@ class bcolors:
     ENDC = "\033[0m"
     BOLD = "\033[1m"
     UNDERLINE = "\033[4m"
+
+
+def getFolderFromPath(path):
+    return path[: path.rfind("/") + 1]
+
+
+def mkdir(path):
+    if not os.path.exists(path):
+        os.makedirs(path)
 
 
 def getBagInfoJson(path):
@@ -52,74 +63,222 @@ def getBagInfoJson(path):
     return info
 
 
-def getFirstMoveTime(path, targetTopic):
-    print("Getting first move time on " + targetTopic + " for " + path)
-    bagIn = rosbag.Bag(path)
-    count = 0
-    resultTime = -2
-    for topic, msg, t in bagIn.read_messages(topics=[targetTopic]):
-        if resultTime == -2:
-            resultTime = -1
-        pose = msg.pose.pose.position
-        if abs(pose.x) > 0.5 or abs(pose.y) > 0.5 or abs(pose.z) > 0.5:
-            if count == 0:
-                resultTime = str(t)
-            elif count > 5:
-                print("Found first move time: " + str(resultTime))
-                return resultTime
-            count += 1
-        else:
-            count = 0
-
-    # >=0: result, -1: no movement, -2: topic not found
-    return resultTime
-
-
-def exportBag(pathIn, pathOut, targetTopics, startTime, endTime, trajectoryTopic):
-    print("Processing bag " + pathIn + " -> " + pathOut + " for time range " + startTime + "-" + endTime)
-    targetTopics = targetTopics.split(" ")
+def exportBag(pathIns, pathOuts, targetTopics, cropType, cropTimes, autoCropTimes, mergeBags, trajectoryTopic, sendProgress):
     print("Including topics: " + str(targetTopics))
 
-    if abs(-1 - float(startTime)) < 0.01:
-        print("Skip bag...")
-        return [0, 0, 0, 0, 0]
+    def autoGetCroppingArray():
+        def getFirstMoveTime(bagIn):
+            initialPosition = None
+            for topic, msg, t in bagIn.read_messages(topics=[trajectoryTopic]):
+                pose = msg.pose.pose.position
+                if initialPosition is None:
+                    initialPosition = pose
+                if abs(pose.x - initialPosition.x) > 0.5 or abs(pose.y - initialPosition.y) > 0.5 or abs(pose.z - initialPosition.z) > 0.5:
+                    return t.to_time() - bagIn.get_start_time()
+            print("No first move time found")
+            return -1
 
-    startTime = float(startTime) * 1e9
-    endTime = float(endTime) * 1e9
+        def getFinalPosition(pathIn):
+            finalPosition = None
+            bagIn = rosbag.Bag(pathIn)
+            for topic, msg, t in bagIn.read_messages(topics=[trajectoryTopic]):
+                pose = msg.pose.pose.position
+                finalPosition = pose
+            return finalPosition
 
-    bagIn = rosbag.Bag(pathIn)
-    lastPos = None
-    length = 0.0
-    with rosbag.Bag(pathOut, "w") as bagOut:
-        for topic, msg, t in bagIn.read_messages(topics=targetTopics):
-            timestamp = float(str(t))
-            if timestamp >= startTime and timestamp <= endTime:
-                if topic in targetTopics:
-                    bagOut.write(topic, msg, t)
+        def getLastMoveTime(bagIn, finalPosition):
+            lastMoveTime = -1
+            for topic, msg, t in bagIn.read_messages(topics=[trajectoryTopic]):
+                pose = msg.pose.pose.position
+                if abs(pose.x - finalPosition.x) > 0.5 or abs(pose.y - finalPosition.y) > 0.5 or abs(pose.z - finalPosition.z) > 0.5:
+                    lastMoveTime = t.to_time()
+            return lastMoveTime - bagIn.get_start_time()
 
-                if topic == trajectoryTopic:
-                    pose = msg.pose.pose.position
-                    pose = [pose.x, pose.y, pose.z, timestamp]
-                    length += dist(pose, lastPos)
-                    lastPos = pose
-            elif timestamp > endTime:
+        initialPosition = None
+        cropTimes = []
+        # first set cropStart using the first move time
+        for pathIn, idx in zip(pathIns, range(len(pathIns))):
+            bagIn = rosbag.Bag(pathIn)
+            duration = bagIn.get_end_time() - bagIn.get_start_time()
+            firstMoveTime = getFirstMoveTime(bagIn)
+            if firstMoveTime >= 0:
+                cropTimes.append({"cropStart": firstMoveTime - autoCropTimes["start"], "cropEnd": duration})
+                for i in range(idx + 1, len(pathIns)):
+                    cropTimes.append({"cropStart": 0, "cropEnd": duration})
                 break
+            else:
+                cropTimes.append({"cropStart": duration + 1, "cropEnd": duration})
 
-    print("Finished export bag")
-    if trajectoryTopic == "" or lastPos is None:
-        return [0, 0, 0, -1, 0]
-    else:
-        lastPos.append(length)
-        return lastPos
+        finalPosition = getFinalPosition(pathIns[-1])
+        for pathIn, cropTime in zip(pathIns[::-1], cropTimes[::-1]):
+            bagIn = rosbag.Bag(pathIn)
+            lastMoveTime = getLastMoveTime(bagIn, finalPosition)
+            if lastMoveTime >= 0:
+                cropTime["cropEnd"] = lastMoveTime
+                break
+            else:
+                cropTime["cropEnd"] = -1
+        return cropTimes
+
+    def exportToOneFileUsingManualCropping(pathIns, pathOut, cropTimes):
+        mkdir(getFolderFromPath(pathOut))
+        with rosbag.Bag(pathOut, "w") as bagOut:
+            for pathIn, cropTime in zip(pathIns, cropTimes):
+                if cropTime["cropStart"] >= cropTime["cropEnd"]:
+                    print("Skipping bag: " + pathIn + " because cropStart >= cropEnd")
+                    continue
+                bagIn = rosbag.Bag(pathIn)
+                startTime = rospy.Time.from_sec(bagIn.get_start_time() + cropTime["cropStart"])
+                endTime = rospy.Time.from_sec(bagIn.get_start_time() + cropTime["cropEnd"])
+                for topic, msg, t in bagIn.read_messages(topics=targetTopics, start_time=startTime, end_time=endTime):
+                    bagOut.write(topic, msg, t)
+                print("Finished export bag: " + pathIn)
+
+    def exportToSeparateFilesUsingManualCropping(cropTimes):
+        for pathIn, pathOut, cropTime in zip(pathIns, pathOuts, cropTimes):
+            if cropTime["cropStart"] >= cropTime["cropEnd"]:
+                print("Skipping bag: " + pathIn + " because cropStart >= cropEnd")
+                continue
+            exportToOneFileUsingManualCropping([pathIn], pathOut, [cropTime])
+
+    def exportToSeparateFilesUsingAutoCropping():
+        cropTimes = autoGetCroppingArray()
+        exportToSeparateFilesUsingManualCropping(cropTimes)
+
+    def exportToOneFileUsingAutoCropping():
+        cropTimes = autoGetCroppingArray()
+        exportToOneFileUsingManualCropping(pathIns, pathOuts[0], cropTimes)
+
+    if cropType == "AUTO" and mergeBags:
+        exportToOneFileUsingAutoCropping()
+    elif cropType == "AUTO" and not mergeBags:
+        exportToSeparateFilesUsingAutoCropping()
+    elif cropType == "MANUAL" and mergeBags:
+        exportToOneFileUsingManualCropping(pathIns, pathOuts[0], cropTimes)
+    elif cropType == "MANUAL" and not mergeBags:
+        exportToSeparateFilesUsingManualCropping(cropTimes)
 
 
-def dist(a, b):
-    if a is None or b is None:
-        return 0.0
-    [x1, y1, z1, _] = a
-    [x2, y2, z2, _] = b
-    return (((x2 - x1) ** 2) + ((y2 - y1) ** 2) + ((z2 - z1) ** 2)) ** (1 / 2)
+# def measureTrajectory(pathIn, pathOut, targetTopics, startTime, endTime, trajectoryTopic):
+#     print("Processing bag " + pathIn + " -> " + pathOut + " for time range " + startTime + "-" + endTime)
+#     targetTopics = targetTopics.split(" ")
+#     print("Including topics: " + str(targetTopics))
+
+#     if abs(-1 - float(startTime)) < 0.01:
+#         print("Skip bag...")
+#         return [0, 0, 0, 0, 0]
+
+#     startTime = float(startTime) * 1e9
+#     endTime = float(endTime) * 1e9
+
+#     bagIn = rosbag.Bag(pathIn)
+#     lastPos = None
+#     length = 0.0
+#     with rosbag.Bag(pathOut, "w") as bagOut:
+#         for topic, msg, t in bagIn.read_messages(topics=targetTopics):
+#             timestamp = float(str(t))
+#             if timestamp >= startTime and timestamp <= endTime:
+#                 if topic in targetTopics:
+#                     bagOut.write(topic, msg, t)
+
+#                 if topic == trajectoryTopic:
+#                     pose = msg.pose.pose.position
+#                     pose = [pose.x, pose.y, pose.z, timestamp]
+#                     length += dist(pose, lastPos)
+#                     lastPos = pose
+#             elif timestamp > endTime:
+#                 break
+
+#     print("Finished export bag")
+#     if trajectoryTopic == "" or lastPos is None:
+#         return [0, 0, 0, -1, 0]
+#     else:
+#         lastPos.append(length)
+#         return lastPos
+
+
+# def dist(a, b):
+#     if a is None or b is None:
+#         return 0.0
+#     [x1, y1, z1, _] = a
+#     [x2, y2, z2, _] = b
+#     return (((x2 - x1) ** 2) + ((y2 - y1) ** 2) + ((z2 - z1) ** 2)) ** (1 / 2)
 
 
 # print(getBagInfoJson("/media/sean/SSD/_ProcessedDatasets/dataset_paper/hawkins_full_loop_r3_09_07/odom_results/2022-07-11-16-13-18.bag"))
 # print(getFirstMoveTime("/home/sean/Downloads/subt_datasets/nuc_2021-09-05-14-52-55_1.bag", "/aft_mapped_to_init"))
+
+# exportBag(
+#     [
+#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/core_2022-12-19-13-28-33_0.bag",
+#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/core_2022-12-19-13-31-11_1.bag",
+#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/core_2022-12-19-13-33-45_2.bag",
+#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/core_2022-12-19-13-36-20_3.bag",
+#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/core_2022-12-19-13-38-53_4.bag",
+#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/core_2022-12-19-13-41-27_5.bag",
+#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/core_2022-12-19-13-44-01_6.bag",
+#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/core_2022-12-19-13-46-36_7.bag",
+#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/core_2022-12-19-13-49-11_8.bag",
+#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/core_2022-12-19-13-51-46_9.bag",
+#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/core_2022-12-19-13-54-21_10.bag",
+#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/core_2022-12-19-13-56-57_11.bag",
+#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/core_2022-12-19-13-59-33_12.bag",
+#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/core_2022-12-19-14-02-06_13.bag",
+#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/core_2022-12-19-14-04-37_14.bag",
+#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/core_2022-12-19-14-07-07_15.bag",
+#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/core_2022-12-19-14-09-41_16.bag",
+#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/core_2022-12-19-14-12-18_17.bag",
+#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/core_2022-12-19-14-14-53_18.bag",
+#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/core_2022-12-19-14-17-26_19.bag",
+#     ],
+#     [
+#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/export/core_2022-12-19-13-28-33_0.bag",
+#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/export/core_2022-12-19-13-31-11_1.bag",
+#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/export/core_2022-12-19-13-33-45_2.bag",
+#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/export/core_2022-12-19-13-36-20_3.bag",
+#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/export/core_2022-12-19-13-38-53_4.bag",
+#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/export/core_2022-12-19-13-41-27_5.bag",
+#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/export/core_2022-12-19-13-44-01_6.bag",
+#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/export/core_2022-12-19-13-46-36_7.bag",
+#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/export/core_2022-12-19-13-49-11_8.bag",
+#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/export/core_2022-12-19-13-51-46_9.bag",
+#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/export/core_2022-12-19-13-54-21_10.bag",
+#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/export/core_2022-12-19-13-56-57_11.bag",
+#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/export/core_2022-12-19-13-59-33_12.bag",
+#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/export/core_2022-12-19-14-02-06_13.bag",
+#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/export/core_2022-12-19-14-04-37_14.bag",
+#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/export/core_2022-12-19-14-07-07_15.bag",
+#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/export/core_2022-12-19-14-09-41_16.bag",
+#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/export/core_2022-12-19-14-12-18_17.bag",
+#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/export/core_2022-12-19-14-14-53_18.bag",
+#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/export/core_2022-12-19-14-17-26_19.bag",
+#     ],
+#     ["/cmu_rc3/aft_mapped_to_init_imu"],
+#     "AUTO",
+#     [
+#         {"cropStart": 0, "cropEnd": 1000000 * 1000},
+#         {"cropStart": 0, "cropEnd": 1000000 * 1000},
+#         {"cropStart": 0, "cropEnd": 1000000 * 1000},
+#         {"cropStart": 0, "cropEnd": 1000000 * 1000},
+#         {"cropStart": 0, "cropEnd": 1000000 * 1000},
+#         {"cropStart": 0, "cropEnd": 1000000 * 1000},
+#         {"cropStart": 0, "cropEnd": 1000000 * 1000},
+#         {"cropStart": 0, "cropEnd": 1000000 * 1000},
+#         {"cropStart": 0, "cropEnd": 1000000 * 1000},
+#         {"cropStart": 0, "cropEnd": 1000000 * 1000},
+#         {"cropStart": 0, "cropEnd": 1000000 * 1000},
+#         {"cropStart": 0, "cropEnd": 1000000 * 1000},
+#         {"cropStart": 0, "cropEnd": 1000000 * 1000},
+#         {"cropStart": 0, "cropEnd": 1000000 * 1000},
+#         {"cropStart": 0, "cropEnd": 1000000 * 1000},
+#         {"cropStart": 0, "cropEnd": 1000000 * 1000},
+#         {"cropStart": 0, "cropEnd": 1000000 * 1000},
+#         {"cropStart": 0, "cropEnd": 1000000 * 1000},
+#         {"cropStart": 0, "cropEnd": 1000000 * 1000},
+#         {"cropStart": 0, "cropEnd": 1000000 * 1000},
+#     ],
+#     {"start": 0, "end": 0},
+#     True,
+#     "/cmu_rc3/aft_mapped_to_init_imu",
+#     None,
+# )

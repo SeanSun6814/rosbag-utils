@@ -42,10 +42,41 @@ def processWebsocketRequest(req, res):
             sendError(str(e))
             print(e)
     elif req["action"] == "FILTER_BAG_TASK":
-        print("REQUEST BAG_FILTER_TASK: ")
-        for i in range(5):
-            sendProgress(i / 5, details="Doing something " + str(i))
-            time.sleep(1)
-        sendResult({"hello": "world"})
+        print("REQUEST BAG_FILTER_TASK", str(req))
+        server.bagfilter.exportBag(
+            req["pathIn"],
+            req["pathOut"],
+            req["targetTopics"],
+            req["cropType"],
+            req["cropData"],
+            req["autoCropData"],
+            req["mergeBags"],
+            req["odometryTopic"],
+            sendProgress,
+        )
+        sendResult({"success": True})
     else:
         sendError("Unknown action: " + req["action"])
+
+
+# def exportBag(pathIns, pathOuts, targetTopics, cropType, cropTimes, autoCropTimes, mergeBags, trajectoryTopic, sendProgress):
+#     pass
+
+
+# exportBag(
+#     [
+#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/core_2022-12-19-13-28-33_0.bag",
+#     ],
+#     [
+#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/export/core_2022-12-19-13-28-33_0.bag",
+#     ],
+#     ["/cmu_rc3/aft_mapped_to_init_imu"],
+#     "AUTO",
+#     [
+#         {"cropStart": 0, "cropEnd": 1000000 * 1000},
+#     ],
+#     {"start": 0, "end": 0},
+#     True,
+#     "/cmu_rc3/aft_mapped_to_init_imu",
+#     None,
+# )

@@ -81,7 +81,7 @@ const BagFilterTask = (props) => {
             const targetTopics = selectedTopics;
             const sourcePath = selectedBags[0].path.replace(/\/[^\/]+$/, "");
             const exportPath = sourcePath + "/export_" + getDateTime() + "/";
-            const filenames = selectedBags.map((bag) => bag.path.replace(/^.*[\\\/]/, ""));
+            const filenames = selectedBags.map((bag) => (mergeBagsGlobal ? "Combined.bag" : bag.path.replace(/^.*[\\\/]/, "")));
             const pathIns = selectedBags.filter((bag) => bag.selected).map((bag) => bag.path);
             const pathOuts = filenames.map((filename) => exportPath + filename);
             const cropDataSmall = cropDataGlobal.map((bag) => {

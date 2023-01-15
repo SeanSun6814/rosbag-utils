@@ -31,12 +31,13 @@ const TaskTable = (props) => {
     React.useEffect(() => {
         const renderButton = (params) => {
             const handleView = (id) => {
-                setContent(() =>
-                    JSON.stringify(
-                        props.tasks.find((task) => task.id === id),
-                        null,
-                        4
-                    )+"\n"
+                setContent(
+                    () =>
+                        JSON.stringify(
+                            props.tasks.find((task) => task.id === id),
+                            null,
+                            4
+                        ) + "\n"
                 );
                 setShowCode(() => true);
                 console.log("View", id);
@@ -94,7 +95,7 @@ const TaskTable = (props) => {
                         startTime: task.startTime < 0 ? "Never" : convert.getDateTime(task.startTime, true),
                         endTime: task.endTime < 0 ? "Never" : convert.getDateTime(task.endTime, true),
                         progress: task.progress,
-                        actions: task.status === "WAITING" ? "DELETE" : "VIEW",
+                        actions: task.status === "COMPLETE" ? "VIEW" : "DELETE",
                     };
                 })
         );
