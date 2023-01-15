@@ -1,4 +1,4 @@
-import { Button } from "@mui/material";
+import { Button, Grid } from "@mui/material";
 import React from "react";
 import { connect, useDispatch } from "react-redux";
 import { setPageComplete, setTempTasks } from "../reducers/status";
@@ -10,6 +10,7 @@ import CancelIcon from "@mui/icons-material/Cancel";
 import { Typography } from "@mui/material";
 import { CircularProgressbar } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
+import ModalViewCode from "./ModalViewCode";
 
 const FinishPage = (props) => {
     const dispatch = useDispatch();
@@ -17,6 +18,7 @@ const FinishPage = (props) => {
     const [startButtonEnabled, setStartButtonEnabled] = React.useState(false);
     const [totalTasks, setTotalTasks] = React.useState(0);
     const [percentage, setPercentage] = React.useState(0);
+    const [statusMessage, setStatusMessage] = React.useState("Not started");
 
     React.useEffect(() => {
         dispatch(setPageComplete(true));
@@ -32,7 +34,15 @@ const FinishPage = (props) => {
         const numCompleted = totalTasks - queuedTasks.length - runningTasks.length - waitingTasks.length;
         const percentCompleted = (numCompleted * percentPerTask + runningTaskProgress * percentPerTask) * 100;
         setPercentage(() => percentCompleted);
-        if (startedTasks && numCompleted === totalTasks) setStartedTasks(() => false);
+        if (runningTasks.length > 0) {
+            setStatusMessage(() => runningTasks[0].progressDetails);
+            console.log("SETTING_DETAILS", runningTasks[0].progressDetails);
+        }
+
+        if (startedTasks && numCompleted === totalTasks) {
+            setStartedTasks(() => false);
+            setStatusMessage(() => "Finished");
+        }
         if (waitingTasks.length > 0 || startedTasks) setStartButtonEnabled(() => true);
         else setStartButtonEnabled(() => false);
     }, [props.tasks, startedTasks, totalTasks]);
@@ -82,9 +92,14 @@ const FinishPage = (props) => {
                 </Button>
             </div>
             <Box alignItems={"center"}>
-                <Box width={"20vw"} height={"20vh"}>
-                    <Typography fontSize={"3em"}>Running task</Typography>
-                    <CircularProgressbar value={percentage} text={`${Math.round(percentage)}%`} />
+                <Box width={"40vw"} display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
+                    <Stack direction="column" spacing={4} alignItems={"center"}>
+                        <Typography fontSize={"3em"}>Overall Progress</Typography>
+                        <Box width={"20vw"}>
+                            <CircularProgressbar value={percentage} text={`${Math.round(percentage)}%`} />
+                        </Box>
+                        <Typography fontSize={"1.5em"}>Status: {statusMessage}</Typography>
+                    </Stack>
                 </Box>
             </Box>
         </Stack>

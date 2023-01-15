@@ -24,9 +24,9 @@ export const updateTask = (id, updates) => ({
     updates,
 });
 
-export const removeTask = (path) => ({
+export const removeTask = (id) => ({
     type: "REMOVE_TASK",
-    path,
+    id,
 });
 
 export const clearTasks = () => ({

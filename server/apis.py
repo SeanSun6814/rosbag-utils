@@ -44,7 +44,7 @@ def processWebsocketRequest(req, res):
     elif req["action"] == "FILTER_BAG_TASK":
         print("REQUEST BAG_FILTER_TASK: ")
         for i in range(5):
-            sendProgress(i / 5, "Doing something")
+            sendProgress(i / 5, details="Doing something " + str(i))
             time.sleep(1)
         sendResult({"hello": "world"})
     else:

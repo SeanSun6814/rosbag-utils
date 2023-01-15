@@ -7,53 +7,94 @@ import {
     GridToolbarFilterButton,
     GridToolbarDensitySelector,
     GridToolbarExport,
+    GridActionsCellItem,
 } from "@mui/x-data-grid";
 import { connect, useDispatch } from "react-redux";
 import * as convert from "../utils/convert";
 import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 import { renderProgress } from "./CellProgressBar";
-
 import { renderStatus } from "./CellProgressChip";
+import DeleteIcon from "@mui/icons-material/Delete";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import task, { removeTask } from "../reducers/task";
+import { IconButton } from "@mui/material";
+import ModalViewCode from "./ModalViewCode";
 
 const TaskTable = (props) => {
     const dispatch = useDispatch();
     const [useMoreInfo, setUseMoreInfo] = React.useState(false);
     const [displayFormat, setDisplayFormat] = React.useState([]);
     const [columns, setColumns] = React.useState([]);
+    const [showCode, setShowCode] = React.useState(false);
+    const [content, setContent] = React.useState("");
+
     React.useEffect(() => {
+        const renderButton = (params) => {
+            const handleView = (id) => {
+                setContent(() =>
+                    JSON.stringify(
+                        props.tasks.find((task) => task.id === id),
+                        null,
+                        4
+                    )+"\n"
+                );
+                setShowCode(() => true);
+                console.log("View", id);
+                console.log("Content", content);
+            };
+            if (params.value === "DELETE")
+                return (
+                    <IconButton
+                        color="primary"
+                        onClick={() => {
+                            dispatch(removeTask(params.id));
+                            console.log("Delete", params.id);
+                        }}
+                    >
+                        <DeleteIcon />
+                    </IconButton>
+                );
+            else
+                return (
+                    <IconButton color="primary" onClick={() => handleView(params.id)}>
+                        <VisibilityIcon />
+                    </IconButton>
+                );
+        };
         if (useMoreInfo)
             setColumns(() => [
-                { field: "id", headerName: "#", minWidth: 75 },
-                { field: "uuid", headerName: "Task ID", minWidth: 325 },
+                { field: "number", headerName: "#", minWidth: 75 },
+                { field: "id", headerName: "Task ID", minWidth: 325 },
                 { field: "type", headerName: "Task", minWidth: 200 },
                 { field: "isSystem", headerName: "System Task", minWidth: 120 },
                 { field: "startTime", headerName: "Start Time", minWidth: 200 },
                 { field: "endTime", headerName: "End Time", minWidth: 200 },
                 { field: "status", headerName: "Status", minWidth: 125 },
                 { field: "progress", headerName: "Progress", renderCell: renderProgress, minWidth: 200 },
+                { field: "actions", headerName: "Actions", minWidth: 75, renderCell: renderButton },
             ]);
         else
             setColumns(() => [
-                { field: "id", headerName: "#", flex: 0.5 },
-                { field: "type", headerName: "Task", flex: 2 },
-                { field: "status", headerName: "Status", flex: 1, renderCell: renderStatus },
-                { field: "progress", headerName: "Progress", flex: 1.4, renderCell: renderProgress },
+                { field: "number", headerName: "#", flex: 0.5, minWidth: 1 },
+                { field: "type", headerName: "Task", flex: 2, minWidth: 1 },
+                { field: "status", headerName: "Status", flex: 1, renderCell: renderStatus, minWidth: 1 },
+                { field: "progress", headerName: "Progress", flex: 1.2, renderCell: renderProgress, minWidth: 1 },
+                { field: "actions", headerName: "Actions", flex: 0.8, renderCell: renderButton, minWidth: 1 },
             ]);
-    }, [useMoreInfo]);
 
-    React.useEffect(() => {
         setDisplayFormat(() =>
             props.tasks
                 .filter((task) => useMoreInfo || !task.isSystem)
                 .map((task, idx) => {
                     return {
                         ...task,
-                        id: idx + 1,
-                        uuid: task.id,
+                        number: idx + 1,
+                        id: task.id,
                         type: task.config.action,
                         startTime: task.startTime < 0 ? "Never" : convert.getDateTime(task.startTime, true),
                         endTime: task.endTime < 0 ? "Never" : convert.getDateTime(task.endTime, true),
                         progress: task.progress,
+                        actions: task.status === "WAITING" ? "DELETE" : "VIEW",
                     };
                 })
         );
@@ -84,6 +125,7 @@ const TaskTable = (props) => {
                     }}
                 />
             </div>
+            <ModalViewCode open={showCode} setOpen={setShowCode} content={content} language={"javascript"} />
         </div>
     );
 };

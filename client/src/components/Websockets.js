@@ -16,7 +16,7 @@ const Ws = ({ children, state: database }) => {
         const processMessage = (message) => {
             const processProgress = (message) => {
                 console.log("MESSAGE: ", Object.keys(message));
-                dispatch(TASK.updateTask(message.id, { progress: message.progress }));
+                dispatch(TASK.updateTask(message.id, { progress: message.progress, progressDetails: message.progressDetails }));
                 console.log("Progress: " + message.progress);
             };
 
