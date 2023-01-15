@@ -24,18 +24,7 @@ const BagFilterTask = (props) => {
     const [cropBags, setCropBags] = React.useState("MANUAL");
     const [autoCropData, setAutoCropData] = React.useState({ start: 5, end: 5 });
     const [odometryTopic, setOdometryTopic] = React.useState("");
-    const [cropData, setCropData] = React.useState(
-        props.bags
-            .filter((bag) => bag.selected)
-            .map((bag) => {
-                return {
-                    ...bag,
-                    file: bag.path.split("/").pop(),
-                    cropStart: 0,
-                    cropEnd: bag.duration,
-                };
-            })
-    );
+    const [cropData, setCropData] = React.useState([]);
 
     React.useEffect(() => {
         if (cropBags === "AUTO" && odometryTopic === "") dispatch(setPageComplete(false));
@@ -62,7 +51,18 @@ const BagFilterTask = (props) => {
     }, [props.topics]);
 
     React.useEffect(() => {
-        return function onClose() {
+        setCropData((prevState) => {
+            return selectedBags.map((bag) => {
+                return {
+                    ...bag,
+                    file: bag.path.split("/").pop(),
+                    cropStart: 0,
+                    cropEnd: bag.duration,
+                };
+            });
+        });
+        
+        return () => {
             const targetTopics = selectedTopics;
             const sourcePath = selectedBags[0].path.replace(/\/[^\/]+$/, "");
             const exportPath = sourcePath + "/export_" + getDateTime() + "/";

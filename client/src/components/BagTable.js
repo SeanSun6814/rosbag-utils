@@ -23,24 +23,34 @@ const columns = [
     { field: "messages", headerName: "Messages", flex: 1 },
 ];
 
+let selectedBags;
+
 const BagTable = (props) => {
+    const dispatch = useDispatch();
     const [useFullPath, setUseFullPath] = React.useState(false);
     const [selectionModel, setSelectionModel] = React.useState([]);
-    
-    const dispatch = useDispatch();
-
-    const display_format = props.bags.map((bag) => {
-        return {
-            ...bag,
-            size: convert.humanFileSize(bag.size),
-            topic_count: Object.keys(bag.topics).length,
-            file: useFullPath ? bag.path : bag.path.split("/").pop(),
-            time: convert.getDateTime(bag.startTime * 1000, true),
-        };
-    });
+    const [displayFormat, setDisplayFormat] = React.useState([]);
 
     React.useEffect(() => {
-        setSelectionModel(props.bags.filter((bag) => bag.selected).map((bag) => bag.id));
+        setDisplayFormat(() =>
+            props.bags.map((bag) => {
+                return {
+                    ...bag,
+                    size: convert.humanFileSize(bag.size),
+                    topic_count: Object.keys(bag.topics).length,
+                    file: useFullPath ? bag.path : bag.path.split("/").pop(),
+                    time: convert.getDateTime(bag.startTime * 1000, true),
+                };
+            })
+        );
+    }, [props.bags, useFullPath]);
+
+    React.useEffect(() => {
+        selectedBags = props.bags.filter((bag) => bag.selected);
+    }, [props.bags]);
+
+    React.useEffect(() => {
+        setSelectionModel(selectedBags.map((bag) => bag.id));
     }, [props.status.server_busy]);
 
     React.useEffect(() => {
@@ -66,7 +76,7 @@ const BagTable = (props) => {
             <div style={{ height: "calc(100vh - 290px)" }}>
                 <DataGrid
                     checkboxSelection
-                    rows={display_format}
+                    rows={displayFormat}
                     columns={columns}
                     components={{
                         Toolbar: CustomToolbar,

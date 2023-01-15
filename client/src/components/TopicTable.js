@@ -20,21 +20,27 @@ const columns = [
 ];
 
 const TopicTable = (props) => {
-    const [selectionModel, setSelectionModel] = React.useState([]);
     const dispatch = useDispatch();
+    const [selectionModel, setSelectionModel] = React.useState([]);
+    const [displayFormat, setDisplayFormat] = React.useState([]);
 
-    const display_format = Object.keys(props.topics).map((topic, idx) => {
-        return {
-            ...props.topics[topic],
-            id: props.topics[topic].name,
-        };
-    });
+    React.useEffect(() => {
+        setDisplayFormat(() =>
+            Object.keys(props.topics).map((topic, idx) => {
+                return {
+                    ...props.topics[topic],
+                    id: props.topics[topic].name,
+                };
+            })
+        );
+    }, [props.topics]);
 
     React.useEffect(() => {
         let newSelectionModel = [];
         Object.keys(props.topics).forEach((topic) => {
             if (props.topics[topic].selected) newSelectionModel.push(props.topics[topic].name);
         });
+        // The selectionModel must only be set once to avoid infinite loop since the selectionModel will update props.topics
         setSelectionModel(newSelectionModel);
     }, []);
 
@@ -47,7 +53,7 @@ const TopicTable = (props) => {
             <div style={{ height: "calc(100vh - 290px)" }}>
                 <DataGrid
                     checkboxSelection
-                    rows={display_format}
+                    rows={displayFormat}
                     columns={columns}
                     components={{
                         Toolbar: GridToolbar,

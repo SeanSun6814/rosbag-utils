@@ -11,31 +11,37 @@ import { setPageNumber, setTaskType } from "../reducers/status";
 
 const TaskTypes = (props) => {
     const [expanded, setExpanded] = React.useState(false);
+    const [filterBagEnabled, setFilterBagEnabled] = React.useState(false);
+    const [exportPointcloudEnabled, setExportPointcloudEnabled] = React.useState(false);
+    const [exportVideoEnabled, setExportVideoEnabled] = React.useState(false);
+    const [measureTrajectoryEnabled, setMeasureTrajectoryEnabled] = React.useState(false);
     const dispatch = useDispatch();
 
     const handleChange = (panel) => (event, isExpanded) => {
         setExpanded(isExpanded ? panel : false);
     };
 
-    let filterBagEnabled = true;
-    let exportPointcloudEnabled = true;
-    let exportVideoEnabled = true;
-    let measureTrajectoryEnabled = true;
-    let numSelected = 0;
-    Object.keys(props.topics).forEach((topicName) => {
-        const topic = props.topics[topicName];
-        if (topic.selected) {
-            if (topic.type !== "sensor_msgs/PointCloud2") exportPointcloudEnabled = false;
-            if (topic.type !== "sensor_msgs/Image") exportVideoEnabled = false;
-            if (topic.type !== "nav_msgs/Odometry") measureTrajectoryEnabled = false;
-            numSelected++;
-        }
-    });
+    React.useEffect(() => {
+        let filterBagEnabled = true;
+        let exportPointcloudEnabled = true;
+        let exportVideoEnabled = true;
+        let measureTrajectoryEnabled = true;
+        let numSelected = 0;
+        Object.keys(props.topics).forEach((topicName) => {
+            const topic = props.topics[topicName];
+            if (topic.selected) {
+                if (topic.type !== "sensor_msgs/PointCloud2") exportPointcloudEnabled = false;
+                if (topic.type !== "sensor_msgs/Image") exportVideoEnabled = false;
+                if (topic.type !== "nav_msgs/Odometry") measureTrajectoryEnabled = false;
+                numSelected++;
+            }
+        });
 
-    filterBagEnabled &&= numSelected > 0;
-    exportPointcloudEnabled &&= numSelected > 0;
-    exportVideoEnabled &&= numSelected > 0;
-    measureTrajectoryEnabled &&= numSelected > 0;
+        setFilterBagEnabled(filterBagEnabled && numSelected > 0);
+        setExportPointcloudEnabled(exportPointcloudEnabled && numSelected > 0);
+        setExportVideoEnabled(exportVideoEnabled && numSelected > 0);
+        setMeasureTrajectoryEnabled(measureTrajectoryEnabled && numSelected > 0);
+    }, [props.topics]);
 
     const buttonHandler = (event, task) => {
         event.stopPropagation();

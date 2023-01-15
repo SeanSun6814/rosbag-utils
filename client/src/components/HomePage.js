@@ -8,7 +8,7 @@ import TopicPage from "./TopicPage";
 import TaskPage from "./TaskPage";
 import FinishPage from "./FinishPage";
 
-const HomePage = (props) => {
+export default () => {
     return (
         <div>
             <Topbar />
@@ -17,7 +17,3 @@ const HomePage = (props) => {
         </div>
     );
 };
-
-export default connect((state) => ({
-    bags: state.bags,
-}))(HomePage);
