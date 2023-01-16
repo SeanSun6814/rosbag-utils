@@ -101,6 +101,12 @@ const TaskTable = (props) => {
         );
     }, [props.tasks, useMoreInfo]);
 
+    const clearCompletedTasks = () => {
+        props.tasks.forEach((task) => {
+            if (task.status === "COMPLETE") dispatch(removeTask(task.id));
+        });
+    };
+
     function CustomToolbar() {
         return (
             <GridToolbarContainer>
@@ -111,6 +117,9 @@ const TaskTable = (props) => {
                 <GridToolbarFilterButton />
                 <GridToolbarDensitySelector />
                 <GridToolbarExport />
+                <Button variant="text" size="small" onClick={() => clearCompletedTasks()} startIcon={<DeleteIcon />}>
+                    Clear Completed
+                </Button>
             </GridToolbarContainer>
         );
     }

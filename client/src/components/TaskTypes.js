@@ -83,7 +83,7 @@ const TaskTypes = (props) => {
                         </Grid>
                     </AccordionSummary>
                     <AccordionDetails>
-                        <Typography>Filter out the useful topics from rosbags. We'll also generate some important statistics about your data. </Typography>
+                        <Typography>Filter out the useful topics from rosbags. Select multiple topics to keep them in the exported bag.</Typography>
                     </AccordionDetails>
                 </Accordion>
                 <Accordion expanded={expanded === "panel2"} onChange={handleChange("panel2")}>
@@ -113,7 +113,10 @@ const TaskTypes = (props) => {
                         </Grid>
                     </AccordionSummary>
                     <AccordionDetails>
-                        <Typography>Convert the cloud points from rosbags to the .las format.</Typography>
+                        <Typography>
+                            Convert the cloud points from rosbags to the .las format. Topics must be in the "sensor_msgs/PointCloud2" format. Note: if multiple
+                            topics are selected, multiple tasks will be generated.
+                        </Typography>
                     </AccordionDetails>
                 </Accordion>
                 <Accordion expanded={expanded === "panel3"} onChange={handleChange("panel3")}>
@@ -143,7 +146,10 @@ const TaskTypes = (props) => {
                         </Grid>
                     </AccordionSummary>
                     <AccordionDetails>
-                        <Typography>Visualize the image topics from rosbags. We can also export the images as video to disk. </Typography>
+                        <Typography>
+                            Visualize the image topics from rosbags. We can also export the images as video to disk. Topics must be in the "sensor_msgs/Image"
+                            format. Note: if multiple topics are selected, multiple tasks will be generated.
+                        </Typography>
                     </AccordionDetails>
                 </Accordion>
                 <Accordion expanded={expanded === "panel4"} onChange={handleChange("panel4")}>
@@ -173,7 +179,10 @@ const TaskTypes = (props) => {
                         </Grid>
                     </AccordionSummary>
                     <AccordionDetails>
-                        <Typography>Visualize the image topics from rosbags. We can also export the images as video to disk. </Typography>
+                        <Typography>
+                            Visualize the image topics from rosbags. We can also export the images as video to disk. Topic must be in the "nav_msgs/Odometry"
+                            format.
+                        </Typography>
                     </AccordionDetails>
                 </Accordion>
             </Paper>

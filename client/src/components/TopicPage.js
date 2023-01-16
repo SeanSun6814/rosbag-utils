@@ -2,7 +2,6 @@ import * as React from "react";
 import Stack from "@mui/material/Stack";
 import { setBagOpening, setPageComplete } from "../reducers/status";
 import { useDispatch, connect } from "react-redux";
-import { addTask, startTask, makeOpenBagTask } from "../reducers/task";
 import TopicTable from "./TopicTable";
 import TaskTypes from "./TaskTypes";
 

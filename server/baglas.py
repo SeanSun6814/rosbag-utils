@@ -4,6 +4,7 @@ import numpy as np
 import laspy
 import time
 import os
+import server.utils
 
 
 class FastArr:
@@ -28,22 +29,13 @@ class FastArr:
         return self.data[: self.size]
 
 
-def exportPointCloud(
-    paths,
-    targetTopic,
-    outPathNoExt,
-    maxPointsPerFile,
-    collapseAxis,
-    speed,
-    xMinMax,
-    yMinMax,
-    zMinMax,
-):
+def exportPointCloud(paths, targetTopic, outPathNoExt, maxPointsPerFile, collapseAxis, speed, trimCloud, sendProgress):
     def writeToFile(arrayX, arrayY, arrayZ, arrayT, arrayR, arrayG, arrayB):
         nonlocal outFileCount, totalNumPoints
         totalNumPoints += arrayX.size
         filename = outPathNoExt + "_" + str(outFileCount) + ".las"
         print("Writing to " + filename)
+        sendProgress(details="Writing to " + server.utils.getFilenameFromPath(filename))
         header = laspy.LasHeader(version="1.3", point_format=3)
         lasData = laspy.LasData(header)
         lasData.x = arrayX.finalize()
@@ -54,36 +46,47 @@ def exportPointCloud(
             lasData.red = arrayR.finalize()
             lasData.green = arrayG.finalize()
             lasData.blue = arrayB.finalize()
+        sendProgress(percentage=basePercentage + 0.95 * percentProgressPerBag)
         lasData.write(filename)
+        sendProgress(percentage=basePercentage + 0.99 * percentProgressPerBag)
         outFileCount += 1
 
     def createArrs():
         return FastArr(), FastArr(), FastArr(), FastArr(), FastArr(), FastArr(), FastArr()
 
+    server.utils.mkdir(server.utils.getFolderFromPath(outPathNoExt))
     maxPointsPerFile = int(maxPointsPerFile)
     outFileCount = 0
     totalNumPoints = 0
     speed = int(speed)
-    paths = paths.split("\n")
-    paths = list(filter(lambda path: path.strip() != "", paths))
-    outPathNoExt += os.path.basename(os.path.splitext(paths[0])[0])
-    outPathNoExt += (" (and " + str(len(paths) - 1) + " more)") if len(paths) > 1 else ""
     print("Exporting point cloud from " + targetTopic + " to " + outPathNoExt)
     print("Input bags: " + str(paths))
+    percentProgressPerBag = 1 / len(paths)
 
     arrayX, arrayY, arrayZ, arrayT, arrayR, arrayG, arrayB = createArrs()
     startTime = time.time_ns()
     totalArrayTime = 0
     count = -1
-    for path in paths:
+    for path, pathIdx in zip(paths, range(len(paths))):
         if path.strip() == "":
             continue
         print("Processing " + path)
+        basePercentage = pathIdx * percentProgressPerBag
+        sendProgress(percentage=(basePercentage + 0.05 * percentProgressPerBag), details=("Loading " + server.utils.getFilenameFromPath(path)))
         bagIn = rosbag.Bag(path)
+        sendProgress(percentage=(basePercentage + 0.1 * percentProgressPerBag), details=("Processed " + str(totalNumPoints) + " points"))
+        totalMessages = bagIn.get_type_and_topic_info().topics[targetTopic].message_count
+        sendProgressEveryHowManyMessages = max(2, int(totalMessages / (100 / len(paths))))
         for topic, msg, t in bagIn.read_messages(topics=[targetTopic]):
             count += 1
             if count % speed != 0:
                 continue
+
+            if count % sendProgressEveryHowManyMessages == 0:
+                sendProgress(
+                    percentage=(basePercentage + (count / totalMessages * 0.8 + 0.1) * percentProgressPerBag),
+                    details=("Processed " + str(arrayX.size) + " points"),
+                )
 
             arrayTimeStart = time.time_ns()
             for p in pc2.read_points(msg, field_names=("x", "y", "z", "rgba"), skip_nans=True):
@@ -97,12 +100,13 @@ def exportPointCloud(
                     arrayG.update(g_value)
                     arrayB.update(b_value)
 
-                if xMinMax != None and (x < xMinMax[0] or x > xMinMax[1]):
-                    continue
-                if yMinMax != None and (y < yMinMax[0] or y > yMinMax[1]):
-                    continue
-                if zMinMax != None and (z < zMinMax[0] or z > zMinMax[1]):
-                    continue
+                if trimCloud != None:
+                    if x < trimCloud["xMin"] or x > trimCloud["xMax"]:
+                        continue
+                    if y < trimCloud["yMin"] or y > trimCloud["yMax"]:
+                        continue
+                    if z < trimCloud["zMin"] or z > trimCloud["zMax"]:
+                        continue
 
                 if collapseAxis == "x":
                     x = 0
@@ -133,17 +137,10 @@ def exportPointCloud(
     endTime = time.time_ns()
     print("Total time used = " + str((endTime - startTime) * 1e-9))
     print("Array time used = " + str(totalArrayTime * 1e-9))
-    return {"numFiles": outFileCount, "numPoints": totalNumPoints}
-
-
-# exportPointCloud(
-#     "/mnt/c/Users/Sean/Downloads/2022-12-01-11-31-44-001.bag",
-#     "/velodyne_cloud_registered_imu_rgb",
-#     "/mnt/c/Users/Sean/Downloads/point_4",
-#     "500000000",
-#     None,
-#     2,
-#     None,
-#     None,
-#     None,
-# )
+    return {
+        "numFiles": outFileCount,
+        "numPoints": totalNumPoints,
+        "totalTimeUsed": str((endTime - startTime) * 1e-9),
+        "arrayTimeUsed": str(totalArrayTime * 1e-9),
+        "totalTopics": count + 1,
+    }

@@ -4,32 +4,7 @@ import json
 import yaml
 import subprocess
 import traceback
-import os
-
-
-class bcolors:
-    HEADER = "\033[95m"
-    OKBLUE = "\033[94m"
-    OKCYAN = "\033[96m"
-    OKGREEN = "\033[92m"
-    WARNING = "\033[93m"
-    FAIL = "\033[91m"
-    ENDC = "\033[0m"
-    BOLD = "\033[1m"
-    UNDERLINE = "\033[4m"
-
-
-def getFolderFromPath(path):
-    return path[: path.rfind("/") + 1]
-
-
-def getFilenameFromPath(path):
-    return path[path.rfind("/") + 1 :]
-
-
-def mkdir(path):
-    if not os.path.exists(path):
-        os.makedirs(path)
+import server.utils
 
 
 def getBagInfoJson(path):
@@ -74,11 +49,11 @@ def exportBag(pathIns, pathOuts, targetTopics, cropType, cropTimes, autoCropTime
 
     def openBagWithProgress(pathIn, detailsThen=""):
         nonlocal progressSoFar
-        progressSoFar += progressPerBag
-        sendProgress(percentage=progressSoFar, details="Opening " + getFilenameFromPath(pathIn))
+        progressSoFar += progressPerBag / 2
+        sendProgress(percentage=progressSoFar, details="Loading " + server.utils.getFilenameFromPath(pathIn))
         bagIn = rosbag.Bag(pathIn)
-        if detailsThen != "":
-            sendProgress(details=detailsThen)
+        progressSoFar += progressPerBag / 2
+        sendProgress(percentage=progressSoFar, details=detailsThen)
         return bagIn
 
     def autoGetCroppingArray():
@@ -142,13 +117,13 @@ def exportBag(pathIns, pathOuts, targetTopics, cropType, cropTimes, autoCropTime
         return cropTimes
 
     def exportToOneFileUsingManualCropping(pathIns, pathOut, cropTimes):
-        mkdir(getFolderFromPath(pathOut))
+        server.utils.mkdir(server.utils.getFolderFromPath(pathOut))
         with rosbag.Bag(pathOut, "w") as bagOut:
             for pathIn, cropTime in zip(pathIns, cropTimes):
                 if cropTime["cropStart"] >= cropTime["cropEnd"]:
                     print("Skipping bag: " + pathIn + " because cropStart >= cropEnd")
                     continue
-                bagIn = openBagWithProgress(pathIn, "Writing to " + getFilenameFromPath(pathOut))
+                bagIn = openBagWithProgress(pathIn, "Writing to " + server.utils.getFilenameFromPath(pathOut))
                 startTime = rospy.Time.from_sec(bagIn.get_start_time() + cropTime["cropStart"])
                 endTime = rospy.Time.from_sec(bagIn.get_start_time() + cropTime["cropEnd"])
                 for topic, msg, t in bagIn.read_messages(topics=targetTopics, start_time=startTime, end_time=endTime):
@@ -304,5 +279,5 @@ def exportBag(pathIns, pathOuts, targetTopics, cropType, cropTimes, autoCropTime
 #     {"start": 0, "end": 0},
 #     True,
 #     "/cmu_rc3/aft_mapped_to_init_imu",
-#     None,
+#     lambda x: x,
 # )

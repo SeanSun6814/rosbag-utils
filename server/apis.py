@@ -14,6 +14,8 @@ progressDetails = ""
 def processWebsocketRequest(req, res):
     def sendProgress(percentage=-1, details="", status="RUNNING"):
         global progressPercentage, progressDetails
+        if percentage == progressPercentage and details == progressDetails:
+            return
         if percentage == -1:
             percentage = progressPercentage
         else:
@@ -68,28 +70,21 @@ def processWebsocketRequest(req, res):
             sendProgress,
         )
         sendResult({"finalCropTimes": result})
+    elif req["action"] == "POINTCLOUD_EXPORT_TASK":
+        print("REQUEST POINTCLOUD_EXPORT_TASK", str(req))
+        result = server.baglas.exportPointCloud(
+            req["paths"],
+            req["targetTopic"],
+            req["outPathNoExt"],
+            req["maxPointsPerFile"],
+            req["collapseAxis"],
+            req["speed"],
+            None if req["trimCloud"] == "" else req["trimCloud"],
+            sendProgress,
+        )
+        sendResult(result)
     else:
         sendError("Unknown action: " + req["action"])
 
 
-# def exportBag(pathIns, pathOuts, targetTopics, cropType, cropTimes, autoCropTimes, mergeBags, trajectoryTopic, sendProgress):
-#     pass
-
-
-# exportBag(
-#     [
-#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/core_2022-12-19-13-28-33_0.bag",
-#     ],
-#     [
-#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/export/core_2022-12-19-13-28-33_0.bag",
-#     ],
-#     ["/cmu_rc3/aft_mapped_to_init_imu"],
-#     "AUTO",
-#     [
-#         {"cropStart": 0, "cropEnd": 1000000 * 1000},
-#     ],
-#     {"start": 0, "end": 0},
-#     True,
-#     "/cmu_rc3/aft_mapped_to_init_imu",
-#     None,
-# )
+# def exportPointCloud(paths, targetTopic, outPathNoExt, maxPointsPerFile, collapseAxis, speed, trimCloud, sendProgress):

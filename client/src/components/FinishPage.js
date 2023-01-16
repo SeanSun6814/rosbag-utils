@@ -98,7 +98,7 @@ const FinishPage = (props) => {
                         <Box width={"20vw"}>
                             <CircularProgressbar value={percentage} text={`${Math.round(percentage)}%`} />
                         </Box>
-                        <Typography fontSize={"1.5em"}>Status: {statusMessage}</Typography>
+                        <Typography fontSize={"1.5em"}>{statusMessage}</Typography>
                     </Stack>
                 </Box>
             </Box>
