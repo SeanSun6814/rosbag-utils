@@ -15,9 +15,7 @@ const Ws = ({ children, state: database }) => {
         if (!client) return console.log("WEBSOCKET_NOT_CONNECTED, CANNOT_SET_HANDLERS");
         const processMessage = (message) => {
             const processProgress = (message) => {
-                console.log("MESSAGE: ", Object.keys(message));
                 dispatch(TASK.updateTask(message.id, { progress: message.progress, progressDetails: message.progressDetails }));
-                console.log("Progress: " + message.progress);
             };
 
             const processResult = (message) => {
@@ -43,7 +41,7 @@ const Ws = ({ children, state: database }) => {
 
             const processError = (message) => {
                 dispatch(TASK.updateTask(message.id, { status: "ERROR", progress: 1, endTime: new Date().getTime(), result: message.error }));
-                console.log("Error: " + message.error);
+                console.log("ERROR: " + message.error);
             };
 
             const data = JSON.parse(message.data);

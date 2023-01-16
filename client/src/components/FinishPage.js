@@ -21,14 +21,17 @@ const FinishPage = (props) => {
     const [statusMessage, setStatusMessage] = React.useState("Not started");
 
     React.useEffect(() => {
-        dispatch(setPageComplete(true));
+        dispatch(setPageComplete(false));
         console.clear();
     }, []);
+
+    React.useEffect(() => {}, [props.tasks]);
 
     React.useEffect(() => {
         const waitingTasks = props.tasks.filter((task) => task.status === "WAITING");
         const queuedTasks = props.tasks.filter((task) => task.status === "READY");
         const runningTasks = props.tasks.filter((task) => task.status === "RUNNING");
+        const completedTasks = props.tasks.filter((task) => task.status === "COMPLETE");
         const runningTaskProgress = runningTasks.length > 0 ? runningTasks[0].progress : 0;
         const percentPerTask = totalTasks === 0 ? 0 : 1 / totalTasks;
         const numCompleted = totalTasks - queuedTasks.length - runningTasks.length - waitingTasks.length;
@@ -36,15 +39,17 @@ const FinishPage = (props) => {
         setPercentage(() => percentCompleted);
         if (runningTasks.length > 0) {
             setStatusMessage(() => runningTasks[0].progressDetails);
-            console.log("SETTING_DETAILS", runningTasks[0].progressDetails);
         }
 
         if (startedTasks && numCompleted === totalTasks) {
             setStartedTasks(() => false);
             setStatusMessage(() => "Finished");
         }
+
         if (waitingTasks.length > 0 || startedTasks) setStartButtonEnabled(() => true);
         else setStartButtonEnabled(() => false);
+
+        dispatch(setPageComplete(completedTasks.length === props.tasks.length));
     }, [props.tasks, startedTasks, totalTasks]);
 
     React.useEffect(() => {

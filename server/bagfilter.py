@@ -44,15 +44,15 @@ def getBagInfoJson(path):
 
 def exportBag(pathIns, pathOuts, targetTopics, cropType, cropTimes, autoCropTimes, mergeBags, trajectoryTopic, sendProgress):
     print("Including topics: " + str(targetTopics))
-    progressPerBag = 1.0 / (len(pathIns) + 0.0) / (3.0 if cropType == "AUTO" else 1.0)
+    progressPerBag = 1.0 / (len(pathIns)) / (3.0 if cropType == "AUTO" else 1.0)
     progressSoFar = 0.0
 
-    def openBagWithProgress(pathIn, detailsThen=""):
+    def openBagWithProgress(pathIn, addPercentage=0, detailsThen=""):
         nonlocal progressSoFar
-        progressSoFar += progressPerBag / 2
+        progressSoFar += addPercentage / 2
         sendProgress(percentage=progressSoFar, details="Loading " + server.utils.getFilenameFromPath(pathIn))
         bagIn = rosbag.Bag(pathIn)
-        progressSoFar += progressPerBag / 2
+        progressSoFar += addPercentage / 2
         sendProgress(percentage=progressSoFar, details=detailsThen)
         return bagIn
 
@@ -72,7 +72,7 @@ def exportBag(pathIns, pathOuts, targetTopics, cropType, cropTimes, autoCropTime
 
         def getFinalPosition(pathIn):
             finalPosition = None
-            bagIn = openBagWithProgress(pathIn, "Finding final location")
+            bagIn = openBagWithProgress(pathIn, 0, "Finding final location")
             for topic, msg, t in bagIn.read_messages(topics=[trajectoryTopic]):
                 pose = msg.pose.pose.position
                 finalPosition = pose
@@ -90,7 +90,7 @@ def exportBag(pathIns, pathOuts, targetTopics, cropType, cropTimes, autoCropTime
         cropTimes = []
         # first set cropStart using the first move time
         for pathIn, idx in zip(pathIns, range(len(pathIns))):
-            bagIn = openBagWithProgress(pathIn, "Finding first move time")
+            bagIn = openBagWithProgress(pathIn, progressPerBag, "Finding first move time")
             duration = bagIn.get_end_time() - bagIn.get_start_time()
             firstMoveTime = getFirstMoveTime(bagIn)
             if firstMoveTime >= 0:
@@ -105,7 +105,7 @@ def exportBag(pathIns, pathOuts, targetTopics, cropType, cropTimes, autoCropTime
         progressSoFar = 0.33
         finalPosition = getFinalPosition(pathIns[-1])
         for pathIn, cropTime in zip(pathIns[::-1], cropTimes[::-1]):
-            bagIn = openBagWithProgress(pathIn, "Finding last move time")
+            bagIn = openBagWithProgress(pathIn, progressPerBag, "Finding last move time")
             lastMoveTime = getLastMoveTime(bagIn, finalPosition)
             if lastMoveTime >= 0:
                 cropTime["cropEnd"] = lastMoveTime
@@ -117,17 +117,30 @@ def exportBag(pathIns, pathOuts, targetTopics, cropType, cropTimes, autoCropTime
         return cropTimes
 
     def exportToOneFileUsingManualCropping(pathIns, pathOut, cropTimes):
+        nonlocal progressSoFar
         server.utils.mkdir(server.utils.getFolderFromPath(pathOut))
         with rosbag.Bag(pathOut, "w") as bagOut:
             for pathIn, cropTime in zip(pathIns, cropTimes):
                 if cropTime["cropStart"] >= cropTime["cropEnd"]:
                     print("Skipping bag: " + pathIn + " because cropStart >= cropEnd")
                     continue
-                bagIn = openBagWithProgress(pathIn, "Writing to " + server.utils.getFilenameFromPath(pathOut))
+                bagIn = openBagWithProgress(pathIn, progressPerBag * 0.1, "Writing to " + server.utils.getFilenameFromPath(pathOut))
                 startTime = rospy.Time.from_sec(bagIn.get_start_time() + cropTime["cropStart"])
                 endTime = rospy.Time.from_sec(bagIn.get_start_time() + cropTime["cropEnd"])
+                topicsInfo = bagIn.get_type_and_topic_info().topics
+                # count total messages among all topics, if they exist
+                totalMessages = sum([topicsInfo[topic].message_count if topic in topicsInfo else 0 for topic in targetTopics])
+                sendProgressEveryHowManyMessages = max(89, int(totalMessages / (100 / len(pathIns))))
+                count = -1
                 for topic, msg, t in bagIn.read_messages(topics=targetTopics, start_time=startTime, end_time=endTime):
                     bagOut.write(topic, msg, t)
+                    count += 1
+                    if count % sendProgressEveryHowManyMessages == 0:
+                        progressSoFar += progressPerBag * 0.9 / (totalMessages / sendProgressEveryHowManyMessages)
+                        sendProgress(
+                            percentage=progressSoFar,
+                            details=("Processing " + str(count) + "/" + str(totalMessages) + " messages"),
+                        )
                 print("Finished export bag: " + pathIn)
 
     def exportToSeparateFilesUsingManualCropping(cropTimes):

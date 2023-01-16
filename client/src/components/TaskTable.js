@@ -40,8 +40,6 @@ const TaskTable = (props) => {
                         ) + "\n"
                 );
                 setShowCode(() => true);
-                console.log("View", id);
-                console.log("Content", content);
             };
             if (params.value === "DELETE")
                 return (
@@ -49,7 +47,6 @@ const TaskTable = (props) => {
                         color="primary"
                         onClick={() => {
                             dispatch(removeTask(params.id));
-                            console.log("Delete", params.id);
                         }}
                     >
                         <DeleteIcon />
@@ -95,7 +92,7 @@ const TaskTable = (props) => {
                         startTime: task.startTime < 0 ? "Never" : convert.getDateTime(task.startTime, true),
                         endTime: task.endTime < 0 ? "Never" : convert.getDateTime(task.endTime, true),
                         progress: task.progress,
-                        actions: task.status === "COMPLETE" ? "VIEW" : "DELETE",
+                        actions: task.status === "WAITING" || task.status === "READY" ? "DELETE" : "VIEW",
                     };
                 })
         );

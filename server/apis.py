@@ -19,16 +19,27 @@ def processWebsocketRequest(req, res):
         if percentage == -1:
             percentage = progressPercentage
         else:
-            progressPercentage = max(min(percentage * 0.99, 1), 0)
+            if status == "RUNNING":
+                percentage *= 0.99
+            progressPercentage = max(min(percentage, 1), 0)
         if details == "":
             details = progressDetails
         else:
             progressDetails = details
-        print("PROGRESS", percentage, details)
-        res({"type": "progress", "id": req["id"], "action": req["action"], "status": status, "progressDetails": details, "progress": percentage})
+        print("PROGRESS", progressPercentage, details)
+        res(
+            {
+                "type": "progress",
+                "id": req["id"],
+                "action": req["action"],
+                "status": status,
+                "progressDetails": progressDetails,
+                "progress": progressPercentage,
+            }
+        )
 
     def sendResult(result):
-        sendProgress(1, "COMPLETE")
+        sendProgress(percentage=1, details="Finished", status="COMPLETE")
         res({"type": "result", "id": req["id"], "action": req["action"], "result": result})
 
     def sendError(error):
@@ -57,7 +68,7 @@ def processWebsocketRequest(req, res):
             sendError(str(e))
             print(e)
     elif req["action"] == "FILTER_BAG_TASK":
-        print("REQUEST BAG_FILTER_TASK", str(req))
+        print("REQUEST BAG_FILTER_TASK")
         result = server.bagfilter.exportBag(
             req["pathIn"],
             req["pathOut"],
@@ -71,7 +82,7 @@ def processWebsocketRequest(req, res):
         )
         sendResult({"finalCropTimes": result})
     elif req["action"] == "POINTCLOUD_EXPORT_TASK":
-        print("REQUEST POINTCLOUD_EXPORT_TASK", str(req))
+        print("REQUEST POINTCLOUD_EXPORT_TASK")
         result = server.baglas.exportPointCloud(
             req["paths"],
             req["targetTopic"],

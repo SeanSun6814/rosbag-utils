@@ -43,7 +43,6 @@ export default (state = [], action) => {
         }
         return { ...oldTopics, [newTopic.name]: newTopic };
     } else if (action.type === "ADD_ALL_TOPICS_FROM_BAG_ARR") {
-        console.log("ADD_ALL_TOPICS_FROM_BAG_ARR");
         const bagArr = action.bags;
         const newState = { ...state };
         bagArr.forEach((bag) => {

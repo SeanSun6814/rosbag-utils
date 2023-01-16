@@ -1,5 +1,4 @@
 export function msToTime(ms) {
-    console.log("Converting " + ms + " ms");
     let seconds = (ms / 1000).toFixed(1);
     let minutes = (ms / (1000 * 60)).toFixed(1);
     let hours = (ms / (1000 * 60 * 60)).toFixed(1);

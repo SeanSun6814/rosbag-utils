@@ -46,9 +46,7 @@ def exportPointCloud(paths, targetTopic, outPathNoExt, maxPointsPerFile, collaps
             lasData.red = arrayR.finalize()
             lasData.green = arrayG.finalize()
             lasData.blue = arrayB.finalize()
-        sendProgress(percentage=basePercentage + 0.95 * percentProgressPerBag)
         lasData.write(filename)
-        sendProgress(percentage=basePercentage + 0.99 * percentProgressPerBag)
         outFileCount += 1
 
     def createArrs():
@@ -74,9 +72,13 @@ def exportPointCloud(paths, targetTopic, outPathNoExt, maxPointsPerFile, collaps
         basePercentage = pathIdx * percentProgressPerBag
         sendProgress(percentage=(basePercentage + 0.05 * percentProgressPerBag), details=("Loading " + server.utils.getFilenameFromPath(path)))
         bagIn = rosbag.Bag(path)
-        sendProgress(percentage=(basePercentage + 0.1 * percentProgressPerBag), details=("Processed " + str(totalNumPoints) + " points"))
         totalMessages = bagIn.get_type_and_topic_info().topics[targetTopic].message_count
+        sendProgress(
+            percentage=(basePercentage + 0.1 * percentProgressPerBag),
+            details=("Processing " + str(totalNumPoints) + " points"),
+        )
         sendProgressEveryHowManyMessages = max(2, int(totalMessages / (100 / len(paths))))
+        bagStartCount = count
         for topic, msg, t in bagIn.read_messages(topics=[targetTopic]):
             count += 1
             if count % speed != 0:
@@ -84,8 +86,8 @@ def exportPointCloud(paths, targetTopic, outPathNoExt, maxPointsPerFile, collaps
 
             if count % sendProgressEveryHowManyMessages == 0:
                 sendProgress(
-                    percentage=(basePercentage + (count / totalMessages * 0.8 + 0.1) * percentProgressPerBag),
-                    details=("Processed " + str(arrayX.size) + " points"),
+                    percentage=(basePercentage + ((count - bagStartCount) / totalMessages * 0.89 + 0.1) * percentProgressPerBag),
+                    details=("Processing " + str(totalNumPoints + arrayX.size) + " points"),
                 )
 
             arrayTimeStart = time.time_ns()
