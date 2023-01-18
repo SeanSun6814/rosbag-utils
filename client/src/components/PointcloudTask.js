@@ -139,6 +139,73 @@ const PointcloudTask = (props) => {
                         </Select>
                     </FormControl>
                 </Grid>
+
+                <Grid
+                    width={"fit-content"}
+                    minWidth={"300px"}
+                    height={"fit-content"}
+                    minHeight={"200px"}
+                    padding={"25px"}
+                    borderRadius={"15px"}
+                    boxShadow={"10"}
+                    xs={6}
+                    margin={"35px"}
+                >
+                    <Typography marginBottom={"10px"} fontSize={"1.6em"}>
+                        Downsample pointcloud
+                    </Typography>
+                    <Typography marginTop={"10px"} fontSize={"1em"}>
+                        Only include one frame for every how many frames
+                    </Typography>
+                    <TextField
+                        sx={{ marginTop: "30px" }}
+                        label="Downsample Factor"
+                        type="number"
+                        value={downsampleFactor}
+                        onChange={(e) => {
+                            handleDownsampleFactorChange(e);
+                        }}
+                        InputProps={{
+                            inputProps: { min: 1 },
+                        }}
+                        InputLabelProps={{
+                            shrink: true,
+                        }}
+                    />
+                </Grid>
+                <Grid
+                    width={"fit-content"}
+                    minWidth={"300px"}
+                    height={"fit-content"}
+                    minHeight={"200px"}
+                    padding={"25px"}
+                    borderRadius={"15px"}
+                    boxShadow={"10"}
+                    xs={6}
+                    margin={"35px"}
+                >
+                    <Typography marginBottom={"10px"} fontSize={"1.6em"}>
+                        Split point cloud into multiple files
+                    </Typography>
+                    <Typography marginTop={"10px"} fontSize={"1em"}>
+                        Max number of points per file (lower = less memory usage while exporting)
+                    </Typography>
+                    <TextField
+                        sx={{ marginTop: "30px" }}
+                        label="Max points"
+                        type="number"
+                        value={maxPointsPerFile}
+                        onChange={(e) => {
+                            handleMaxPointsPerFileChange(e);
+                        }}
+                        InputProps={{
+                            inputProps: { min: 1 },
+                        }}
+                        InputLabelProps={{
+                            shrink: true,
+                        }}
+                    />
+                </Grid>
                 <Grid
                     width={"fit-content"}
                     minWidth={"300px"}
@@ -238,72 +305,6 @@ const PointcloudTask = (props) => {
                             handleTrimCloudChange(e, "zMax");
                         }}
                         disabled={!trimCloudEnabled}
-                        InputLabelProps={{
-                            shrink: true,
-                        }}
-                    />
-                </Grid>
-                <Grid
-                    width={"fit-content"}
-                    minWidth={"300px"}
-                    height={"fit-content"}
-                    minHeight={"200px"}
-                    padding={"25px"}
-                    borderRadius={"15px"}
-                    boxShadow={"10"}
-                    xs={6}
-                    margin={"35px"}
-                >
-                    <Typography marginBottom={"10px"} fontSize={"1.6em"}>
-                        Downsample pointcloud
-                    </Typography>
-                    <Typography marginTop={"10px"} fontSize={"1em"}>
-                        Only include one frame for every how many frames
-                    </Typography>
-                    <TextField
-                        sx={{ marginTop: "30px" }}
-                        label="Downsample Factor"
-                        type="number"
-                        value={downsampleFactor}
-                        onChange={(e) => {
-                            handleDownsampleFactorChange(e);
-                        }}
-                        InputProps={{
-                            inputProps: { min: 0 },
-                        }}
-                        InputLabelProps={{
-                            shrink: true,
-                        }}
-                    />
-                </Grid>
-                <Grid
-                    width={"fit-content"}
-                    minWidth={"300px"}
-                    height={"fit-content"}
-                    minHeight={"200px"}
-                    padding={"25px"}
-                    borderRadius={"15px"}
-                    boxShadow={"10"}
-                    xs={6}
-                    margin={"35px"}
-                >
-                    <Typography marginBottom={"10px"} fontSize={"1.6em"}>
-                        Split point cloud into multiple files
-                    </Typography>
-                    <Typography marginTop={"10px"} fontSize={"1em"}>
-                        Max number of points per file (lower = less memory usage while exporting)
-                    </Typography>
-                    <TextField
-                        sx={{ marginTop: "30px" }}
-                        label="Max points"
-                        type="number"
-                        value={maxPointsPerFile}
-                        onChange={(e) => {
-                            handleMaxPointsPerFileChange(e);
-                        }}
-                        InputProps={{
-                            inputProps: { min: 1 },
-                        }}
                         InputLabelProps={{
                             shrink: true,
                         }}

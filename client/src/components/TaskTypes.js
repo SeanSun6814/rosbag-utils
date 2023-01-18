@@ -40,7 +40,7 @@ const TaskTypes = (props) => {
         setFilterBagEnabled(() => filterBagEnabled && numSelected > 0);
         setExportPointcloudEnabled(() => exportPointcloudEnabled && numSelected > 0);
         setExportVideoEnabled(() => exportVideoEnabled && numSelected > 0);
-        setMeasureTrajectoryEnabled(() => measureTrajectoryEnabled && numSelected > 0);
+        setMeasureTrajectoryEnabled(() => measureTrajectoryEnabled && numSelected > 0 && false);
     }, [props.topics]);
 
     const buttonHandler = (event, task) => {
@@ -54,7 +54,10 @@ const TaskTypes = (props) => {
 
     return (
         <Grid container justifyContent="center" sx={{ width: "35vw" }}>
-            <Paper elevation={12} sx={{ borderRadius: "15px", marginTop: "50px", marginBottom: "50px", padding: "15px", backgroundColor: "inactive" }}>
+            <Paper
+                elevation={12}
+                sx={{ borderRadius: "15px", marginTop: "30px", padding: "15px", paddingBottom: "40px", backgroundColor: "inactive", height: "fit-content" }}
+            >
                 <Typography sx={{ fontSize: "2em", textAlign: "center", marginBottom: "15px" }}>Tasks</Typography>
                 <Accordion expanded={expanded === "panel1"} onChange={handleChange("panel1")}>
                     <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1bh-content" id="panel1bh-header">
@@ -171,7 +174,7 @@ const TaskTypes = (props) => {
                                             }}
                                             onChange={buttonHandler}
                                         >
-                                            Add Task
+                                            Coming soon
                                         </Button>
                                     </Grid>
                                 </Grid>
@@ -183,6 +186,66 @@ const TaskTypes = (props) => {
                             Visualize the image topics from rosbags. We can also export the images as video to disk. Topic must be in the "nav_msgs/Odometry"
                             format.
                         </Typography>
+                    </AccordionDetails>
+                </Accordion>
+                <Accordion expanded={expanded === "panel5"} onChange={handleChange("panel5")}>
+                    <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel5bh-content" id="panel5bh-header">
+                        <Grid container>
+                            <Grid item>
+                                <Typography sx={{ fontSize: "1.2em" }}>Color Point Cloud</Typography>
+                            </Grid>
+                            <Grid item xs>
+                                <Grid container direction="row-reverse">
+                                    <Grid item>
+                                        <Button
+                                            disabled={!measureTrajectoryEnabled}
+                                            size="small"
+                                            variant="contained"
+                                            sx={{ marginRight: "10px" }}
+                                            onClick={(e) => {
+                                                buttonHandler(e, TASK.MEASURE_TRAJECTORY_TASK);
+                                            }}
+                                            onChange={buttonHandler}
+                                        >
+                                            Coming soon
+                                        </Button>
+                                    </Grid>
+                                </Grid>
+                            </Grid>
+                        </Grid>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                        <Typography>Color the point cloud according to height, intensity, or confidence values. This feature is coming soon!</Typography>
+                    </AccordionDetails>
+                </Accordion>
+                <Accordion expanded={expanded === "panel6"} onChange={handleChange("panel6")}>
+                    <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel6bh-content" id="panel6bh-header">
+                        <Grid container>
+                            <Grid item>
+                                <Typography sx={{ fontSize: "1.2em" }}>Export Confidence</Typography>
+                            </Grid>
+                            <Grid item xs>
+                                <Grid container direction="row-reverse">
+                                    <Grid item>
+                                        <Button
+                                            disabled={!measureTrajectoryEnabled}
+                                            size="small"
+                                            variant="contained"
+                                            sx={{ marginRight: "10px" }}
+                                            onClick={(e) => {
+                                                buttonHandler(e, TASK.MEASURE_TRAJECTORY_TASK);
+                                            }}
+                                            onChange={buttonHandler}
+                                        >
+                                            Coming soon
+                                        </Button>
+                                    </Grid>
+                                </Grid>
+                            </Grid>
+                        </Grid>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                        <Typography>Export confidence values of SLAM algorithms. This feature is coming soon!</Typography>
                     </AccordionDetails>
                 </Accordion>
             </Paper>

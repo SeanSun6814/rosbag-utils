@@ -3,6 +3,7 @@ import React from "react";
 import { connect } from "react-redux";
 import * as TASK from "../reducers/task";
 import BagFilterTask from "./BagFilterTask";
+import ExportVideoTask from "./ExportVideoTask";
 import PointcloudTask from "./PointcloudTask";
 
 const TaskPage = (props) => {
@@ -19,7 +20,13 @@ const TaskPage = (props) => {
         }
         page = <PointcloudTask />;
     } else if (props.status.task_type === TASK.VIDEO_EXPORT_TASK) {
-        title = "Export Video Task";
+        const numSelected = Object.keys(props.topics).filter((topic) => props.topics[topic].selected).length;
+        if (numSelected === 1) {
+            title = "Add Export Video Task";
+        } else {
+            title = "Add " + numSelected + " Export Video Tasks";
+        }
+        page = <ExportVideoTask />;
     } else if (props.status.task_type === TASK.MEASURE_TRAJECTORY_TASK) {
         title = "Measure Trajectory Task";
     } else title = "Unknown Task";
