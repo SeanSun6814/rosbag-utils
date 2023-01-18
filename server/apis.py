@@ -4,7 +4,6 @@ import server.bagimg
 import tkinter as tk
 from tkinter import filedialog
 import json
-from mttkinter import *
 import time
 
 progressPercentage = 0

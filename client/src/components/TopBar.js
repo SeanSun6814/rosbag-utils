@@ -20,7 +20,7 @@ function TopBar(props) {
     };
     return (
         <AppBar position="static">
-            <Container maxWidth="xl">
+            <Container maxWidth="100vw">
                 <Toolbar disableGutters>
                     <img src={process.env.PUBLIC_URL + "/favicon.ico"} width="50px" height="50px" style={{ marginRight: "20px" }} />
                     <Typography
@@ -40,7 +40,7 @@ function TopBar(props) {
                     >
                         Rosbag Utils
                     </Typography>
-                    <Box sx={{ flexGrow: 5 }}></Box>
+                    <Box sx={{ flexGrow: 1 }}></Box>
                     <Box sx={{ flexGrow: 0 }}>
                         <Tooltip title="Dark mode">
                             <IconButton onClick={(e) => changeTheme()}>

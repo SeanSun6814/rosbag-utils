@@ -21,6 +21,7 @@ const ExportVideoTask = (props) => {
         includeTimestampROS: false,
         brightness16BitMin: 0,
         brightness16BitMax: 65535,
+        livePreview: true,
     });
 
     React.useEffect(() => {
@@ -154,6 +155,40 @@ const ExportVideoTask = (props) => {
                     margin={"35px"}
                 >
                     <Typography marginBottom={"10px"} fontSize={"1.6em"}>
+                        Live Preview
+                    </Typography>
+                    <Typography marginTop={"10px"} marginBottom={"10px"} fontSize={"1em"}>
+                        View the video as it is being exported
+                    </Typography>
+                    <FormGroup>
+                        <FormControlLabel
+                            control={
+                                <Switch
+                                    defaultChecked={config.livePreview}
+                                    onClick={(e) => {
+                                        setConfig((prev) => ({
+                                            ...prev,
+                                            livePreview: e.target.checked,
+                                        }));
+                                    }}
+                                />
+                            }
+                            label={config.livePreview ? "Enabled" : "Disabled"}
+                        />
+                    </FormGroup>
+                </Grid>
+                <Grid
+                    width={"fit-content"}
+                    minWidth={"300px"}
+                    height={"fit-content"}
+                    minHeight={"200px"}
+                    padding={"25px"}
+                    borderRadius={"15px"}
+                    boxShadow={"10"}
+                    xs={6}
+                    margin={"35px"}
+                >
+                    <Typography marginBottom={"10px"} fontSize={"1.6em"}>
                         Invert Image
                     </Typography>
                     <Typography marginTop={"10px"} marginBottom={"10px"} fontSize={"1em"}>
@@ -163,7 +198,7 @@ const ExportVideoTask = (props) => {
                         <FormControlLabel
                             control={
                                 <Switch
-                                    defaultChecked={false}
+                                    defaultChecked={config.invertImage}
                                     onClick={(e) => {
                                         setConfig((prev) => ({
                                             ...prev,
@@ -197,7 +232,7 @@ const ExportVideoTask = (props) => {
                         <FormControlLabel
                             control={
                                 <Switch
-                                    defaultChecked={true}
+                                    defaultChecked={config.includeTimestampSeconds}
                                     onClick={(e) => {
                                         setConfig((prev) => ({
                                             ...prev,
@@ -213,7 +248,7 @@ const ExportVideoTask = (props) => {
                         <FormControlLabel
                             control={
                                 <Switch
-                                    defaultChecked={false}
+                                    defaultChecked={config.includeTimestampROS}
                                     onClick={(e) => {
                                         setConfig((prev) => ({
                                             ...prev,

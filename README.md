@@ -18,11 +18,13 @@
 ### Installation
 
 1. Clone this repo
-2. `pip3 install laspy`
+2. `pip3 install laspy tdigest websocket_server`
 3. `python3 app.py`
-4. _Alternatively:_ `python3 app.py -n -p 8000 8001 8002` to open three instances of rosbag utils and don't automatically launch browser
+4. _Alternatively: `python3 app.py -n` to don't automatically launch browser (for WSL)_
 
 _Tested on Ubuntu 20.04 with Python3, ROS Noetic, and Google Chrome._
+
+_Tested on Windows 11 WSL2 (Ubuntu 20.04) with Python3, ROS Noetic, and Google Chrome._
 
 ### Tutorial
 
