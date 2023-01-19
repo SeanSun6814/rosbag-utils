@@ -19,6 +19,7 @@ const ExportVideoTask = (props) => {
         invertImage: false,
         includeTimestampSeconds: true,
         includeTimestampROS: false,
+        useManual16BitRange: false,
         brightness16BitMin: 0,
         brightness16BitMax: 65535,
         livePreview: true,
@@ -51,6 +52,7 @@ const ExportVideoTask = (props) => {
                     fps: configGlobal.fps,
                     printTimestamp,
                     invertImage: configGlobal.invertImage,
+                    useManual16BitRange: configGlobal.useManual16BitRange,
                     rangeFor16Bit: [configGlobal.brightness16BitMin, configGlobal.brightness16BitMax],
                 });
             });
@@ -164,7 +166,7 @@ const ExportVideoTask = (props) => {
                         <FormControlLabel
                             control={
                                 <Switch
-                                    defaultChecked={config.livePreview}
+                                    checked={config.livePreview}
                                     onClick={(e) => {
                                         setConfig((prev) => ({
                                             ...prev,
@@ -198,7 +200,7 @@ const ExportVideoTask = (props) => {
                         <FormControlLabel
                             control={
                                 <Switch
-                                    defaultChecked={config.invertImage}
+                                    checked={config.invertImage}
                                     onClick={(e) => {
                                         setConfig((prev) => ({
                                             ...prev,
@@ -232,7 +234,7 @@ const ExportVideoTask = (props) => {
                         <FormControlLabel
                             control={
                                 <Switch
-                                    defaultChecked={config.includeTimestampSeconds}
+                                    checked={config.includeTimestampSeconds}
                                     onClick={(e) => {
                                         setConfig((prev) => ({
                                             ...prev,
@@ -248,7 +250,7 @@ const ExportVideoTask = (props) => {
                         <FormControlLabel
                             control={
                                 <Switch
-                                    defaultChecked={config.includeTimestampROS}
+                                    checked={config.includeTimestampROS}
                                     onClick={(e) => {
                                         setConfig((prev) => ({
                                             ...prev,
@@ -278,11 +280,28 @@ const ExportVideoTask = (props) => {
                     <Typography marginTop={"10px"} fontSize={"1em"}>
                         Manually specify the brightness range of the 16-bit image to display
                     </Typography>
+                    <FormGroup>
+                        <FormControlLabel
+                            control={
+                                <Switch
+                                    checked={config.useManual16BitRange}
+                                    onClick={(e) => {
+                                        setConfig((prev) => ({
+                                            ...prev,
+                                            useManual16BitRange: e.target.checked,
+                                        }));
+                                    }}
+                                />
+                            }
+                            label={config.useManual16BitRange ? "Enabled" : "Disabled"}
+                        />
+                    </FormGroup>
                     <TextField
-                        sx={{ marginTop: "30px" }}
+                        sx={{ marginTop: "30px", width: "150px" }}
                         label="Min brightness"
                         type="number"
                         value={config.brightness16BitMin}
+                        disabled={!config.useManual16BitRange}
                         onChange={(e) => {
                             setConfig((prev) => ({
                                 ...prev,
@@ -296,12 +315,12 @@ const ExportVideoTask = (props) => {
                             shrink: true,
                         }}
                     />
-                    <br />
                     <TextField
-                        sx={{ marginTop: "30px" }}
+                        sx={{ marginTop: "30px", marginLeft: "20px", width: "150px" }}
                         label="Max brightness"
                         type="number"
                         value={config.brightness16BitMax}
+                        disabled={!config.useManual16BitRange}
                         onChange={(e) => {
                             setConfig((prev) => ({
                                 ...prev,

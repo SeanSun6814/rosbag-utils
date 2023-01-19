@@ -39,11 +39,4 @@ def startServer(port):
         websockets_server.allow_new_connections()
         websockets_server.run_forever()
 
-    # def sendMsg():
-    #     while True:
-    #         time.sleep(1)
-    #         sendMessage({"test": "test"})
-
     createServer()
-    Thread(target=createServer).start()
-    # Thread(target=sendMsg).start()

@@ -11,7 +11,6 @@ import os
 import tkinter as tk
 from tkinter import filedialog
 import time
-import webbrowser
 from threading import Thread
 
 
@@ -177,17 +176,21 @@ class handler(BaseHTTPRequestHandler):
             self.wfile.write(html)
 
 
-def startServer(openBrowser, port):
-    def openBrowser():
-        time.sleep(500)
-        print("Opening app in browser...")
-        webbrowser.open("127.0.0.1:" + str(port))
+def startServer(port):
+    def openAppInBrowser():
+        try:
+            import webbrowser
+
+            time.sleep(0.25)
+            print("Opening app at 127.0.0.1:" + str(port))
+            print(webbrowser.open("http://127.0.0.1:" + str(port)))
+        except:
+            print("Cannot open browser automatically. Please go to 127.0.0.1:" + str(port))
 
     def createServer():
         print("Starting server on 127.0.0.1:" + str(port))
         with HTTPServer(("127.0.0.1", port), handler) as server:
             server.serve_forever()
 
-    if openBrowser:
-        Thread(target=openBrowser).start()
     Thread(target=createServer).start()
+    Thread(target=openAppInBrowser).start()

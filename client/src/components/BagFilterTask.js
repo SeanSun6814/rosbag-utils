@@ -78,9 +78,10 @@ const BagFilterTask = (props) => {
         });
 
         return () => {
+            const getRandomId = () => Math.floor(Math.random() * 16534 + 4096).toString(16);
             const targetTopics = selectedTopics;
             const sourcePath = selectedBags[0].path.replace(/\/[^\/]+$/, "");
-            const exportPath = sourcePath + "/export_" + getDateTime() + "/";
+            const exportPath = sourcePath + "/export_" + getDateTime() + "_" + getRandomId() + "/";
             const filenames = selectedBags.map((bag) => (mergeBagsGlobal ? "Combined.bag" : bag.path.replace(/^.*[\\\/]/, "")));
             const pathIns = selectedBags.filter((bag) => bag.selected).map((bag) => bag.path);
             const pathOuts = filenames.map((filename) => exportPath + filename);

@@ -44,8 +44,8 @@ def processWebsocketRequest(req, res):
     def sendError(error):
         res({"type": "error", "id": req["id"], "action": req["action"], "error": error})
 
+    print("REQUEST " + req["action"])
     if req["action"] == "OPEN_BAG_TASK":
-        print("REQUEST Opening new select file dialog")
         file_names = []
         try:
             root = tk.Tk()
@@ -59,7 +59,6 @@ def processWebsocketRequest(req, res):
         sendResult(file_names)
     elif req["action"] == "BAG_INFO_TASK":
         path = req["path"]
-        print("REQUEST BAG_INFO_TASK: " + path)
         try:
             msg = server.bagfilter.getBagInfoJson(path)
             sendResult(msg)
@@ -67,7 +66,6 @@ def processWebsocketRequest(req, res):
             sendError(str(e))
             print(e)
     elif req["action"] == "FILTER_BAG_TASK":
-        print("REQUEST BAG_FILTER_TASK")
         result = server.bagfilter.exportBag(
             req["pathIn"],
             req["pathOut"],
@@ -81,7 +79,6 @@ def processWebsocketRequest(req, res):
         )
         sendResult({"finalCropTimes": result})
     elif req["action"] == "POINTCLOUD_EXPORT_TASK":
-        print("REQUEST POINTCLOUD_EXPORT_TASK")
         result = server.baglas.exportPointCloud(
             req["paths"],
             req["targetTopic"],
@@ -93,6 +90,9 @@ def processWebsocketRequest(req, res):
             sendProgress,
         )
         sendResult(result)
+    elif req["action"] == "VIDEO_EXPORT_TASK":
+        print(req)
+        sendResult({"result": "success"})
     else:
         sendError("Unknown action: " + req["action"])
 
