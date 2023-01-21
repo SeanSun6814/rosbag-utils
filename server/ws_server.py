@@ -24,7 +24,7 @@ def clientLeft(obj1, obj2):
 
 
 def messageReceived(client, server, message):
-    print("RECEIVED:", message)
+    # print("RECEIVED:", message)
     processWebsocketRequest(json.loads(message), sendMessage)
 
 
