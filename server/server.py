@@ -176,8 +176,8 @@ class handler(BaseHTTPRequestHandler):
             self.wfile.write(html)
 
 
-def startServer(port):
-    def openAppInBrowser():
+def startServer(requestOpenBrowser, port):
+    def openBrowser():
         try:
             import webbrowser
 
@@ -193,4 +193,7 @@ def startServer(port):
             server.serve_forever()
 
     Thread(target=createServer).start()
-    Thread(target=openAppInBrowser).start()
+    if requestOpenBrowser:
+        Thread(target=openBrowser).start()
+    else:
+        print("Please open app at 127.0.0.1:" + str(port))

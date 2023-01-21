@@ -14,14 +14,17 @@ fontColor = (0, 0, 255)
 thickness = 2
 lineType = cv2.LINE_AA
 
+# fps: configGlobal.fps,
+# printTimestamp,
+# invertImage: configGlobal.invertImage,
+# useManual16BitRange: configGlobal.useManual16BitRange,
+# rangeFor16Bit: [configGlobal.brightness16BitMin, configGlobal.brightness16BitMax],
+
 
 def exportVideo(paths, pathOut, targetTopic, speed, fps, printTimestamp, invertImage, rangeFor16Bit):
     speed = int(speed)
     fps = int(fps)
-    paths = paths.split("\n")
-    paths = list(filter(lambda path: path.strip() != "", paths))
-    pathOut += os.path.basename(os.path.splitext(paths[0])[0])
-    pathOut += (" (and " + str(len(paths) - 1) + " more).mp4") if len(paths) > 1 else ".mp4"
+    pathOut += ".mp4"
     print("Exporting video from " + targetTopic + " to " + pathOut)
     print("Input bags: " + str(paths))
 
