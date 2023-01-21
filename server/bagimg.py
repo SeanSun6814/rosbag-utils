@@ -6,6 +6,7 @@ import numpy as np
 import os
 from tdigest import TDigest
 import server.utils
+import random
 
 font = cv2.FONT_HERSHEY_SIMPLEX
 textLocation = (10, 30)
@@ -30,15 +31,26 @@ def exportVideo(paths, pathOut, targetTopic, speed, fps, printTimestamp, invertI
     frameCount = -1
     minDigest, maxDigest = None, None
     is16BitImage = False
+    percentProgressPerBag = 1 / len(paths)
 
     def formatTime(time, startime):
         return str(round((time - startime) * 1e-9, 3)) + "s"
 
-    for path in paths:
+    for path, pathIdx in zip(paths, range(len(paths))):
         if path.strip() == "":
             continue
         print("Processing " + path)
+        basePercentage = pathIdx * percentProgressPerBag
+        sendProgress(percentage=(basePercentage + 0.05 * percentProgressPerBag), details=("Loading " + server.utils.getFilenameFromPath(path)))
         bagIn = rosbag.Bag(path)
+        sendProgress(
+            percentage=(basePercentage + 0.1 * percentProgressPerBag),
+            details=("Processing " + str(frameCount + 1) + " images"),
+        )
+        topicsInfo = bagIn.get_type_and_topic_info().topics
+        totalMessages = sum([topicsInfo[topic].message_count if topic in topicsInfo else 0 for topic in [targetTopic]])
+        sendProgressEveryHowManyMessages = max(random.randint(5, 9), int(totalMessages / (100 / len(paths))))
+        bagStartCount = frameCount
         for topic, msg, t in bagIn.read_messages(topics=[targetTopic]):
             if startTime == -1:
                 startTime = int(str(t))
@@ -51,6 +63,12 @@ def exportVideo(paths, pathOut, targetTopic, speed, fps, printTimestamp, invertI
             frameCount += 1
             if frameCount % speed != 0:
                 continue
+
+            if frameCount % sendProgressEveryHowManyMessages == 0:
+                sendProgress(
+                    percentage=(basePercentage + ((frameCount - bagStartCount + 1) / totalMessages * 0.89 + 0.1) * percentProgressPerBag),
+                    details=("Processing " + str(frameCount) + " images"),
+                )
 
             cv_img = np.array(bridge.imgmsg_to_cv2(msg))
             if "16UC1" in msg.encoding or "mono16" in msg.encoding:

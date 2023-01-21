@@ -5,6 +5,7 @@ import laspy
 import time
 import os
 import server.utils
+import random
 
 
 class FastArr:
@@ -72,12 +73,13 @@ def exportPointCloud(paths, targetTopic, outPathNoExt, maxPointsPerFile, collaps
         basePercentage = pathIdx * percentProgressPerBag
         sendProgress(percentage=(basePercentage + 0.05 * percentProgressPerBag), details=("Loading " + server.utils.getFilenameFromPath(path)))
         bagIn = rosbag.Bag(path)
-        totalMessages = bagIn.get_type_and_topic_info().topics[targetTopic].message_count
+        topicsInfo = bagIn.get_type_and_topic_info().topics
+        totalMessages = sum([topicsInfo[topic].message_count if topic in topicsInfo else 0 for topic in [targetTopic]])
         sendProgress(
             percentage=(basePercentage + 0.1 * percentProgressPerBag),
             details=("Processing " + str(totalNumPoints) + " points"),
         )
-        sendProgressEveryHowManyMessages = max(2, int(totalMessages / (100 / len(paths))))
+        sendProgressEveryHowManyMessages = max(random.randint(2, 5), int(totalMessages / (100 / len(paths))))
         bagStartCount = count
         for topic, msg, t in bagIn.read_messages(topics=[targetTopic]):
             count += 1

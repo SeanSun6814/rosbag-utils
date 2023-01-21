@@ -28,7 +28,7 @@
     "react-uuid": "^2.0.0"
   },
   "scripts": {
-    "start": "HOST=127.0.0.1 react-scripts start",
+    "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

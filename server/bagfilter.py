@@ -5,6 +5,7 @@ import yaml
 import subprocess
 import traceback
 import server.utils
+import random
 
 
 def getBagInfoJson(path):
@@ -130,9 +131,8 @@ def exportBag(pathIns, pathOuts, targetTopics, cropType, cropTimes, autoCropTime
                 startTime = rospy.Time.from_sec(bagIn.get_start_time() + cropTime["cropStart"])
                 endTime = rospy.Time.from_sec(bagIn.get_start_time() + cropTime["cropEnd"])
                 topicsInfo = bagIn.get_type_and_topic_info().topics
-                # count total messages among all topics, if they exist
                 totalMessages = sum([topicsInfo[topic].message_count if topic in topicsInfo else 0 for topic in targetTopics])
-                sendProgressEveryHowManyMessages = max(89, int(totalMessages / (100 / len(pathIns))))
+                sendProgressEveryHowManyMessages = max(random.randint(87, 97), int(totalMessages / (100 / len(pathIns))))
                 count = -1
                 for topic, msg, t in bagIn.read_messages(topics=targetTopics, start_time=startTime, end_time=endTime):
                     bagOut.write(topic, msg, t)
