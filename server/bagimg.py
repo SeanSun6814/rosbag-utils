@@ -20,7 +20,6 @@ lineType = cv2.LINE_AA
 def exportVideo(paths, pathOut, targetTopic, speed, fps, printTimestamp, invertImage, rangeFor16Bit, livePreview, envInfo, sendProgress):
     speed = int(speed)
     fps = int(fps)
-    pathOut += ".mp4"
     server.utils.mkdir(server.utils.getFolderFromPath(pathOut))
     print("Exporting video from " + targetTopic + " to " + pathOut)
     print("Input bags: " + str(paths))
@@ -49,7 +48,7 @@ def exportVideo(paths, pathOut, targetTopic, speed, fps, printTimestamp, invertI
         )
         topicsInfo = bagIn.get_type_and_topic_info().topics
         totalMessages = sum([topicsInfo[topic].message_count if topic in topicsInfo else 0 for topic in [targetTopic]])
-        sendProgressEveryHowManyMessages = max(random.randint(5, 9), int(totalMessages / (100 / len(paths))))
+        sendProgressEveryHowManyMessages = max(random.randint(7, 9), int(totalMessages / (100 / len(paths))))
         bagStartCount = frameCount
         for topic, msg, t in bagIn.read_messages(topics=[targetTopic]):
             if startTime == -1:
@@ -105,12 +104,10 @@ def exportVideo(paths, pathOut, targetTopic, speed, fps, printTimestamp, invertI
     calculated16BitRangePercentages = {"minBrightness": {}, "maxBrightness": {}}
 
     if rangeFor16Bit is None and is16BitImage:
-        for i in range(0, 100, 1):
-            # print("max", i, "%: ", maxDigest.percentile(i))
+        for i in range(0, 101, 1):
             calculated16BitRangePercentages["maxBrightness"][i] = maxDigest.percentile(i)
         print("")
-        for i in range(0, 100, 1):
-            # print("min", i, "%: ", minDigest.percentile(i))
+        for i in range(0, 101, 1):
             calculated16BitRangePercentages["minBrightness"][i] = minDigest.percentile(i)
 
     video.release()
