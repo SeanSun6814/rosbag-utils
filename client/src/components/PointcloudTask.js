@@ -32,7 +32,7 @@ const PointcloudTask = (props) => {
                 const pathIns = selectedBags.filter((bag) => bag.selected).map((bag) => bag.path);
                 const topic_clean_name = topic.replace(/\//g, "_");
                 const filename = (topic_clean_name + "_").replace(/__/g, "_").replace(/_$/g, "").replace(/^_/, "");
-                const pathOut = sourcePath + "/pointcloud_" + getDateTime() + +"_" + getRandomId() + "/" + filename;
+                const pathOut = sourcePath + "/pointcloud_" + getDateTime() + "_" + getRandomId() + "/" + filename;
 
                 tempTasks.push({
                     action: TASK.POINTCLOUD_EXPORT_TASK,

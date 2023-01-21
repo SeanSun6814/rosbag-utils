@@ -29,7 +29,7 @@ class FastArr:
         return self.data[: self.size]
 
 
-def exportPointCloud(paths, targetTopic, outPathNoExt, maxPointsPerFile, collapseAxis, speed, trimCloud, sendProgress):
+def exportPointCloud(paths, targetTopic, outPathNoExt, maxPointsPerFile, collapseAxis, speed, trimCloud, envInfo, sendProgress):
     def writeToFile(arrayX, arrayY, arrayZ, arrayT, arrayR, arrayG, arrayB):
         nonlocal outFileCount, totalNumPoints
         totalNumPoints += arrayX.size
@@ -139,10 +139,12 @@ def exportPointCloud(paths, targetTopic, outPathNoExt, maxPointsPerFile, collaps
     endTime = time.time_ns()
     print("Total time used = " + str((endTime - startTime) * 1e-9))
     print("Array time used = " + str(totalArrayTime * 1e-9))
-    return {
+    result = {
         "numFiles": outFileCount,
         "numPoints": totalNumPoints,
         "totalTimeUsed": str((endTime - startTime) * 1e-9),
         "arrayTimeUsed": str(totalArrayTime * 1e-9),
         "totalTopics": count + 1,
     }
+    server.utils.writeResultFile(server.utils.getFolderFromPath(outPathNoExt) + "result.json", envInfo, result)
+    return result

@@ -54,6 +54,7 @@ const ExportVideoTask = (props) => {
                     invertImage: configGlobal.invertImage,
                     useManual16BitRange: configGlobal.useManual16BitRange,
                     rangeFor16Bit: [configGlobal.brightness16BitMin, configGlobal.brightness16BitMax],
+                    livePreview: configGlobal.livePreview,
                 });
             });
             dispatch(setTempTasks(tempTasks));

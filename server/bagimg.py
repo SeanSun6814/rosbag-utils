@@ -5,6 +5,7 @@ import cv2
 import numpy as np
 import os
 from tdigest import TDigest
+import server.utils
 
 font = cv2.FONT_HERSHEY_SIMPLEX
 textLocation = (10, 30)
@@ -14,17 +15,12 @@ fontColor = (0, 0, 255)
 thickness = 2
 lineType = cv2.LINE_AA
 
-# fps: configGlobal.fps,
-# printTimestamp,
-# invertImage: configGlobal.invertImage,
-# useManual16BitRange: configGlobal.useManual16BitRange,
-# rangeFor16Bit: [configGlobal.brightness16BitMin, configGlobal.brightness16BitMax],
 
-
-def exportVideo(paths, pathOut, targetTopic, speed, fps, printTimestamp, invertImage, rangeFor16Bit):
+def exportVideo(paths, pathOut, targetTopic, speed, fps, printTimestamp, invertImage, rangeFor16Bit, livePreview, envInfo, sendProgress):
     speed = int(speed)
     fps = int(fps)
     pathOut += ".mp4"
+    server.utils.mkdir(server.utils.getFolderFromPath(pathOut))
     print("Exporting video from " + targetTopic + " to " + pathOut)
     print("Input bags: " + str(paths))
 
@@ -33,6 +29,7 @@ def exportVideo(paths, pathOut, targetTopic, speed, fps, printTimestamp, invertI
     video = None
     frameCount = -1
     minDigest, maxDigest = None, None
+    is16BitImage = False
 
     def formatTime(time, startime):
         return str(round((time - startime) * 1e-9, 3)) + "s"
@@ -57,6 +54,7 @@ def exportVideo(paths, pathOut, targetTopic, speed, fps, printTimestamp, invertI
 
             cv_img = np.array(bridge.imgmsg_to_cv2(msg))
             if "16UC1" in msg.encoding or "mono16" in msg.encoding:
+                is16BitImage = True
                 if rangeFor16Bit is None:
                     minVal = cv_img.min()
                     maxVal = cv_img.max()
@@ -82,34 +80,25 @@ def exportVideo(paths, pathOut, targetTopic, speed, fps, printTimestamp, invertI
                 cv2.putText(cv_img, str(t), textLocationBelow, font, fontScale, fontColor, thickness, lineType)
 
             video.write(cv_img)
-            cv2.imshow("Video preview", cv_img)
-            cv2.waitKey(1)
+            if livePreview:
+                cv2.imshow("Video preview", cv_img)
+                cv2.waitKey(1)
 
-    if rangeFor16Bit is None:
-        for i in range(0, 100, 10):
-            print("max", i, "%: ", maxDigest.percentile(i))
+    calculated16BitRangePercentages = {"minBrightness": {}, "maxBrightness": {}}
+
+    if rangeFor16Bit is None and is16BitImage:
+        for i in range(0, 100, 1):
+            # print("max", i, "%: ", maxDigest.percentile(i))
+            calculated16BitRangePercentages["maxBrightness"][i] = maxDigest.percentile(i)
         print("")
-        for i in range(0, 100, 10):
-            print("min", i, "%: ", minDigest.percentile(i))
+        for i in range(0, 100, 1):
+            # print("min", i, "%: ", minDigest.percentile(i))
+            calculated16BitRangePercentages["minBrightness"][i] = minDigest.percentile(i)
 
     video.release()
-    cv2.destroyAllWindows()
+    if livePreview:
+        cv2.destroyAllWindows()
 
-    return {"numFrames": frameCount}
-
-
-# exportVideo(
-#     "/mnt/e/_Datasets/thermal_data_after_jiahe_fix/2022-11-08_super_odom/run_0/bags/core_2022-11-08-23-02-50_0.bag\n"
-#     + "/mnt/e/_Datasets/thermal_data_after_jiahe_fix/2022-11-08_super_odom/run_0/bags/core_2022-11-08-23-04-04_1.bag\n"
-#     + "/mnt/e/_Datasets/thermal_data_after_jiahe_fix/2022-11-08_super_odom/run_0/bags/core_2022-11-08-23-05-09_2.bag\n"
-#     + "/mnt/e/_Datasets/thermal_data_after_jiahe_fix/2022-11-08_super_odom/run_0/bags/core_2022-11-08-23-06-15_3.bag\n"
-#     + "/mnt/e/_Datasets/thermal_data_after_jiahe_fix/2022-11-08_super_odom/run_0/bags/core_2022-11-08-23-07-21_4.bag\n"
-#     + "/mnt/e/_Datasets/thermal_data_after_jiahe_fix/2022-11-08_super_odom/run_0/bags/core_2022-11-08-23-08-26_5.bag",
-#     "/mnt/e/_Datasets/thermal_data_after_jiahe_fix/2022-11-08_super_odom/run_0/bags",
-#     "/thermal/image",
-#     1,
-#     30,
-#     "both",
-#     False,
-#     None,
-# )
+    result = {"numFrames": frameCount, "calculated16BitRangePercentages": calculated16BitRangePercentages}
+    server.utils.writeResultFile(server.utils.getFolderFromPath(pathOut) + "result.json", envInfo, result)
+    return result

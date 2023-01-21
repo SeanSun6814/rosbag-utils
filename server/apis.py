@@ -75,6 +75,7 @@ def processWebsocketRequest(req, res):
             req["autoCropData"],
             req["mergeBags"],
             req["odometryTopic"],
+            req,
             sendProgress,
         )
         sendResult({"finalCropTimes": result})
@@ -87,14 +88,25 @@ def processWebsocketRequest(req, res):
             req["collapseAxis"],
             req["speed"],
             None if req["trimCloud"] == "" else req["trimCloud"],
+            req,
             sendProgress,
         )
         sendResult(result)
     elif req["action"] == "VIDEO_EXPORT_TASK":
-        print(req)
-        sendResult({"result": "success"})
+        result = server.bagimg.exportVideo(
+            req["paths"],
+            req["pathOut"],
+            req["targetTopic"],
+            req["speed"],
+            req["fps"],
+            req["printTimestamp"],
+            req["invertImage"],
+            req["rangeFor16Bit"] if req["useManual16BitRange"] else None,
+            req["livePreview"],
+            req,
+            sendProgress,
+        )
+
+        sendResult(result)
     else:
         sendError("Unknown action: " + req["action"])
-
-
-# def exportPointCloud(paths, targetTopic, outPathNoExt, maxPointsPerFile, collapseAxis, speed, trimCloud, sendProgress):

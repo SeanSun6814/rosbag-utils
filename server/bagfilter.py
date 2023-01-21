@@ -42,7 +42,7 @@ def getBagInfoJson(path):
     return info
 
 
-def exportBag(pathIns, pathOuts, targetTopics, cropType, cropTimes, autoCropTimes, mergeBags, trajectoryTopic, sendProgress):
+def exportBag(pathIns, pathOuts, targetTopics, cropType, cropTimes, autoCropTimes, mergeBags, trajectoryTopic, envInfo, sendProgress):
     print("Including topics: " + str(targetTopics))
     progressPerBag = 1.0 / (len(pathIns)) / (3.0 if cropType == "AUTO" else 1.0)
     progressSoFar = 0.0
@@ -82,7 +82,9 @@ def exportBag(pathIns, pathOuts, targetTopics, cropType, cropTimes, autoCropTime
             lastMoveTime = -1
             for topic, msg, t in bagIn.read_messages(topics=[trajectoryTopic]):
                 pose = msg.pose.pose.position
-                if abs(pose.x - finalPosition.x) > 0.5 or abs(pose.y - finalPosition.y) > 0.5 or abs(pose.z - finalPosition.z) > 0.5:
+                if finalPosition is not None and (
+                    abs(pose.x - finalPosition.x) > 0.5 or abs(pose.y - finalPosition.y) > 0.5 or abs(pose.z - finalPosition.z) > 0.5
+                ):
                     lastMoveTime = t.to_time()
             return lastMoveTime - bagIn.get_start_time()
 
@@ -168,7 +170,11 @@ def exportBag(pathIns, pathOuts, targetTopics, cropType, cropTimes, autoCropTime
         exportToOneFileUsingManualCropping(pathIns, pathOuts[0], cropTimes)
     elif cropType == "MANUAL" and not mergeBags:
         exportToSeparateFilesUsingManualCropping(cropTimes)
-    return cropTimes
+
+    result = cropTimes
+    server.utils.mkdir(server.utils.getFolderFromPath(pathOuts[0]))  # in the case of all bags are skipped
+    server.utils.writeResultFile(server.utils.getFolderFromPath(pathOuts[0]) + "result.json", envInfo, result)
+    return result
 
 
 # def measureTrajectory(pathIn, pathOut, targetTopics, startTime, endTime, trajectoryTopic):
