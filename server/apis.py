@@ -106,6 +106,15 @@ def processWebsocketRequest(req, res):
             req,
             sendProgress,
         )
+        sendResult(result)
+    elif req["action"] == "MEASURE_TRAJECTORY_TASK":
+        result = server.bagfilter.measureTrajectory(
+            req["pathIns"],
+            req["pathOut"],
+            req["targetTopic"],
+            req,
+            sendProgress,
+        )
 
         sendResult(result)
     else:

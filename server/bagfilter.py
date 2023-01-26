@@ -177,126 +177,42 @@ def exportBag(pathIns, pathOuts, targetTopics, cropType, cropTimes, autoCropTime
     return result
 
 
-# def measureTrajectory(pathIn, pathOut, targetTopics, startTime, endTime, trajectoryTopic):
-#     print("Processing bag " + pathIn + " -> " + pathOut + " for time range " + startTime + "-" + endTime)
-#     targetTopics = targetTopics.split(" ")
-#     print("Including topics: " + str(targetTopics))
+def measureTrajectory(paths, pathOut, targetTopic, envInfo, sendProgress):
+    server.utils.mkdir(server.utils.getFolderFromPath(pathOut))
+    firstPos = None
+    lastPos = None
+    length = 0.0
+    count = 0
+    percentProgressPerBag = 1 / len(paths)
+    for path, pathIdx in zip(paths, range(len(paths))):
+        if path.strip() == "":
+            continue
+        print("Processing " + path)
+        basePercentage = pathIdx * percentProgressPerBag
+        sendProgress(percentage=(basePercentage + 0.05 * percentProgressPerBag), details=("Loading " + server.utils.getFilenameFromPath(path)))
+        bagIn = rosbag.Bag(path)
+        sendProgress(
+            percentage=(basePercentage + 0.1 * percentProgressPerBag),
+            details=("Processing " + str(count) + " positions"),
+        )
+        topicsInfo = bagIn.get_type_and_topic_info().topics
+        totalMessages = sum([topicsInfo[topic].message_count if topic in topicsInfo else 0 for topic in [targetTopic]])
+        sendProgressEveryHowManyMessages = max(random.randint(77, 97), int(totalMessages / (100 / len(paths))))
+        bagStartCount = count
+        for topic, msg, t in bagIn.read_messages(topics=[targetTopic]):
+            timestamp = t.to_time()
+            pose = {"x": msg.pose.pose.position.x, "y": msg.pose.pose.position.y, "z": msg.pose.pose.position.z, "t": timestamp}
+            length += dist(pose, lastPos)
+            if firstPos is None:
+                firstPos = pose
+            lastPos = pose
 
-#     if abs(-1 - float(startTime)) < 0.01:
-#         print("Skip bag...")
-#         return [0, 0, 0, 0, 0]
-
-#     startTime = float(startTime) * 1e9
-#     endTime = float(endTime) * 1e9
-
-#     bagIn = rosbag.Bag(pathIn)
-#     lastPos = None
-#     length = 0.0
-#     with rosbag.Bag(pathOut, "w") as bagOut:
-#         for topic, msg, t in bagIn.read_messages(topics=targetTopics):
-#             timestamp = float(str(t))
-#             if timestamp >= startTime and timestamp <= endTime:
-#                 if topic in targetTopics:
-#                     bagOut.write(topic, msg, t)
-
-#                 if topic == trajectoryTopic:
-#                     pose = msg.pose.pose.position
-#                     pose = [pose.x, pose.y, pose.z, timestamp]
-#                     length += dist(pose, lastPos)
-#                     lastPos = pose
-#             elif timestamp > endTime:
-#                 break
-
-#     print("Finished export bag")
-#     if trajectoryTopic == "" or lastPos is None:
-#         return [0, 0, 0, -1, 0]
-#     else:
-#         lastPos.append(length)
-#         return lastPos
+    result = {"length": length, "firstPos": firstPos, "lastPos": lastPos, "returnToOrigin:": dist(firstPos, lastPos) < 5}
+    server.utils.writeResultFile(server.utils.getFolderFromPath(pathOut) + "result.json", envInfo, result)
+    return result
 
 
-# def dist(a, b):
-#     if a is None or b is None:
-#         return 0.0
-#     [x1, y1, z1, _] = a
-#     [x2, y2, z2, _] = b
-#     return (((x2 - x1) ** 2) + ((y2 - y1) ** 2) + ((z2 - z1) ** 2)) ** (1 / 2)
-
-
-# print(getBagInfoJson("/media/sean/SSD/_ProcessedDatasets/dataset_paper/hawkins_full_loop_r3_09_07/odom_results/2022-07-11-16-13-18.bag"))
-# print(getFirstMoveTime("/home/sean/Downloads/subt_datasets/nuc_2021-09-05-14-52-55_1.bag", "/aft_mapped_to_init"))
-
-# exportBag(
-#     [
-#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/core_2022-12-19-13-28-33_0.bag",
-#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/core_2022-12-19-13-31-11_1.bag",
-#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/core_2022-12-19-13-33-45_2.bag",
-#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/core_2022-12-19-13-36-20_3.bag",
-#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/core_2022-12-19-13-38-53_4.bag",
-#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/core_2022-12-19-13-41-27_5.bag",
-#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/core_2022-12-19-13-44-01_6.bag",
-#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/core_2022-12-19-13-46-36_7.bag",
-#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/core_2022-12-19-13-49-11_8.bag",
-#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/core_2022-12-19-13-51-46_9.bag",
-#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/core_2022-12-19-13-54-21_10.bag",
-#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/core_2022-12-19-13-56-57_11.bag",
-#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/core_2022-12-19-13-59-33_12.bag",
-#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/core_2022-12-19-14-02-06_13.bag",
-#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/core_2022-12-19-14-04-37_14.bag",
-#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/core_2022-12-19-14-07-07_15.bag",
-#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/core_2022-12-19-14-09-41_16.bag",
-#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/core_2022-12-19-14-12-18_17.bag",
-#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/core_2022-12-19-14-14-53_18.bag",
-#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/core_2022-12-19-14-17-26_19.bag",
-#     ],
-#     [
-#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/export/core_2022-12-19-13-28-33_0.bag",
-#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/export/core_2022-12-19-13-31-11_1.bag",
-#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/export/core_2022-12-19-13-33-45_2.bag",
-#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/export/core_2022-12-19-13-36-20_3.bag",
-#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/export/core_2022-12-19-13-38-53_4.bag",
-#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/export/core_2022-12-19-13-41-27_5.bag",
-#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/export/core_2022-12-19-13-44-01_6.bag",
-#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/export/core_2022-12-19-13-46-36_7.bag",
-#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/export/core_2022-12-19-13-49-11_8.bag",
-#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/export/core_2022-12-19-13-51-46_9.bag",
-#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/export/core_2022-12-19-13-54-21_10.bag",
-#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/export/core_2022-12-19-13-56-57_11.bag",
-#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/export/core_2022-12-19-13-59-33_12.bag",
-#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/export/core_2022-12-19-14-02-06_13.bag",
-#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/export/core_2022-12-19-14-04-37_14.bag",
-#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/export/core_2022-12-19-14-07-07_15.bag",
-#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/export/core_2022-12-19-14-09-41_16.bag",
-#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/export/core_2022-12-19-14-12-18_17.bag",
-#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/export/core_2022-12-19-14-14-53_18.bag",
-#         "/home/sean/Documents/GitHub/rosbag-utils/testdata/export_2023-01-13_17-56-36/export/core_2022-12-19-14-17-26_19.bag",
-#     ],
-#     ["/cmu_rc3/aft_mapped_to_init_imu"],
-#     "AUTO",
-#     [
-#         {"cropStart": 0, "cropEnd": 1000000 * 1000},
-#         {"cropStart": 0, "cropEnd": 1000000 * 1000},
-#         {"cropStart": 0, "cropEnd": 1000000 * 1000},
-#         {"cropStart": 0, "cropEnd": 1000000 * 1000},
-#         {"cropStart": 0, "cropEnd": 1000000 * 1000},
-#         {"cropStart": 0, "cropEnd": 1000000 * 1000},
-#         {"cropStart": 0, "cropEnd": 1000000 * 1000},
-#         {"cropStart": 0, "cropEnd": 1000000 * 1000},
-#         {"cropStart": 0, "cropEnd": 1000000 * 1000},
-#         {"cropStart": 0, "cropEnd": 1000000 * 1000},
-#         {"cropStart": 0, "cropEnd": 1000000 * 1000},
-#         {"cropStart": 0, "cropEnd": 1000000 * 1000},
-#         {"cropStart": 0, "cropEnd": 1000000 * 1000},
-#         {"cropStart": 0, "cropEnd": 1000000 * 1000},
-#         {"cropStart": 0, "cropEnd": 1000000 * 1000},
-#         {"cropStart": 0, "cropEnd": 1000000 * 1000},
-#         {"cropStart": 0, "cropEnd": 1000000 * 1000},
-#         {"cropStart": 0, "cropEnd": 1000000 * 1000},
-#         {"cropStart": 0, "cropEnd": 1000000 * 1000},
-#         {"cropStart": 0, "cropEnd": 1000000 * 1000},
-#     ],
-#     {"start": 0, "end": 0},
-#     True,
-#     "/cmu_rc3/aft_mapped_to_init_imu",
-#     lambda x: x,
-# )
+def dist(a, b):
+    if a is None or b is None:
+        return 0.0
+    return (((b["x"] - a["x"]) ** 2) + ((b["y"] - a["y"]) ** 2) + ((b["z"] - a["z"]) ** 2)) ** (1 / 2)

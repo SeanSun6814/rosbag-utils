@@ -19,7 +19,15 @@ const Ws = ({ children, state: database }) => {
             };
 
             const processResult = (message) => {
-                dispatch(TASK.updateTask(message.id, { status: "COMPLETE", progress: 1, endTime: new Date().getTime(), result: message.result }));
+                dispatch(
+                    TASK.updateTask(message.id, {
+                        status: "COMPLETE",
+                        progressDetails: "Finished",
+                        progress: 1,
+                        endTime: new Date().getTime(),
+                        result: message.result,
+                    })
+                );
                 console.log("TASK_COMPLETE", message.id);
                 const result = message.result;
                 if (message.action === TASK.OPEN_BAG_TASK) {

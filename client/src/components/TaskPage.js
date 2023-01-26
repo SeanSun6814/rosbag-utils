@@ -5,6 +5,7 @@ import * as TASK from "../reducers/task";
 import BagFilterTask from "./BagFilterTask";
 import ExportVideoTask from "./ExportVideoTask";
 import PointcloudTask from "./PointcloudTask";
+import MeasureTrajectoryTask from "./MeasureTrajectoryTask";
 
 const TaskPage = (props) => {
     let title, page;
@@ -29,6 +30,7 @@ const TaskPage = (props) => {
         page = <ExportVideoTask />;
     } else if (props.status.task_type === TASK.MEASURE_TRAJECTORY_TASK) {
         title = "Measure Trajectory Task";
+        page = <MeasureTrajectoryTask />;
     } else title = "Unknown Task";
     return (
         <div>
