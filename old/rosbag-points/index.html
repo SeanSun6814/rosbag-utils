@@ -1,0 +1,197 @@
+<html>
+
+<head>
+    <title>Rosbag Points</title>
+    <script src="/lib/mdl/material.min.js"></script>
+    <link rel="stylesheet" href="/lib/mdl/material.min.css" />
+    <link rel="stylesheet" href="/lib/mdl/material-icons.css" />
+    <script src="/lib/swal/sweetalert2.all.min.js"></script>
+    <link rel="stylesheet" href="/lib/font-awesome-4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="/common/style.css" />
+    <link rel="stylesheet" href="./style.css" />
+</head>
+
+<body>
+    <div class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer">
+        <div class="mdl-layout__drawer">
+            <span class="mdl-layout-title"><a href="/" style="text-decoration: none; color: #424242"><b>Rosbag
+                        Points</b></a></span>
+            <nav class="mdl-navigation">
+                <a id="nav1" class="mdl-navigation__link" href="javascript:void(0);" onclick="showPanel(1);"> </a>
+                <a id="nav2" class="mdl-navigation__link" href="javascript:void(0);" onclick="showPanel(2);"> </a>
+                <a id="nav3" class="mdl-navigation__link" href="javascript:void(0);" onclick="showPanel(3);"> </a>
+            </nav>
+        </div>
+        <main class="mdl-layout__content">
+            <div class="page-content">
+                <div id="panel1" style="display: none">
+                    <div class="row">
+                        <div class="column">
+                            <div class="" style="top: 10%">
+                                <h2>Import files</h2>
+                                <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
+                                    <thead>
+                                        <tr>
+                                            <th class="mdl-data-table__cell--non-numeric">#</th>
+                                            <th class="mdl-data-table__cell--non-numeric">Files</th>
+                                            <th class="mdl-data-table__cell--non-numeric">Duration</th>
+                                            <th class="mdl-data-table__cell--non-numeric">Size</th>
+                                            <th class="mdl-data-table__cell--non-numeric">Messages</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="fileTable"></tbody>
+                                </table>
+                                <br /><br />
+                                <button id="addBagBtn"
+                                    class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect"
+                                    onclick="showFileDialog();"> Add files </button>
+                                <br /><br /><br />
+                            </div>
+                        </div>
+                        <div class="column">
+                            <div class="" style="top: 10%">
+                                <h2>Bag info</h2>
+                                <p id="bagName"></p>
+                                <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
+                                    <thead>
+                                        <tr>
+                                            <th class="mdl-data-table__cell--non-numeric">Topic</th>
+                                            <th class="mdl-data-table__cell--non-numeric">Type</th>
+                                            <th class="mdl-data-table__cell--non-numeric">Messages</th>
+                                            <th class="mdl-data-table__cell--non-numeric">Frequency</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="bagInfoTable"></tbody>
+                                </table>
+                                <br /><br /><br /><br />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="panel2" style="display: none">
+                    <div style="top: 10%; padding-left: 7%">
+                        <h2>Select topic</h2>
+                        <h4>Which topic to generate point cloud</h4>
+                        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                            <select class="mdl-textfield__input" id="pointCloudTopicSelect" name="pointCloudTopicSelect"
+                                onchange="updateStep2Finished();">
+                                <option></option>
+                            </select>
+                            <label class="mdl-textfield__label"
+                                for="pointCloudTopicSelect">sensor_msgs/PointCloud2</label>
+                        </div>
+                        <br /><br />
+                        <h2>Collapse axis</h2>
+                        <h4>Set all the points' specified axis value to 0 </h4>
+                        <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="collapseAxisSwitch">
+                            <input type="checkbox" id="collapseAxisSwitch" class="mdl-switch__input"
+                                onchange="checkEnableAxis();" />
+                            <span class="mdl-switch__label" id="collapseAxisSwitchLabel">Disabled</span>
+                        </label>
+                        <div class="disabled">
+                            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                                <select class="mdl-textfield__input" id="collapseAxisSelect" name="collapseAxisSelect"
+                                    onchange="updateStep2Finished();">
+                                    <option>X</option>
+                                    <option>Y</option>
+                                    <option>Z</option>
+                                </select>
+                                <label class="mdl-textfield__label" for="collapseAxisSelect">Axis</label>
+                            </div>
+                        </div>
+                        <br /><br />
+                        <h2>Trim pointcloud</h2>
+                        <h4>Only export the points within range</h4>
+                        <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="trimPointcloudSwitch">
+                            <input type="checkbox" id="trimPointcloudSwitch" class="mdl-switch__input"
+                                onchange="checkEnableTrim();" />
+                            <span class="mdl-switch__label" id="trimPointcloudSwitchLabel">Disabled</span>
+                        </label>
+                        <div class="disabled">
+                            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                                <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?"
+                                    id="minXInput" value="-1000000000" size="10" onchange="updateStep2Finished();" />
+                                <label class="mdl-textfield__label" for="minXInput">X min</label>
+                                <span class="mdl-textfield__error">Input is not a number!</span>
+                            </div>
+                            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                                <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?"
+                                    id="maxXInput" value="1000000000" size="10" onchange="updateStep2Finished();" />
+                                <label class="mdl-textfield__label" for="maxXInput">X max</label>
+                                <span class="mdl-textfield__error">Input is not a number!</span>
+                            </div>
+                            <br>
+                            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                                <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?"
+                                    id="minYInput" value="-1000000000" size="10" onchange="updateStep2Finished();" />
+                                <label class="mdl-textfield__label" for="minYInput">Y min</label>
+                                <span class="mdl-textfield__error">Input is not a number!</span>
+                            </div>
+                            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                                <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?"
+                                    id="maxYInput" value="1000000000" size="10" onchange="updateStep2Finished();" />
+                                <label class="mdl-textfield__label" for="maxYInput">Y max</label>
+                                <span class="mdl-textfield__error">Input is not a number!</span>
+                            </div><br>
+                            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                                <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?"
+                                    id="minZInput" value="-1000000000" size="10" onchange="updateStep2Finished();" />
+                                <label class="mdl-textfield__label" for="minZInput">Z min</label>
+                                <span class="mdl-textfield__error">Input is not a number!</span>
+                            </div>
+                            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                                <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?"
+                                    id="maxZInput" value="1000000000" size="10" onchange="updateStep2Finished();" />
+                                <label class="mdl-textfield__label" for="maxZInput">Z max</label>
+                                <span class="mdl-textfield__error">Input is not a number!</span>
+                            </div>
+                        </div>
+                        <br /><br />
+                        <h2>Downsample pointcloud</h2>
+                        <form action="#">
+                            <h4>Only include one frame for every how many frames</h4>
+                            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                                <input class="mdl-textfield__input" type="text" pattern="[0-9]*" id="speedUpInput"
+                                    value="1" size="10" onchange="updateStep2Finished();" />
+                                <label class="mdl-textfield__label" for="speedUpInput">Downsample ratio</label>
+                                <span class="mdl-textfield__error">Input is not a positive integer!</span>
+                            </div>
+                        </form><br /><br />
+                        <h2>Split output into multiple files</h2>
+                        <form action="#">
+                            <h4>Max number of points per file</h4>
+                            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                                <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?"
+                                    id="maxPointsInput" value="50000000" size="10" onchange="updateStep2Finished();" />
+                                <label class="mdl-textfield__label" for="maxPointsInput">Max points</label>
+                                <span class="mdl-textfield__error">Input is not a number!</span>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div id="panel3" style="display: none">
+                    <div class="" style="top: 10%; padding-left: 7%">
+                        <h2>Summary</h2>
+                        <h4 id="summaryLabel"></h4>
+                        <br />
+                        <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect"
+                            onclick="onExportButton()"> Start export </button>
+                        <br /><br />
+                        <h4 id="finalResultsLabel"></h4>
+                        <br /><br /><br /><br />
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <div class="mdl-tooltip" data-mdl-for="addBagBtn">Import rosbag files to process</div>
+    <div class="mdl-tooltip" data-mdl-for="fileTable">Click on bag to view info</div>
+    <div class="mdl-tooltip" data-mdl-for="maxPointsInput">Decrease to decrease app memory usage</div>
+</body>
+<script src="/common/utils.js"></script>
+<script src="./page1.js"></script>
+<script src="./page2.js"></script>
+<script src="./page3.js"></script>
+<script src="./script.js"></script>
+
+</html>
