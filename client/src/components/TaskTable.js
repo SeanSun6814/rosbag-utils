@@ -30,34 +30,19 @@ const TaskTable = (props) => {
 
     React.useEffect(() => {
         const renderButton = (params) => {
-            const handleView = (id) => {
-                setContent(
-                    () =>
-                        JSON.stringify(
-                            props.tasks.find((task) => task.id === id),
-                            null,
-                            4
-                        ) + "\n"
-                );
-                setShowCode(() => true);
-            };
-            if (params.value === "DELETE")
-                return (
-                    <IconButton
-                        color="primary"
-                        onClick={() => {
-                            dispatch(removeTask(params.id));
-                        }}
-                    >
-                        <DeleteIcon />
-                    </IconButton>
-                );
-            else
-                return (
-                    <IconButton color="primary" onClick={() => handleView(params.id)}>
-                        <VisibilityIcon />
-                    </IconButton>
-                );
+            return (
+                <IconButton
+                    disabled={params.value == "RUNNING"}
+                    color="primary"
+                    onClick={(e) => {
+                        dispatch(removeTask(params.id));
+                        e.stopPropagation();
+                        e.preventDefault();
+                    }}
+                >
+                    <DeleteIcon />
+                </IconButton>
+            );
         };
         if (useMoreInfo)
             setColumns(() => [
@@ -92,7 +77,7 @@ const TaskTable = (props) => {
                         startTime: task.startTime < 0 ? "Never" : convert.getDateTime(task.startTime, true),
                         endTime: task.endTime < 0 ? "Never" : convert.getDateTime(task.endTime, true),
                         progress: task.progress,
-                        actions: task.status === "WAITING" || task.status === "READY" ? "DELETE" : "VIEW",
+                        actions: task.status === "RUNNING" ? "RUNNING" : "IDLE",
                     };
                 })
         );
@@ -125,10 +110,23 @@ const TaskTable = (props) => {
         <div style={{ width: "100%" }}>
             <div style={{ height: "calc(100vh - 290px)" }}>
                 <DataGrid
+                    disableSelectionOnClick
                     rows={displayFormat}
                     columns={columns}
                     components={{
                         Toolbar: CustomToolbar,
+                    }}
+                    onRowClick={(e) => {
+                        console.log("Clicked on row: ", e.id);
+                        setContent(
+                            () =>
+                                JSON.stringify(
+                                    props.tasks.find((task) => task.id === e.id),
+                                    null,
+                                    4
+                                ) + "\n"
+                        );
+                        setShowCode(() => true);
                     }}
                 />
             </div>

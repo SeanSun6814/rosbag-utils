@@ -12,6 +12,7 @@ import { connect, useDispatch } from "react-redux";
 import * as convert from "../utils/convert";
 import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 import { setSelectedBags } from "../reducers/rosbag";
+import ModalViewCode from "./ModalViewCode";
 
 const columns = [
     { field: "id", headerName: "#", flex: 0.5 },
@@ -30,6 +31,8 @@ const BagTable = (props) => {
     const [useFullPath, setUseFullPath] = React.useState(false);
     const [selectionModel, setSelectionModel] = React.useState([]);
     const [displayFormat, setDisplayFormat] = React.useState([]);
+    const [showCode, setShowCode] = React.useState(false);
+    const [content, setContent] = React.useState("");
 
     React.useEffect(() => {
         setDisplayFormat(() =>
@@ -76,6 +79,7 @@ const BagTable = (props) => {
             <div style={{ height: "calc(100vh - 290px)" }}>
                 <DataGrid
                     checkboxSelection
+                    disableSelectionOnClick
                     rows={displayFormat}
                     columns={columns}
                     components={{
@@ -84,9 +88,15 @@ const BagTable = (props) => {
                     onSelectionModelChange={(newSelectionModel) => {
                         setSelectionModel(() => newSelectionModel);
                     }}
+                    onRowClick={(e) => {
+                        console.log("Show bag:", e, props.bags[e.id - 1]);
+                        setContent(() => JSON.stringify(props.bags[e.id - 1], null, 4) + "\n");
+                        setShowCode(() => true);
+                    }}
                     selectionModel={selectionModel}
                 />
             </div>
+            <ModalViewCode open={showCode} setOpen={setShowCode} content={content} language={"javascript"} />
         </div>
     );
 };

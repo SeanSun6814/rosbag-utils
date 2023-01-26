@@ -40,7 +40,7 @@ const TaskTypes = (props) => {
         setFilterBagEnabled(() => filterBagEnabled && numSelected > 0);
         setExportPointcloudEnabled(() => exportPointcloudEnabled && numSelected > 0);
         setExportVideoEnabled(() => exportVideoEnabled && numSelected > 0);
-        setMeasureTrajectoryEnabled(() => measureTrajectoryEnabled && numSelected > 0 && false);
+        setMeasureTrajectoryEnabled(() => measureTrajectoryEnabled && numSelected > 0);
     }, [props.topics]);
 
     const buttonHandler = (event, task) => {
@@ -174,7 +174,7 @@ const TaskTypes = (props) => {
                                             }}
                                             onChange={buttonHandler}
                                         >
-                                            Coming soon
+                                            Add task
                                         </Button>
                                     </Grid>
                                 </Grid>
@@ -198,7 +198,7 @@ const TaskTypes = (props) => {
                                 <Grid container direction="row-reverse">
                                     <Grid item>
                                         <Button
-                                            disabled={!measureTrajectoryEnabled}
+                                            disabled={!false}
                                             size="small"
                                             variant="contained"
                                             sx={{ marginRight: "10px" }}
@@ -228,7 +228,7 @@ const TaskTypes = (props) => {
                                 <Grid container direction="row-reverse">
                                     <Grid item>
                                         <Button
-                                            disabled={!measureTrajectoryEnabled}
+                                            disabled={!false}
                                             size="small"
                                             variant="contained"
                                             sx={{ marginRight: "10px" }}
