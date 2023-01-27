@@ -206,6 +206,12 @@ def measureTrajectory(paths, pathOut, targetTopic, envInfo, sendProgress):
             if firstPos is None:
                 firstPos = pose
             lastPos = pose
+            count += 1
+            if count % sendProgressEveryHowManyMessages == 0:
+                sendProgress(
+                    percentage=(basePercentage + ((count - bagStartCount) / totalMessages * 0.89 + 0.1) * percentProgressPerBag),
+                    details=("Processing " + str(count) + " positions"),
+                )
 
     result = {"length": length, "firstPos": firstPos, "lastPos": lastPos, "returnToOrigin:": dist(firstPos, lastPos) < 5}
     server.utils.writeResultFile(server.utils.getFolderFromPath(pathOut) + "result.json", envInfo, result)
