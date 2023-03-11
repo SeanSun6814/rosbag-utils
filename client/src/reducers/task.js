@@ -39,36 +39,13 @@ export const OPEN_BAG_TASK = "OPEN_BAG_TASK";
 
 export const POINTCLOUD_EXPORT_TASK = "POINTCLOUD_EXPORT_TASK";
 
+export const POINTCLOUD_COLOR_TASK = "POINTCLOUD_COLOR_TASK";
+
 export const VIDEO_EXPORT_TASK = "VIDEO_EXPORT_TASK";
 
 export const FILTER_BAG_TASK = "FILTER_BAG_TASK";
 
 export const MEASURE_TRAJECTORY_TASK = "MEASURE_TRAJECTORY_TASK";
-
-// export const makePointcloudExportTask = (paths, targetTopic, outPathNoExt, maxPointsPerFile, collapseAxis, speed, xMinMax, yMinMax, zMinMax) => ({
-//     action: POINTCLOUD_EXPORT_TASK,
-//     paths,
-//     targetTopic,
-//     outPathNoExt,
-//     maxPointsPerFile,
-//     collapseAxis,
-//     speed,
-//     xMinMax,
-//     yMinMax,
-//     zMinMax,
-// });
-
-// export const makeVideoExportTask = (paths, pathOut, targetTopic, speed, fps, printTimestamp, invertImage, rangeFor16Bit) => ({
-//     action: VIDEO_EXPORT_TASK,
-//     paths,
-//     pathOut,
-//     targetTopic,
-//     speed,
-//     fps,
-//     printTimestamp,
-//     invertImage,
-//     rangeFor16Bit,
-// });
 
 export const makeOpenBagTask = () => ({
     action: OPEN_BAG_TASK,

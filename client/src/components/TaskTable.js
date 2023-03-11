@@ -32,7 +32,8 @@ const TaskTable = (props) => {
         const renderButton = (params) => {
             return (
                 <IconButton
-                    disabled={params.value == "RUNNING"}
+                    // disabled={params.value == "RUNNING"}
+                    disabled={false}
                     color="primary"
                     onClick={(e) => {
                         dispatch(removeTask(params.id));

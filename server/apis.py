@@ -1,16 +1,21 @@
 import server.bagfilter
 import server.baglas
+import server.baglas_uncertainty
 import server.bagimg
 import tkinter as tk
 from tkinter import filedialog
 import json
 import time
+import server.utils
 
 progressPercentage = 0
 progressDetails = ""
+prev_dir = "/"
 
 
 def processWebsocketRequest(req, res):
+    global prev_dir
+
     def sendProgress(percentage=-1, details="", status="RUNNING"):
         global progressPercentage, progressDetails
         if percentage == progressPercentage and details == progressDetails:
@@ -50,10 +55,12 @@ def processWebsocketRequest(req, res):
         try:
             root = tk.Tk()
             root.withdraw()
-            msg = tk.filedialog.askopenfiles(filetypes=[("Rosbag", "*.bag")])
+            msg = tk.filedialog.askopenfiles(filetypes=[("Rosbag", "*.bag")], initialdir=prev_dir)
             root.destroy()
             file_names = [file.name for file in msg]
-            print(file_names)
+            print("SELECTED:", file_names)
+            if len(file_names) > 0:
+                prev_dir = server.utils.getFolderFromPath(file_names[0])
         except Exception as e:
             print(e)
         sendResult(file_names)
@@ -83,6 +90,20 @@ def processWebsocketRequest(req, res):
         result = server.baglas.exportPointCloud(
             req["paths"],
             req["targetTopic"],
+            req["outPathNoExt"],
+            req["maxPointsPerFile"],
+            req["collapseAxis"],
+            req["speed"],
+            None if req["trimCloud"] == "" else req["trimCloud"],
+            req,
+            sendProgress,
+        )
+        sendResult(result)
+    elif req["action"] == "POINTCLOUD_COLOR_TASK":
+        result = server.baglas_uncertainty.exportPointCloud(
+            req["paths"],
+            req["targetTopic"],
+            req["odomStatsTopic"],
             req["outPathNoExt"],
             req["maxPointsPerFile"],
             req["collapseAxis"],

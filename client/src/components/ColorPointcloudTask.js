@@ -25,7 +25,9 @@ const PointcloudTask = (props) => {
         dispatch(setPageComplete(true));
         return () => {
             const getRandomId = () => Math.floor(Math.random() * 16534 + 4096).toString(16);
-            const targetTopics = selectedTopics;
+            const odometryStatsTopicIdx = selectedTopics.findIndex((topic) => props.topics[topic].type === "super_odometry_msgs/OptimizationStats");
+            const targetTopics = selectedTopics.filter((topic, idx) => idx !== odometryStatsTopicIdx);
+            const statsTopic = selectedTopics[odometryStatsTopicIdx];
             let tempTasks = [];
 
             targetTopics.forEach((topic) => {
@@ -33,12 +35,13 @@ const PointcloudTask = (props) => {
                 const pathIns = selectedBags.filter((bag) => bag.selected).map((bag) => bag.path);
                 const topic_clean_name = topic.replace(/\//g, "_");
                 const filename = (topic_clean_name + "_").replace(/__/g, "_").replace(/_$/g, "").replace(/^_/, "");
-                const pathOut = sourcePath + "/pointcloud_" + getDateTime() + "_" + getRandomId() + "/" + filename;
+                const pathOut = sourcePath + "/confidence_pointcloud_" + getDateTime() + "_" + getRandomId() + "/" + filename;
 
                 tempTasks.push({
-                    action: TASK.POINTCLOUD_EXPORT_TASK,
+                    action: TASK.POINTCLOUD_COLOR_TASK,
                     paths: pathIns,
                     targetTopic: topic,
+                    odomStatsTopic: statsTopic,
                     outPathNoExt: pathOut,
                     maxPointsPerFile: configGlobal.maxPointsPerFile,
                     collapseAxis: configGlobal.collapseAxisEnabled ? configGlobal.collapseAxis : "",

@@ -6,6 +6,7 @@ import BagFilterTask from "./BagFilterTask";
 import ExportVideoTask from "./ExportVideoTask";
 import PointcloudTask from "./PointcloudTask";
 import MeasureTrajectoryTask from "./MeasureTrajectoryTask";
+import ColorPointcloudTask from "./ColorPointcloudTask";
 
 const TaskPage = (props) => {
     let title, page;
@@ -20,6 +21,14 @@ const TaskPage = (props) => {
             title = "Add " + numSelected + " Export Pointcloud Tasks";
         }
         page = <PointcloudTask />;
+    } else if (props.status.task_type === TASK.POINTCLOUD_COLOR_TASK) {
+        const numSelected = Object.keys(props.topics).filter((topic) => props.topics[topic].selected).length - 1;
+        if (numSelected === 1) {
+            title = "Add Confidence Pointcloud Task";
+        } else {
+            title = "Add " + numSelected + " Export Pointcloud Tasks";
+        }
+        page = <ColorPointcloudTask />;
     } else if (props.status.task_type === TASK.VIDEO_EXPORT_TASK) {
         const numSelected = Object.keys(props.topics).filter((topic) => props.topics[topic].selected).length;
         if (numSelected === 1) {

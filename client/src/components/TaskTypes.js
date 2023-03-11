@@ -16,6 +16,7 @@ const TaskTypes = (props) => {
     const [exportPointcloudEnabled, setExportPointcloudEnabled] = React.useState(false);
     const [exportVideoEnabled, setExportVideoEnabled] = React.useState(false);
     const [measureTrajectoryEnabled, setMeasureTrajectoryEnabled] = React.useState(false);
+    const [confidenceCloudEnabled, setConfidenceCloudEnabled] = React.useState(false);
 
     const handleChange = (panel) => (event, isExpanded) => {
         setExpanded(() => (isExpanded ? panel : false));
@@ -26,6 +27,8 @@ const TaskTypes = (props) => {
         let exportPointcloudEnabled = true;
         let exportVideoEnabled = true;
         let measureTrajectoryEnabled = true;
+        let confidenceCloudEnabled = true;
+        let numStatSelected = 0;
         let numSelected = 0;
         Object.keys(props.topics).forEach((topicName) => {
             const topic = props.topics[topicName];
@@ -33,6 +36,8 @@ const TaskTypes = (props) => {
                 if (topic.type !== "sensor_msgs/PointCloud2") exportPointcloudEnabled = false;
                 if (topic.type !== "sensor_msgs/Image") exportVideoEnabled = false;
                 if (topic.type !== "nav_msgs/Odometry") measureTrajectoryEnabled = false;
+                if (topic.type !== "sensor_msgs/PointCloud2" && topic.type !== "super_odometry_msgs/OptimizationStats") confidenceCloudEnabled = false;
+                if (topic.type === "super_odometry_msgs/OptimizationStats") numStatSelected++;
                 numSelected++;
             }
         });
@@ -41,6 +46,7 @@ const TaskTypes = (props) => {
         setExportPointcloudEnabled(() => exportPointcloudEnabled && numSelected > 0);
         setExportVideoEnabled(() => exportVideoEnabled && numSelected > 0);
         setMeasureTrajectoryEnabled(() => measureTrajectoryEnabled && numSelected > 0);
+        setConfidenceCloudEnabled(() => confidenceCloudEnabled && numSelected > 1 && numStatSelected === 1);
     }, [props.topics]);
 
     const buttonHandler = (event, task) => {
@@ -117,7 +123,7 @@ const TaskTypes = (props) => {
                     </AccordionSummary>
                     <AccordionDetails>
                         <Typography>
-                            Convert the cloud points from rosbags to the .las format. Topics must be in the "sensor_msgs/PointCloud2" format. Note: if multiple
+                            Convert the cloud points from rosbags to the .las format. Topics must be in the <b>sensor_msgs/PointCloud2</b> format. Note: if multiple
                             topics are selected, multiple tasks will be generated.
                         </Typography>
                     </AccordionDetails>
@@ -150,7 +156,7 @@ const TaskTypes = (props) => {
                     </AccordionSummary>
                     <AccordionDetails>
                         <Typography>
-                            Visualize the image topics from rosbags. We can also export the images as video to disk. Topics must be in the "sensor_msgs/Image"
+                            Visualize the image topics from rosbags. We can also export the images as video to disk. Topics must be in the <b>sensor_msgs/Image </b>
                             format. Note: if multiple topics are selected, multiple tasks will be generated.
                         </Typography>
                     </AccordionDetails>
@@ -183,7 +189,7 @@ const TaskTypes = (props) => {
                     </AccordionSummary>
                     <AccordionDetails>
                         <Typography>
-                            Visualize the image topics from rosbags. We can also export the images as video to disk. Topic must be in the "nav_msgs/Odometry"
+                            Measure the length of the trajectory, and export its linear and angular velocity. Topic must be in the <b>nav_msgs/Odometry </b>
                             format.
                         </Typography>
                     </AccordionDetails>
@@ -192,22 +198,22 @@ const TaskTypes = (props) => {
                     <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel5bh-content" id="panel5bh-header">
                         <Grid container>
                             <Grid item>
-                                <Typography sx={{ fontSize: "1.2em" }}>Color Point Cloud</Typography>
+                                <Typography sx={{ fontSize: "1.2em" }}>Confidence Cloud</Typography>
                             </Grid>
                             <Grid item xs>
                                 <Grid container direction="row-reverse">
                                     <Grid item>
                                         <Button
-                                            disabled={!false}
+                                            disabled={!confidenceCloudEnabled}
                                             size="small"
                                             variant="contained"
                                             sx={{ marginRight: "10px" }}
                                             onClick={(e) => {
-                                                buttonHandler(e, TASK.MEASURE_TRAJECTORY_TASK);
+                                                buttonHandler(e, TASK.POINTCLOUD_COLOR_TASK);
                                             }}
                                             onChange={buttonHandler}
                                         >
-                                            Coming soon
+                                            Add task
                                         </Button>
                                     </Grid>
                                 </Grid>
@@ -215,14 +221,14 @@ const TaskTypes = (props) => {
                         </Grid>
                     </AccordionSummary>
                     <AccordionDetails>
-                        <Typography>Color the point cloud according to height, intensity, or confidence values. This feature is coming soon!</Typography>
+                        <Typography>Color the point cloud according to confidence values! This task needs one <b>super_odometry_msgs/OptimizationStats</b> topic and can color many <b>sensor_msgs/PointCloud2</b> topics.</Typography>
                     </AccordionDetails>
                 </Accordion>
                 <Accordion expanded={expanded === "panel6"} onChange={handleChange("panel6")}>
                     <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel6bh-content" id="panel6bh-header">
                         <Grid container>
                             <Grid item>
-                                <Typography sx={{ fontSize: "1.2em" }}>Export Confidence</Typography>
+                                <Typography sx={{ fontSize: "1.2em" }}>Super Odometry</Typography>
                             </Grid>
                             <Grid item xs>
                                 <Grid container direction="row-reverse">
@@ -245,7 +251,7 @@ const TaskTypes = (props) => {
                         </Grid>
                     </AccordionSummary>
                     <AccordionDetails>
-                        <Typography>Export confidence values of SLAM algorithms. This feature is coming soon!</Typography>
+                        <Typography>Run Super Odometry offline. This feature is coming soon!</Typography>
                     </AccordionDetails>
                 </Accordion>
             </Paper>
