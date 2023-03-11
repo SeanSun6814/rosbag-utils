@@ -3,9 +3,11 @@ import { useDispatch, connect } from "react-redux";
 import { addBag } from "../reducers/rosbag";
 import { setBagOpening, setServerBusy, setWSConnection } from "../reducers/status";
 import * as TASK from "../reducers/task";
+import Swal from 'sweetalert2'
 
 export const WebSocketContext = React.createContext();
 let client;
+let seenMessageUUIDs = {};
 
 const Ws = ({ children, state: database }) => {
     const dispatch = useDispatch();
@@ -52,11 +54,27 @@ const Ws = ({ children, state: database }) => {
                 console.log("ERROR: " + message.error);
             };
 
+            const processWsInfo = (message) => {
+                console.log("WEBSOCKET_INFO", message);
+                if (message.message === "TOO_MANY_CONNECTIONS") {
+                    console.log("TOO_MANY_CONNECTIONS, SHOWING ALERT");
+                    showAlert("Too many connections", message.num_clients + " browser apps are connected to backend server.<br><br>Please close other windows before continuing...", "error");
+                } else if (message.message === "TOO_MANY_CONNECTIONS_RESOLVED") {
+                    console.log("TOO_MANY_CONNECTIONS_RESOLVED, HIDING ALERT");
+                    hideAlert();
+                } else {
+                    console.log("UNABLE TO PROCESS WEBSOCKET_INFO", message);
+                }
+            }
             const data = JSON.parse(message.data);
+            const uuid = data.response_id;
+            if (uuid && seenMessageUUIDs[uuid]) return console.log("WARNING_SEEN_MESSAGE_UUID", uuid);
+            seenMessageUUIDs[uuid] = true;
             console.log("PROCESS_RECEIVED_DATA", data);
             if (data.type === "progress") processProgress(data);
             else if (data.type === "result") processResult(data);
             else if (data.type === "error") processError(data);
+            else if (data.type === "ws_info") processWsInfo(data);
         };
         client.onmessage = (message) => {
             processMessage(message);
@@ -102,5 +120,23 @@ const Ws = ({ children, state: database }) => {
     useEffect(() => updateHandlers(), [database]);
     return <WebSocketContext.Provider value={sendJsonMessage}>{children}</WebSocketContext.Provider>;
 };
+
+function showAlert(title, text, icon, callback) {
+    Swal.fire({
+        title: title,
+        html: text,
+        icon: icon,
+        allowEscapeKey: false,
+        allowOutsideClick: false,
+        showConfirmButton: false,
+    }).then((result) => {
+        if (callback)
+            callback(result);
+    });
+}
+
+function hideAlert() {
+    Swal.close();
+}
 
 export default connect((state) => ({ state }))(Ws);
