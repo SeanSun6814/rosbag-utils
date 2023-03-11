@@ -36,12 +36,12 @@ const TopicTable = (props) => {
     }, [props.topics]);
 
     React.useEffect(() => {
-        let newSelectionModel = [];
-        Object.keys(props.topics).forEach((topic) => {
-            if (props.topics[topic].selected) newSelectionModel.push(props.topics[topic].name);
-        });
-        // The selectionModel must only be set once to avoid infinite loop since the selectionModel will update props.topics
-        setSelectionModel(() => newSelectionModel);
+        // let newSelectionModel = [];
+        // Object.keys(props.topics).forEach((topic) => {
+        //     if (props.topics[topic].selected) newSelectionModel.push(props.topics[topic].name);
+        // });
+        // // The selectionModel must only be set once to avoid infinite loop since the selectionModel will update props.topics
+        // setSelectionModel(() => newSelectionModel);
     }, []);
 
     React.useEffect(() => {

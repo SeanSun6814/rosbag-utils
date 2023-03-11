@@ -112,11 +112,11 @@ def exportPointCloud(paths, targetTopic, outPathNoExt, maxPointsPerFile, collaps
                     if z < trimCloud["zMin"] or z > trimCloud["zMax"]:
                         continue
 
-                if collapseAxis == "x":
+                if collapseAxis == "X":
                     x = 0
-                elif collapseAxis == "y":
+                elif collapseAxis == "Y":
                     y = 0
-                elif collapseAxis == "z":
+                elif collapseAxis == "Z":
                     z = 0
 
                 arrayT.update(int(str(t)))

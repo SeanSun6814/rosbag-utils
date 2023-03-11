@@ -2,6 +2,7 @@ import server.bagfilter
 import server.baglas
 import server.baglas_uncertainty
 import server.bagimg
+import server.measure_trajectory
 import tkinter as tk
 from tkinter import filedialog
 import json
@@ -129,10 +130,12 @@ def processWebsocketRequest(req, res):
         )
         sendResult(result)
     elif req["action"] == "MEASURE_TRAJECTORY_TASK":
-        result = server.bagfilter.measureTrajectory(
+        result = server.measure_trajectory.measureTrajectory(
             req["pathIns"],
             req["pathOut"],
             req["targetTopic"],
+            req["exportPosition"],
+            req["exportVelocity"],
             req,
             sendProgress,
         )

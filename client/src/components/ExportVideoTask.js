@@ -38,7 +38,7 @@ const ExportVideoTask = (props) => {
                 const filename = (topic_clean_name + "_").replace(/__/g, "_").replace(/_$/g, "").replace(/^_/, "") + ".mp4";
                 const pathOut = sourcePath + "/video_" + getDateTime() + "_" + getRandomId() + "/" + filename;
                 let printTimestamp = "none";
-                if (configGlobal.includeTimestampSeconds && configGlobal.includeTimestampROS) printTimestamp = "sec";
+                if (configGlobal.includeTimestampSeconds && configGlobal.includeTimestampROS) printTimestamp = "both";
                 else if (configGlobal.includeTimestampSeconds) printTimestamp = "sec";
                 else if (configGlobal.includeTimestampROS) printTimestamp = "timestamp";
 

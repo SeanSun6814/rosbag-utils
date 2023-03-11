@@ -92,7 +92,9 @@ def exportPointCloud(paths, targetTopic, odomStatsTopic, outPathNoExt, maxPoints
                         msg.uncertainty_x, msg.uncertainty_y, msg.uncertainty_z, msg.uncertainty_roll, msg.uncertainty_pitch, msg.uncertainty_yaw
                     )
                     file.write(
-                        str(msg.uncertainty_x)
+                        str(int(str(t)))
+                        + ","
+                        + str(msg.uncertainty_x)
                         + ","
                         + str(msg.uncertainty_y)
                         + ","
@@ -134,14 +136,14 @@ def exportPointCloud(paths, targetTopic, odomStatsTopic, outPathNoExt, maxPoints
                             if z < trimCloud["zMin"] or z > trimCloud["zMax"]:
                                 continue
 
-                        if collapseAxis == "x":
+                        if collapseAxis == "X":
                             x = 0
-                        elif collapseAxis == "y":
+                        elif collapseAxis == "Y":
                             y = 0
-                        elif collapseAxis == "z":
+                        elif collapseAxis == "Z":
                             z = 0
 
-                        arrayT.update(t.to_sec())
+                        arrayT.update(int(str(t)))
                         arrayX.update(x)
                         arrayY.update(y)
                         arrayZ.update(z)
