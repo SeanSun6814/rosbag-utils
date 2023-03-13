@@ -32,43 +32,11 @@ _Tested on Windows 11 WSL2 (Ubuntu 20.04) with Python3, ROS Noetic, and Google C
 
 Coming soon...
 
-## Rosbag Filter
+### Build
 
--   Filter topics from rosbags
-
--   Calculate trajectory length
-
--   Crop bag between specified time intervals
-
--   Auto crop blank space at the beginning of rosbags
-
--   Batch processing
-
-## Rosbag Points
-
--   Exports pointcloud messages to `.las` files
-
--   Auto split las files into specified sizes
-
--   Downsample pointcloud
-
--   Flatten pointcloud into 2 dimensions
-
--   Trim cloud based on x, y, z limits
-
--   Batch processing
-
-## Rosbag Visualize
-
--   Export 8-bit and 16-bit color and mono images to mp4 video
-
--   Speed up video by specified amount
-
--   Print timestamp into video
-
--   Custom video fps
-
--   Batch processing
+- `cd client`
+- `npm i --legacy-peer-deps`
+- `npm run build`
 
 ## Support & Warranty
 
