@@ -32,6 +32,12 @@ _Tested on Windows 11 WSL2 (Ubuntu 20.04) with Python3, ROS Noetic, and Google C
 
 Coming soon...
 
+### Build
+
+- `cd client`
+- `npm i --legacy-peer-deps`
+- `npm run build`
+
 ## Support & Warranty
 
 lmao
