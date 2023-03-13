@@ -15,7 +15,6 @@ from threading import Thread
 
 
 class handler(BaseHTTPRequestHandler):
-
     def do_GET(self):
         root = os.getcwd()
         self.path = self.path.replace("/%PUBLIC_URL%", "")
@@ -58,7 +57,6 @@ def startServer(requestOpenBrowser, port):
             server.serve_forever()
 
     Thread(target=createServer).start()
-    print("Note: Please only open 1 browser window. Opening more than 1 will cause crashes.")
     if requestOpenBrowser:
         Thread(target=openBrowser).start()
     else:
