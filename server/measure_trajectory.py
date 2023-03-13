@@ -106,7 +106,7 @@ def measureTrajectory(paths, pathOut, targetTopic, exportPosition, exportVelocit
         posFile.close()
     if exportVelocity:
         velFile.close()
-    result = {"length": length, "firstPos": firstPos, "lastPose": prevPos, "returnToOrigin:": bool(dist(firstPos, prevPos) < 5)}
+    result = {"length": length, "firstPos": firstPos, "lastPose": prevPos, "returnToOrigin": bool(dist(firstPos, prevPos) < 5)}
     server.utils.writeResultFile(server.utils.getFolderFromPath(pathOut) + "result.json", envInfo, result)
     return result
 
