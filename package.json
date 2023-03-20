@@ -1,0 +1,15 @@
+{
+  "scripts": {
+    "lint": "eslint ./client/src --fix --ext .js,.jsx,.ts,.tsx"
+  },
+  "dependencies": {
+    "eslint": "^8.36.0",
+    "eslint-plugin-react": "^7.32.2"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  }
+}
