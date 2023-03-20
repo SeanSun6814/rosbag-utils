@@ -29,11 +29,7 @@ class FastArr:
         return self.data[: self.size]
 
 
-def exportCsv(
-    paths,
-    targetTopic,
-    outPath,
-):
+def exportCsv(paths, targetTopic, outPath):
     time_arr, data_arr = FastArr(), FastArr()
     paths = paths.split("\n")
     print("Exporting csv from " + targetTopic + " to " + outPath)
@@ -45,7 +41,6 @@ def exportCsv(
         print("Processing " + path)
         bagIn = rosbag.Bag(path)
         for topic, msg, t in bagIn.read_messages(topics=[targetTopic]):
-
             if topic == targetTopic:
                 # print(msg.uncertainty_x)
                 data_arr.update(msg.uncertainty_x)
@@ -57,10 +52,10 @@ def exportCsv(
             file.write(str(t) + "," + str(v) + "\n")
 
 
-exportCsv(
-    "/mnt/f/_Datasets/long_corridor/core_2018-01-28-11-32-32_0.bag\n"
-    + "/mnt/f/_Datasets/long_corridor/core_2018-01-28-11-34-59_1.bag\n"
-    + "/mnt/f/_Datasets/long_corridor/core_2018-01-28-11-37-23_2.bag\n",
-    "/cmu_rc2/super_odometry_stats",
-    "/mnt/f/long_corridor_uncertainty_80.csv",
-)
+# exportCsv(
+#     "/mnt/f/_Datasets/long_corridor/core_2018-01-28-11-32-32_0.bag\n"
+#     + "/mnt/f/_Datasets/long_corridor/core_2018-01-28-11-34-59_1.bag\n"
+#     + "/mnt/f/_Datasets/long_corridor/core_2018-01-28-11-37-23_2.bag\n",
+#     "/cmu_rc2/super_odometry_stats",
+#     "/mnt/f/long_corridor_uncertainty_80.csv",
+# )
