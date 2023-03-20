@@ -38,7 +38,7 @@ const BagPage = (props) => {
     return (
         <Stack direction="column" spacing={2}>
             <BagTable />
-            <LoadingButton loading={props.status.server_busy} startIcon={<AddIcon />} variant="contained" size="large" onClick={(e) => handleClick()}>
+            <LoadingButton loading={props.status.server_busy} startIcon={<AddIcon />} variant="contained" size="large" onClick={() => handleClick()}>
                 Add Bags
             </LoadingButton>
         </Stack>

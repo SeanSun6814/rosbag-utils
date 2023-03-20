@@ -3,7 +3,10 @@ module.exports = {
         "browser": true,
         "es2021": true
     },
-    "extends": "plugin:react/recommended",
+    "extends": [
+        "eslint:recommended",
+        "plugin:react/recommended"
+    ],
     "overrides": [
     ],
     "parserOptions": {
@@ -15,5 +18,11 @@ module.exports = {
     ],
     "rules": {
         "react/prop-types": "off"
+    },
+    "settings": {
+        "react": {
+            "pragma": "React",  // Pragma to use, default to "React"
+            "version": "detect",
+        },
     }
 }

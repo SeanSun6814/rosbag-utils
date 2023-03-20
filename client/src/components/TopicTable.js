@@ -20,7 +20,7 @@ const TopicTable = (props) => {
 
     React.useEffect(() => {
         setDisplayFormat(() =>
-            Object.keys(props.topics).map((topic, idx) => {
+            Object.keys(props.topics).map((topic) => {
                 return {
                     ...props.topics[topic],
                     id: props.topics[topic].name,

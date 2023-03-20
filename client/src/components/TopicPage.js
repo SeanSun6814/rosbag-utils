@@ -5,7 +5,7 @@ import { useDispatch, connect } from "react-redux";
 import TopicTable from "./TopicTable";
 import TaskTypes from "./TaskTypes";
 
-const TopicPage = (props) => {
+const TopicPage = () => {
     const dispatch = useDispatch();
 
     React.useEffect(() => {

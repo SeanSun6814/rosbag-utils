@@ -66,7 +66,7 @@ const BagFilterTask = (props) => {
     }, [odometryTopic]);
 
     React.useEffect(() => {
-        setCropData((prevState) => {
+        setCropData(() => {
             return selectedBags.map((bag) => {
                 return {
                     ...bag,
@@ -118,7 +118,7 @@ const BagFilterTask = (props) => {
     };
 
     const handleToggleCropBags = (newState) => {
-        setCropBags((state) => newState);
+        setCropBags(() => newState);
     };
 
     const handleAutoCropData = (changes) => {

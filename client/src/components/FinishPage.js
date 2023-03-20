@@ -89,7 +89,7 @@ const FinishPage = (props) => {
                     variant="contained"
                     size="large"
                     sx={{ width: "100%" }}
-                    onClick={(e) => handleStartStop()}
+                    onClick={() => handleStartStop()}
                     color={startedTasks ? "error" : "success"}
                 >
                     {startedTasks ? "Stop" : "Start"}

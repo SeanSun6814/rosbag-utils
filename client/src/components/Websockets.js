@@ -94,7 +94,7 @@ const Ws = ({ children, state: database }) => {
             };
 
             client.onmessage = (message) => {
-                console.log("WEBSOCKET_RECEIVED_MESSAGE_BUT_STATE_IS_NOT_INITIALIZED");
+                console.log("WEBSOCKET_RECEIVED_MESSAGE_BUT_STATE_IS_NOT_INITIALIZED", message);
             };
 
             client.onerror = (e) => console.error(e);
