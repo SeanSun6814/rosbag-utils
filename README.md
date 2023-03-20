@@ -20,9 +20,9 @@
 ### Installation
 
 1. Clone this repo
-2. `pip3 install laspy tdigest websocket_server`
+2. `pip3 install bagpy laspy tdigest websocket_server`
 3. `python3 app.py`
-4. _Alternatively: `python3 app.py -n` to don't automatically launch browser (for WSL)_
+4. _Alternatively: `python3 app.py -n` to don't automatically launch browser_
 
 _Tested on Ubuntu 20.04 with Python3, ROS Noetic, and Google Chrome._
 
