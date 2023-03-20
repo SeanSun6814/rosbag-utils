@@ -21,8 +21,12 @@ module.exports = {
     },
     "settings": {
         "react": {
-            "pragma": "React",  // Pragma to use, default to "React"
+            "pragma": "React",
             "version": "detect",
         },
+    },
+    "globals": {
+        "process": "writable",
+        "module": "writable"
     }
 }
