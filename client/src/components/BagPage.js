@@ -28,17 +28,17 @@ const BagPage = (props) => {
             dispatch(clearTopics());
             dispatch(addAllTopicsFromBags(selectedBags));
         };
-    }, []);
+    }, [dispatch]);
 
     React.useEffect(() => {
         selectedBags = props.bags.filter((bag) => bag.selected);
         dispatch(setPageComplete(selectedBags.length > 0));
-    }, [props.bags]);
+    }, [props.bags, dispatch]);
 
     return (
         <Stack direction="column" spacing={2}>
             <BagTable />
-            <LoadingButton loading={props.status.server_busy} startIcon={<AddIcon />} variant="contained" size="large" onClick={(e) => handleClick()}>
+            <LoadingButton loading={props.status.server_busy} startIcon={<AddIcon />} variant="contained" size="large" onClick={() => handleClick()}>
                 Add Bags
             </LoadingButton>
         </Stack>

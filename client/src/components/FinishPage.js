@@ -1,4 +1,4 @@
-import { Button, Grid } from "@mui/material";
+import { Button } from "@mui/material";
 import React from "react";
 import { connect, useDispatch } from "react-redux";
 import { setPageComplete, setTempTasks } from "../reducers/status";
@@ -10,7 +10,6 @@ import CancelIcon from "@mui/icons-material/Cancel";
 import { Typography } from "@mui/material";
 import { CircularProgressbar } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
-import ModalViewCode from "./ModalViewCode";
 
 const FinishPage = (props) => {
     const dispatch = useDispatch();
@@ -23,9 +22,9 @@ const FinishPage = (props) => {
     React.useEffect(() => {
         dispatch(setPageComplete(false));
         console.clear();
-    }, []);
+    }, [dispatch]);
 
-    React.useEffect(() => {}, [props.tasks]);
+    React.useEffect(() => { }, [props.tasks]);
 
     React.useEffect(() => {
         const waitingTasks = props.tasks.filter((task) => task.status === "WAITING");
@@ -50,7 +49,7 @@ const FinishPage = (props) => {
         else setStartButtonEnabled(() => false);
 
         dispatch(setPageComplete(completedTasks.length === props.tasks.length));
-    }, [props.tasks, startedTasks, totalTasks]);
+    }, [props.tasks, startedTasks, totalTasks, dispatch]);
 
     React.useEffect(() => {
         const tmpTasks = props.status.temp_tasks;
@@ -58,7 +57,7 @@ const FinishPage = (props) => {
             dispatch(addTask(task, false));
         });
         if (tmpTasks.length > 0) dispatch(setTempTasks([]));
-    }, [props.status]);
+    }, [props.status, dispatch]);
 
     function handleStartStop() {
         if (!startedTasks) {
@@ -90,7 +89,7 @@ const FinishPage = (props) => {
                     variant="contained"
                     size="large"
                     sx={{ width: "100%" }}
-                    onClick={(e) => handleStartStop()}
+                    onClick={() => handleStartStop()}
                     color={startedTasks ? "error" : "success"}
                 >
                     {startedTasks ? "Stop" : "Start"}

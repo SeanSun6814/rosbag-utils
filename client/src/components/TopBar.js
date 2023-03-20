@@ -22,7 +22,8 @@ function TopBar(props) {
         <AppBar position="static">
             <Container maxWidth="100vw">
                 <Toolbar disableGutters>
-                    <img src={process.env.PUBLIC_URL + "/favicon.ico"} width="50px" height="50px" style={{ marginRight: "20px" }} />
+                    {// eslint-disable-next-line
+                    }<img src={process.env.PUBLIC_URL + "/favicon.ico"} alt="Rosbag Utils" width="50px" height="50px" style={{ marginRight: "20px" }} />
                     <Typography
                         variant="h6"
                         noWrap
@@ -43,7 +44,7 @@ function TopBar(props) {
                     <Box sx={{ flexGrow: 1 }}></Box>
                     <Box sx={{ flexGrow: 0 }}>
                         <Tooltip title="Dark mode">
-                            <IconButton onClick={(e) => changeTheme()}>
+                            <IconButton onClick={() => changeTheme()}>
                                 <Brightness4Icon color="action" />
                             </IconButton>
                         </Tooltip>

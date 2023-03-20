@@ -1,7 +1,8 @@
+import * as React from "react";
 import DoneIcon from "@mui/icons-material/Done";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import ScheduleIcon from "@mui/icons-material/Schedule";
-import { red, blue, green, orange } from "@mui/material/colors";
+import { blue, green, orange } from "@mui/material/colors";
 import { Chip } from "@mui/material";
 
 function CellProgressChip(params) {

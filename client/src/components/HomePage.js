@@ -1,5 +1,4 @@
 import React from "react";
-import { connect } from "react-redux";
 import ProgressStepper from "./ProgressStepper";
 import Topbar from "./TopBar";
 import BagPage from "./BagPage";
@@ -8,7 +7,7 @@ import TopicPage from "./TopicPage";
 import TaskPage from "./TaskPage";
 import FinishPage from "./FinishPage";
 
-export default () => {
+export default function HomePage() {
     return (
         <div>
             <Topbar />
@@ -16,4 +15,4 @@ export default () => {
             <TaskRunner />
         </div>
     );
-};
+}

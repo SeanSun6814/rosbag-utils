@@ -58,7 +58,7 @@ const BagTable = (props) => {
 
     React.useEffect(() => {
         dispatch(setSelectedBags(selectionModel));
-    }, [selectionModel]);
+    }, [selectionModel, dispatch]);
 
     function CustomToolbar() {
         return (

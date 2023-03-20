@@ -50,7 +50,7 @@ const HorizontalLinearStepper = ({ children, status }) => {
     return (
         <Box sx={{ width: "90%", marginLeft: "5%", marginRight: "5%", marginTop: "25px", height: "calc(100vh - 220px)" }}>
             <Stepper activeStep={activeStep} sx={{ marginBottom: "25px" }}>
-                {steps.map((label, index) => {
+                {steps.map((label) => {
                     const stepProps = {};
                     const labelProps = {};
 

@@ -12,6 +12,7 @@ import server.utils
 progressPercentage = 0
 progressDetails = ""
 prev_dir = "/"
+prev_dir = "~/Documents/airlab/rosbag-utils/testdata"
 
 
 def processWebsocketRequest(req, res):
