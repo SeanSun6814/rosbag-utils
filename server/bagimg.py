@@ -17,7 +17,19 @@ thickness = 2
 lineType = cv2.LINE_AA
 
 
-def exportVideo(paths, pathOut, targetTopic, speed, fps, printTimestamp, invertImage, rangeFor16Bit, livePreview, envInfo, sendProgress):
+def exportVideo(
+    paths,
+    pathOut,
+    targetTopic,
+    speed,
+    fps,
+    printTimestamp,
+    invertImage,
+    rangeFor16Bit,
+    livePreview,
+    envInfo,
+    sendProgress,
+):
     speed = int(speed)
     fps = int(fps)
     server.utils.mkdir(server.utils.getFolderFromPath(pathOut))
@@ -40,22 +52,37 @@ def exportVideo(paths, pathOut, targetTopic, speed, fps, printTimestamp, invertI
             continue
         print("Processing " + path)
         basePercentage = pathIdx * percentProgressPerBag
-        sendProgress(percentage=(basePercentage + 0.05 * percentProgressPerBag), details=("Loading " + server.utils.getFilenameFromPath(path)))
+        sendProgress(
+            percentage=(basePercentage + 0.05 * percentProgressPerBag),
+            details=("Loading " + server.utils.getFilenameFromPath(path)),
+        )
         bagIn = rosbag.Bag(path)
         sendProgress(
             percentage=(basePercentage + 0.1 * percentProgressPerBag),
             details=("Processing " + str(frameCount + 1) + " images"),
         )
         topicsInfo = bagIn.get_type_and_topic_info().topics
-        totalMessages = sum([topicsInfo[topic].message_count if topic in topicsInfo else 0 for topic in [targetTopic]])
-        sendProgressEveryHowManyMessages = max(random.randint(7, 9), int(totalMessages / (100 / len(paths))))
+        totalMessages = sum(
+            [
+                topicsInfo[topic].message_count if topic in topicsInfo else 0
+                for topic in [targetTopic]
+            ]
+        )
+        sendProgressEveryHowManyMessages = max(
+            random.randint(7, 9), int(totalMessages / (100 / len(paths)))
+        )
         bagStartCount = frameCount
         for topic, msg, t in bagIn.read_messages(topics=[targetTopic]):
             if startTime == -1:
                 startTime = int(str(t))
                 if rangeFor16Bit is None:
                     minDigest, maxDigest = TDigest(), TDigest()
-                video = cv2.VideoWriter(pathOut, cv2.VideoWriter_fourcc(*"mp4v"), fps, (msg.width, msg.height))
+                video = cv2.VideoWriter(
+                    pathOut,
+                    cv2.VideoWriter_fourcc(*"mp4v"),
+                    fps,
+                    (msg.width, msg.height),
+                )
                 print("Video dimensions: " + str(msg.width) + "x" + str(msg.height))
                 print("Input encoding: ", msg.encoding)
 
@@ -65,7 +92,14 @@ def exportVideo(paths, pathOut, targetTopic, speed, fps, printTimestamp, invertI
 
             if frameCount % sendProgressEveryHowManyMessages == 0:
                 sendProgress(
-                    percentage=(basePercentage + ((frameCount - bagStartCount + 1) / totalMessages * 0.89 + 0.1) * percentProgressPerBag),
+                    percentage=(
+                        basePercentage
+                        + (
+                            (frameCount - bagStartCount + 1) / totalMessages * 0.89
+                            + 0.1
+                        )
+                        * percentProgressPerBag
+                    ),
                     details=("Processing " + str(frameCount) + " images"),
                 )
 
@@ -89,12 +123,48 @@ def exportVideo(paths, pathOut, targetTopic, speed, fps, printTimestamp, invertI
                 cv_img = cv2.bitwise_not(cv_img)
 
             if printTimestamp == "sec":
-                cv2.putText(cv_img, formatTime(int(str(t)), startTime), textLocation, font, fontScale, fontColor, thickness, lineType)
+                cv2.putText(
+                    cv_img,
+                    formatTime(int(str(t)), startTime),
+                    textLocation,
+                    font,
+                    fontScale,
+                    fontColor,
+                    thickness,
+                    lineType,
+                )
             elif printTimestamp == "timestamp":
-                cv2.putText(cv_img, str(t), textLocation, font, fontScale, fontColor, thickness, lineType)
+                cv2.putText(
+                    cv_img,
+                    str(t),
+                    textLocation,
+                    font,
+                    fontScale,
+                    fontColor,
+                    thickness,
+                    lineType,
+                )
             elif printTimestamp == "both":
-                cv2.putText(cv_img, formatTime(int(str(t)), startTime), textLocation, font, fontScale, fontColor, thickness, lineType)
-                cv2.putText(cv_img, str(t), textLocationBelow, font, fontScale, fontColor, thickness, lineType)
+                cv2.putText(
+                    cv_img,
+                    formatTime(int(str(t)), startTime),
+                    textLocation,
+                    font,
+                    fontScale,
+                    fontColor,
+                    thickness,
+                    lineType,
+                )
+                cv2.putText(
+                    cv_img,
+                    str(t),
+                    textLocationBelow,
+                    font,
+                    fontScale,
+                    fontColor,
+                    thickness,
+                    lineType,
+                )
 
             video.write(cv_img)
             if livePreview:
@@ -105,15 +175,24 @@ def exportVideo(paths, pathOut, targetTopic, speed, fps, printTimestamp, invertI
 
     if rangeFor16Bit is None and is16BitImage:
         for i in range(0, 101, 1):
-            calculated16BitRangePercentages["maxBrightness"][i] = maxDigest.percentile(i)
+            calculated16BitRangePercentages["maxBrightness"][i] = maxDigest.percentile(
+                i
+            )
         print("")
         for i in range(0, 101, 1):
-            calculated16BitRangePercentages["minBrightness"][i] = minDigest.percentile(i)
+            calculated16BitRangePercentages["minBrightness"][i] = minDigest.percentile(
+                i
+            )
 
     video.release()
     if livePreview:
         cv2.destroyAllWindows()
 
-    result = {"numFrames": frameCount, "calculated16BitRangePercentages": calculated16BitRangePercentages}
-    server.utils.writeResultFile(server.utils.getFolderFromPath(pathOut) + "result.json", envInfo, result)
+    result = {
+        "numFrames": frameCount,
+        "calculated16BitRangePercentages": calculated16BitRangePercentages,
+    }
+    server.utils.writeResultFile(
+        server.utils.getFolderFromPath(pathOut) + "result.json", envInfo, result
+    )
     return result

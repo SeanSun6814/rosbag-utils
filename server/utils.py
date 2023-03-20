@@ -23,5 +23,7 @@ def writeTextFile(path, text):
 
 def writeResultFile(path, envInfo, results):
     envInfo["results"] = results
-    envInfo["taskTimestamp"] = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time()))
+    envInfo["taskTimestamp"] = time.strftime(
+        "%Y-%m-%d %H:%M:%S", time.localtime(time.time())
+    )
     writeTextFile(path, json.dumps(envInfo, indent=4))

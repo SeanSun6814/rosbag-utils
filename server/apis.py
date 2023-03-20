@@ -46,7 +46,14 @@ def processWebsocketRequest(req, res):
 
     def sendResult(result):
         sendProgress(percentage=1, details="Finished", status="COMPLETE")
-        res({"type": "result", "id": req["id"], "action": req["action"], "result": result})
+        res(
+            {
+                "type": "result",
+                "id": req["id"],
+                "action": req["action"],
+                "result": result,
+            }
+        )
 
     def sendError(error):
         res({"type": "error", "id": req["id"], "action": req["action"], "error": error})
@@ -57,7 +64,9 @@ def processWebsocketRequest(req, res):
         try:
             root = tk.Tk()
             root.withdraw()
-            msg = tk.filedialog.askopenfiles(filetypes=[("Rosbag", "*.bag")], initialdir=prev_dir)
+            msg = tk.filedialog.askopenfiles(
+                filetypes=[("Rosbag", "*.bag")], initialdir=prev_dir
+            )
             root.destroy()
             file_names = [file.name for file in msg]
             print("SELECTED:", file_names)

@@ -1,4 +1,4 @@
-name: ESLint
+name: Lint
 
 on:
   push:
@@ -9,7 +9,7 @@ on:
 
 jobs:
   eslint:
-    name: Run eslint
+    name: Run ESLint
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -25,4 +25,26 @@ jobs:
 
       - name: Run ESLint
         run: cd client && npm run lint
+        continue-on-error: false
+
+  black:
+    name: Run Black
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v3
+
+      - name: Install Black
+        run: |
+          pip3 install black
+
+      - name: Run Black
+        run: black --check --verbose .
         continue-on-error: false

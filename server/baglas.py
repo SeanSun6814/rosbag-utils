@@ -30,7 +30,17 @@ class FastArr:
         return self.data[: self.size]
 
 
-def exportPointCloud(paths, targetTopic, outPathNoExt, maxPointsPerFile, collapseAxis, speed, trimCloud, envInfo, sendProgress):
+def exportPointCloud(
+    paths,
+    targetTopic,
+    outPathNoExt,
+    maxPointsPerFile,
+    collapseAxis,
+    speed,
+    trimCloud,
+    envInfo,
+    sendProgress,
+):
     def writeToFile(arrayX, arrayY, arrayZ, arrayT, arrayR, arrayG, arrayB):
         nonlocal outFileCount, totalNumPoints
         totalNumPoints += arrayX.size
@@ -51,7 +61,15 @@ def exportPointCloud(paths, targetTopic, outPathNoExt, maxPointsPerFile, collaps
         outFileCount += 1
 
     def createArrs():
-        return FastArr(), FastArr(), FastArr(), FastArr(), FastArr(), FastArr(), FastArr()
+        return (
+            FastArr(),
+            FastArr(),
+            FastArr(),
+            FastArr(),
+            FastArr(),
+            FastArr(),
+            FastArr(),
+        )
 
     server.utils.mkdir(server.utils.getFolderFromPath(outPathNoExt))
     maxPointsPerFile = int(maxPointsPerFile)
@@ -71,15 +89,25 @@ def exportPointCloud(paths, targetTopic, outPathNoExt, maxPointsPerFile, collaps
             continue
         print("Processing " + path)
         basePercentage = pathIdx * percentProgressPerBag
-        sendProgress(percentage=(basePercentage + 0.05 * percentProgressPerBag), details=("Loading " + server.utils.getFilenameFromPath(path)))
+        sendProgress(
+            percentage=(basePercentage + 0.05 * percentProgressPerBag),
+            details=("Loading " + server.utils.getFilenameFromPath(path)),
+        )
         bagIn = rosbag.Bag(path)
         topicsInfo = bagIn.get_type_and_topic_info().topics
-        totalMessages = sum([topicsInfo[topic].message_count if topic in topicsInfo else 0 for topic in [targetTopic]])
+        totalMessages = sum(
+            [
+                topicsInfo[topic].message_count if topic in topicsInfo else 0
+                for topic in [targetTopic]
+            ]
+        )
         sendProgress(
             percentage=(basePercentage + 0.1 * percentProgressPerBag),
             details=("Processing " + str(totalNumPoints) + " points"),
         )
-        sendProgressEveryHowManyMessages = max(random.randint(2, 5), int(totalMessages / (100 / len(paths))))
+        sendProgressEveryHowManyMessages = max(
+            random.randint(2, 5), int(totalMessages / (100 / len(paths)))
+        )
         bagStartCount = count
         for topic, msg, t in bagIn.read_messages(topics=[targetTopic]):
             count += 1
@@ -88,12 +116,20 @@ def exportPointCloud(paths, targetTopic, outPathNoExt, maxPointsPerFile, collaps
 
             if count % sendProgressEveryHowManyMessages == 0:
                 sendProgress(
-                    percentage=(basePercentage + ((count - bagStartCount) / totalMessages * 0.89 + 0.1) * percentProgressPerBag),
-                    details=("Processing " + str(totalNumPoints + arrayX.size) + " points"),
+                    percentage=(
+                        basePercentage
+                        + ((count - bagStartCount) / totalMessages * 0.89 + 0.1)
+                        * percentProgressPerBag
+                    ),
+                    details=(
+                        "Processing " + str(totalNumPoints + arrayX.size) + " points"
+                    ),
                 )
 
             arrayTimeStart = time.time_ns()
-            for p in pc2.read_points(msg, field_names=("x", "y", "z", "rgba"), skip_nans=True):
+            for p in pc2.read_points(
+                msg, field_names=("x", "y", "z", "rgba"), skip_nans=True
+            ):
                 x, y, z = p[0], p[1], p[2]
                 if len(p) > 3:
                     rgb = p[3]
@@ -148,5 +184,7 @@ def exportPointCloud(paths, targetTopic, outPathNoExt, maxPointsPerFile, collaps
         "arrayTimeUsed": str(totalArrayTime * 1e-9),
         "totalTopics": count + 1,
     }
-    server.utils.writeResultFile(server.utils.getFolderFromPath(outPathNoExt) + "result.json", envInfo, result)
+    server.utils.writeResultFile(
+        server.utils.getFolderFromPath(outPathNoExt) + "result.json", envInfo, result
+    )
     return result

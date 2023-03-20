@@ -44,7 +44,18 @@ def getBagInfoJson(path):
     return info
 
 
-def exportBag(pathIns, pathOuts, targetTopics, cropType, cropTimes, autoCropTimes, mergeBags, trajectoryTopic, envInfo, sendProgress):
+def exportBag(
+    pathIns,
+    pathOuts,
+    targetTopics,
+    cropType,
+    cropTimes,
+    autoCropTimes,
+    mergeBags,
+    trajectoryTopic,
+    envInfo,
+    sendProgress,
+):
     print("Including topics: " + str(targetTopics))
     progressPerBag = 1.0 / (len(pathIns)) / (3.0 if cropType == "AUTO" else 1.0)
     progressSoFar = 0.0
@@ -52,7 +63,10 @@ def exportBag(pathIns, pathOuts, targetTopics, cropType, cropTimes, autoCropTime
     def openBagWithProgress(pathIn, addPercentage=0, detailsThen=""):
         nonlocal progressSoFar
         progressSoFar += addPercentage / 2
-        sendProgress(percentage=progressSoFar, details="Loading " + server.utils.getFilenameFromPath(pathIn))
+        sendProgress(
+            percentage=progressSoFar,
+            details="Loading " + server.utils.getFilenameFromPath(pathIn),
+        )
         bagIn = rosbag.Bag(pathIn)
         progressSoFar += addPercentage / 2
         sendProgress(percentage=progressSoFar, details=detailsThen)
@@ -67,7 +81,11 @@ def exportBag(pathIns, pathOuts, targetTopics, cropType, cropTimes, autoCropTime
                 pose = msg.pose.pose.position
                 if initialPosition is None:
                     initialPosition = pose
-                if abs(pose.x - initialPosition.x) > 0.5 or abs(pose.y - initialPosition.y) > 0.5 or abs(pose.z - initialPosition.z) > 0.5:
+                if (
+                    abs(pose.x - initialPosition.x) > 0.5
+                    or abs(pose.y - initialPosition.y) > 0.5
+                    or abs(pose.z - initialPosition.z) > 0.5
+                ):
                     return t.to_time() - bagIn.get_start_time()
             print("No first move time found")
             return -1
@@ -85,7 +103,9 @@ def exportBag(pathIns, pathOuts, targetTopics, cropType, cropTimes, autoCropTime
             for topic, msg, t in bagIn.read_messages(topics=[trajectoryTopic]):
                 pose = msg.pose.pose.position
                 if finalPosition is not None and (
-                    abs(pose.x - finalPosition.x) > 0.5 or abs(pose.y - finalPosition.y) > 0.5 or abs(pose.z - finalPosition.z) > 0.5
+                    abs(pose.x - finalPosition.x) > 0.5
+                    or abs(pose.y - finalPosition.y) > 0.5
+                    or abs(pose.z - finalPosition.z) > 0.5
                 ):
                     lastMoveTime = t.to_time()
             return lastMoveTime - bagIn.get_start_time()
@@ -94,11 +114,18 @@ def exportBag(pathIns, pathOuts, targetTopics, cropType, cropTimes, autoCropTime
         cropTimes = []
         # first set cropStart using the first move time
         for pathIn, idx in zip(pathIns, range(len(pathIns))):
-            bagIn = openBagWithProgress(pathIn, progressPerBag, "Finding first move time")
+            bagIn = openBagWithProgress(
+                pathIn, progressPerBag, "Finding first move time"
+            )
             duration = bagIn.get_end_time() - bagIn.get_start_time()
             firstMoveTime = getFirstMoveTime(bagIn)
             if firstMoveTime >= 0:
-                cropTimes.append({"cropStart": firstMoveTime - autoCropTimes["start"], "cropEnd": duration})
+                cropTimes.append(
+                    {
+                        "cropStart": firstMoveTime - autoCropTimes["start"],
+                        "cropEnd": duration,
+                    }
+                )
                 for i in range(idx + 1, len(pathIns)):
                     cropTimes.append({"cropStart": 0, "cropEnd": duration})
                 break
@@ -109,7 +136,9 @@ def exportBag(pathIns, pathOuts, targetTopics, cropType, cropTimes, autoCropTime
         progressSoFar = 0.33
         finalPosition = getFinalPosition(pathIns[-1])
         for pathIn, cropTime in zip(pathIns[::-1], cropTimes[::-1]):
-            bagIn = openBagWithProgress(pathIn, progressPerBag, "Finding last move time")
+            bagIn = openBagWithProgress(
+                pathIn, progressPerBag, "Finding last move time"
+            )
             lastMoveTime = getLastMoveTime(bagIn, finalPosition)
             if lastMoveTime >= 0:
                 cropTime["cropEnd"] = lastMoveTime
@@ -128,21 +157,48 @@ def exportBag(pathIns, pathOuts, targetTopics, cropType, cropTimes, autoCropTime
                 if cropTime["cropStart"] >= cropTime["cropEnd"]:
                     print("Skipping bag: " + pathIn + " because cropStart >= cropEnd")
                     continue
-                bagIn = openBagWithProgress(pathIn, progressPerBag * 0.1, "Writing to " + server.utils.getFilenameFromPath(pathOut))
-                startTime = rospy.Time.from_sec(bagIn.get_start_time() + cropTime["cropStart"])
-                endTime = rospy.Time.from_sec(bagIn.get_start_time() + cropTime["cropEnd"])
+                bagIn = openBagWithProgress(
+                    pathIn,
+                    progressPerBag * 0.1,
+                    "Writing to " + server.utils.getFilenameFromPath(pathOut),
+                )
+                startTime = rospy.Time.from_sec(
+                    bagIn.get_start_time() + cropTime["cropStart"]
+                )
+                endTime = rospy.Time.from_sec(
+                    bagIn.get_start_time() + cropTime["cropEnd"]
+                )
                 topicsInfo = bagIn.get_type_and_topic_info().topics
-                totalMessages = sum([topicsInfo[topic].message_count if topic in topicsInfo else 0 for topic in targetTopics])
-                sendProgressEveryHowManyMessages = max(random.randint(87, 97), int(totalMessages / (100 / len(pathIns))))
+                totalMessages = sum(
+                    [
+                        topicsInfo[topic].message_count if topic in topicsInfo else 0
+                        for topic in targetTopics
+                    ]
+                )
+                sendProgressEveryHowManyMessages = max(
+                    random.randint(87, 97), int(totalMessages / (100 / len(pathIns)))
+                )
                 count = -1
-                for topic, msg, t in bagIn.read_messages(topics=targetTopics, start_time=startTime, end_time=endTime):
+                for topic, msg, t in bagIn.read_messages(
+                    topics=targetTopics, start_time=startTime, end_time=endTime
+                ):
                     bagOut.write(topic, msg, t)
                     count += 1
                     if count % sendProgressEveryHowManyMessages == 0:
-                        progressSoFar += progressPerBag * 0.9 / (totalMessages / sendProgressEveryHowManyMessages)
+                        progressSoFar += (
+                            progressPerBag
+                            * 0.9
+                            / (totalMessages / sendProgressEveryHowManyMessages)
+                        )
                         sendProgress(
                             percentage=progressSoFar,
-                            details=("Processing " + str(count) + "/" + str(totalMessages) + " messages"),
+                            details=(
+                                "Processing "
+                                + str(count)
+                                + "/"
+                                + str(totalMessages)
+                                + " messages"
+                            ),
                         )
                 print("Finished export bag: " + pathIn)
 
@@ -173,6 +229,10 @@ def exportBag(pathIns, pathOuts, targetTopics, cropType, cropTimes, autoCropTime
         exportToSeparateFilesUsingManualCropping(cropTimes)
 
     result = cropTimes
-    server.utils.mkdir(server.utils.getFolderFromPath(pathOuts[0]))  # in the case of all bags are skipped
-    server.utils.writeResultFile(server.utils.getFolderFromPath(pathOuts[0]) + "result.json", envInfo, result)
+    server.utils.mkdir(
+        server.utils.getFolderFromPath(pathOuts[0])
+    )  # in the case of all bags are skipped
+    server.utils.writeResultFile(
+        server.utils.getFolderFromPath(pathOuts[0]) + "result.json", envInfo, result
+    )
     return result

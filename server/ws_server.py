@@ -12,7 +12,13 @@ seenIds = set()
 def sendTooManyConnectionsMessage(num_clients):
     if num_clients > 1:
         print("Too many clients. Suspending app...")
-        sendMessage({"type": "ws_info", "message": "TOO_MANY_CONNECTIONS", "num_clients": num_clients})
+        sendMessage(
+            {
+                "type": "ws_info",
+                "message": "TOO_MANY_CONNECTIONS",
+                "num_clients": num_clients,
+            }
+        )
     elif num_clients == 1:
         print("Resuming app...")
         sendMessage({"type": "ws_info", "message": "TOO_MANY_CONNECTIONS_RESOLVED"})
