@@ -21,7 +21,7 @@ jobs:
 
       - name: Install ESLint
         run: |
-          npm i
+          cd client && npm i --legacy-peer-deps
 
       - name: Run ESLint
         run: npm run lint
