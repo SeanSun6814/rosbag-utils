@@ -32,7 +32,7 @@ const ExportVideoTask = (props) => {
             const getRandomId = () => Math.floor(Math.random() * 16534 + 4096).toString(16);
 
             targetTopics.forEach((topic) => {
-                const sourcePath = selectedBags[0].path.replace(/\/[^\/]+$/, "");
+                const sourcePath = selectedBags[0].path.replace(/\/[^/]+$/, "");
                 const pathIns = selectedBags.filter((bag) => bag.selected).map((bag) => bag.path);
                 const topic_clean_name = topic.replace(/\//g, "_");
                 const filename = (topic_clean_name + "_").replace(/__/g, "_").replace(/_$/g, "").replace(/^_/, "") + ".mp4";
@@ -58,7 +58,7 @@ const ExportVideoTask = (props) => {
             });
             dispatch(setTempTasks(tempTasks));
         };
-    }, []);
+    }, [dispatch]);
 
     React.useEffect(() => {
         selectedBags = props.bags.filter((bag) => bag.selected);

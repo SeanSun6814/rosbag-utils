@@ -1,6 +1,6 @@
 import * as React from "react";
 import Stack from "@mui/material/Stack";
-import { setBagOpening, setPageComplete } from "../reducers/status";
+import { setPageComplete } from "../reducers/status";
 import { useDispatch, connect } from "react-redux";
 import TopicTable from "./TopicTable";
 import TaskTypes from "./TaskTypes";
@@ -10,7 +10,7 @@ const TopicPage = (props) => {
 
     React.useEffect(() => {
         dispatch(setPageComplete(false));
-    }, []);
+    }, [dispatch]);
 
     return (
         <Stack direction="row" spacing={2}>

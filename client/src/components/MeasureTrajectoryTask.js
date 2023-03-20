@@ -32,7 +32,7 @@ const MeasureTrajectoryTask = (props) => {
         return () => {
             const getRandomId = () => Math.floor(Math.random() * 16534 + 4096).toString(16);
             const targetTopics = selectedTopics;
-            const sourcePath = selectedBags[0].path.replace(/\/[^\/]+$/, "");
+            const sourcePath = selectedBags[0].path.replace(/\/[^/]+$/, "");
             const pathIns = selectedBags.filter((bag) => bag.selected).map((bag) => bag.path);
             let tempTasks = [];
 
@@ -49,7 +49,7 @@ const MeasureTrajectoryTask = (props) => {
             });
             dispatch(setTempTasks(tempTasks));
         };
-    }, []);
+    }, [dispatch]);
 
     return (
         <Box sx={{ width: "100%", height: "calc(100vh - 18em)", overflow: "hidden", overflowY: "scroll" }}>

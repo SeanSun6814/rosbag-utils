@@ -7,7 +7,6 @@ import {
     GridToolbarFilterButton,
     GridToolbarDensitySelector,
     GridToolbarExport,
-    GridActionsCellItem,
 } from "@mui/x-data-grid";
 import { connect, useDispatch } from "react-redux";
 import * as convert from "../utils/convert";
@@ -15,8 +14,7 @@ import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 import { renderProgress } from "./CellProgressBar";
 import { renderStatus } from "./CellProgressChip";
 import DeleteIcon from "@mui/icons-material/Delete";
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import task, { removeTask } from "../reducers/task";
+import { removeTask } from "../reducers/task";
 import { IconButton } from "@mui/material";
 import ModalViewCode from "./ModalViewCode";
 
@@ -82,7 +80,7 @@ const TaskTable = (props) => {
                     };
                 })
         );
-    }, [props.tasks, useMoreInfo]);
+    }, [props.tasks, useMoreInfo, dispatch]);
 
     const clearCompletedTasks = () => {
         props.tasks.forEach((task) => {

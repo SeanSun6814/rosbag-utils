@@ -28,12 +28,12 @@ const BagPage = (props) => {
             dispatch(clearTopics());
             dispatch(addAllTopicsFromBags(selectedBags));
         };
-    }, []);
+    }, [dispatch]);
 
     React.useEffect(() => {
         selectedBags = props.bags.filter((bag) => bag.selected);
         dispatch(setPageComplete(selectedBags.length > 0));
-    }, [props.bags]);
+    }, [props.bags, dispatch]);
 
     return (
         <Stack direction="column" spacing={2}>

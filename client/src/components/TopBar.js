@@ -22,7 +22,7 @@ function TopBar(props) {
         <AppBar position="static">
             <Container maxWidth="100vw">
                 <Toolbar disableGutters>
-                    <img src={process.env.PUBLIC_URL + "/favicon.ico"} width="50px" height="50px" style={{ marginRight: "20px" }} />
+                    <img src={process.env.PUBLIC_URL + "/favicon.ico"} alt="Rosbag Utils" width="50px" height="50px" style={{ marginRight: "20px" }} />
                     <Typography
                         variant="h6"
                         noWrap

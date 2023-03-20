@@ -1,16 +1,10 @@
 import * as React from "react";
-import Button from "@mui/material/Button";
 import {
     DataGrid,
-    GridToolbarContainer,
-    GridToolbarColumnsButton,
-    GridToolbarFilterButton,
-    GridToolbarDensitySelector,
-    GridToolbarExport,
     GridToolbar,
 } from "@mui/x-data-grid";
 import { connect, useDispatch } from "react-redux";
-import { addTopic, clearTopics, setSelectedTopics } from "../reducers/topic";
+import { setSelectedTopics } from "../reducers/topic";
 
 const columns = [
     { field: "name", headerName: "Topic", flex: 5 },
@@ -46,7 +40,7 @@ const TopicTable = (props) => {
 
     React.useEffect(() => {
         dispatch(setSelectedTopics(selectionModel));
-    }, [selectionModel]);
+    }, [selectionModel, dispatch]);
 
     return (
         <div style={{ width: "100%" }}>

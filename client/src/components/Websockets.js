@@ -3,7 +3,7 @@ import { useDispatch, connect } from "react-redux";
 import { addBag } from "../reducers/rosbag";
 import { setBagOpening, setServerBusy, setWSConnection } from "../reducers/status";
 import * as TASK from "../reducers/task";
-import Swal from 'sweetalert2'
+import Swal from "sweetalert2";
 
 export const WebSocketContext = React.createContext();
 let client;
@@ -13,75 +13,76 @@ const Ws = ({ children, state: database }) => {
     const dispatch = useDispatch();
     let [sendJsonMessage, setSendJsonMessage] = React.useState(null);
 
-    const updateHandlers = () => {
-        if (!client) return console.log("WEBSOCKET_NOT_CONNECTED, CANNOT_SET_HANDLERS");
-        const processMessage = (message) => {
-            const processProgress = (message) => {
-                dispatch(TASK.updateTask(message.id, { progress: message.progress, progressDetails: message.progressDetails }));
-            };
 
-            const processResult = (message) => {
-                dispatch(
-                    TASK.updateTask(message.id, {
-                        status: "COMPLETE",
-                        progressDetails: "Finished",
-                        progress: 1,
-                        endTime: new Date().getTime(),
-                        result: message.result,
-                    })
-                );
-                console.log("TASK_COMPLETE", message.id);
-                const result = message.result;
-                if (message.action === TASK.OPEN_BAG_TASK) {
-                    const paths = result;
-                    paths.forEach((element) => {
-                        const task = TASK.addTask(TASK.makeBagInfoTask(element), true);
-                        const taskId = task.task.id;
-                        dispatch(task);
-                        dispatch(TASK.startTask(taskId));
-                    });
-                    if (paths.length === 0) dispatch(setBagOpening(false));
-                } else if (message.action === TASK.BAG_INFO_TASK) {
-                    const bagInfo = { ...result, id: database.bags.length + 1 };
-                    dispatch(addBag(bagInfo));
-                    dispatch(setBagOpening(false));
-                }
-                dispatch(setServerBusy(false));
-            };
-
-            const processError = (message) => {
-                dispatch(TASK.updateTask(message.id, { status: "ERROR", progress: 1, endTime: new Date().getTime(), result: message.error }));
-                console.log("ERROR: " + message.error);
-            };
-
-            const processWsInfo = (message) => {
-                console.log("WEBSOCKET_INFO", message);
-                if (message.message === "TOO_MANY_CONNECTIONS") {
-                    console.log("TOO_MANY_CONNECTIONS, SHOWING ALERT");
-                    showAlert("Too many connections", message.num_clients + " browser apps are connected to backend server.<br><br>Please close other windows before continuing...", "error");
-                } else if (message.message === "TOO_MANY_CONNECTIONS_RESOLVED") {
-                    console.log("TOO_MANY_CONNECTIONS_RESOLVED, HIDING ALERT");
-                    hideAlert();
-                } else {
-                    console.log("UNABLE TO PROCESS WEBSOCKET_INFO", message);
-                }
-            }
-            const data = JSON.parse(message.data);
-            const uuid = data.response_id;
-            if (uuid && seenMessageUUIDs[uuid]) return console.log("WARNING_SEEN_MESSAGE_UUID", uuid);
-            seenMessageUUIDs[uuid] = true;
-            console.log("PROCESS_RECEIVED_DATA", data);
-            if (data.type === "progress") processProgress(data);
-            else if (data.type === "result") processResult(data);
-            else if (data.type === "error") processError(data);
-            else if (data.type === "ws_info") processWsInfo(data);
-        };
-        client.onmessage = (message) => {
-            processMessage(message);
-        };
-    };
 
     useEffect(() => {
+        const updateHandlers = () => {
+            if (!client) return console.log("WEBSOCKET_NOT_CONNECTED, CANNOT_SET_HANDLERS");
+            const processMessage = (message) => {
+                const processProgress = (message) => {
+                    dispatch(TASK.updateTask(message.id, { progress: message.progress, progressDetails: message.progressDetails }));
+                };
+
+                const processResult = (message) => {
+                    dispatch(
+                        TASK.updateTask(message.id, {
+                            status: "COMPLETE",
+                            progressDetails: "Finished",
+                            progress: 1,
+                            endTime: new Date().getTime(),
+                            result: message.result,
+                        })
+                    );
+                    console.log("TASK_COMPLETE", message.id);
+                    const result = message.result;
+                    if (message.action === TASK.OPEN_BAG_TASK) {
+                        const paths = result;
+                        paths.forEach((element) => {
+                            const task = TASK.addTask(TASK.makeBagInfoTask(element), true);
+                            const taskId = task.task.id;
+                            dispatch(task);
+                            dispatch(TASK.startTask(taskId));
+                        });
+                        if (paths.length === 0) dispatch(setBagOpening(false));
+                    } else if (message.action === TASK.BAG_INFO_TASK) {
+                        const bagInfo = { ...result, id: database.bags.length + 1 };
+                        dispatch(addBag(bagInfo));
+                        dispatch(setBagOpening(false));
+                    }
+                    dispatch(setServerBusy(false));
+                };
+
+                const processError = (message) => {
+                    dispatch(TASK.updateTask(message.id, { status: "ERROR", progress: 1, endTime: new Date().getTime(), result: message.error }));
+                    console.log("ERROR: " + message.error);
+                };
+
+                const processWsInfo = (message) => {
+                    console.log("WEBSOCKET_INFO", message);
+                    if (message.message === "TOO_MANY_CONNECTIONS") {
+                        console.log("TOO_MANY_CONNECTIONS, SHOWING ALERT");
+                        showAlert("Too many connections", message.num_clients + " browser apps are connected to backend server.<br><br>Please close other windows before continuing...", "error");
+                    } else if (message.message === "TOO_MANY_CONNECTIONS_RESOLVED") {
+                        console.log("TOO_MANY_CONNECTIONS_RESOLVED, HIDING ALERT");
+                        hideAlert();
+                    } else {
+                        console.log("UNABLE TO PROCESS WEBSOCKET_INFO", message);
+                    }
+                };
+                const data = JSON.parse(message.data);
+                const uuid = data.response_id;
+                if (uuid && seenMessageUUIDs[uuid]) return console.log("WARNING_SEEN_MESSAGE_UUID", uuid);
+                seenMessageUUIDs[uuid] = true;
+                console.log("PROCESS_RECEIVED_DATA", data);
+                if (data.type === "progress") processProgress(data);
+                else if (data.type === "result") processResult(data);
+                else if (data.type === "error") processError(data);
+                else if (data.type === "ws_info") processWsInfo(data);
+            };
+            client.onmessage = (message) => {
+                processMessage(message);
+            };
+        };
         const connect = () => {
             if (client && client.readyState !== client.CLOSED) return;
             console.log("Connecting to WebSocket server...");
@@ -115,9 +116,8 @@ const Ws = ({ children, state: database }) => {
             setSendJsonMessage(() => sendMsg);
         };
         connect();
-    }, []);
+    }, [dispatch, database]);
 
-    useEffect(() => updateHandlers(), [database]);
     return <WebSocketContext.Provider value={sendJsonMessage}>{children}</WebSocketContext.Provider>;
 };
 

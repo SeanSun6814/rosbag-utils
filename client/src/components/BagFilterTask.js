@@ -30,7 +30,7 @@ const BagFilterTask = (props) => {
     React.useEffect(() => {
         if (cropBags === "AUTO" && odometryTopic === "") dispatch(setPageComplete(false));
         else dispatch(setPageComplete(true));
-    }, [cropBags, odometryTopic]);
+    }, [cropBags, odometryTopic, dispatch]);
 
     const handleCropEdit = React.useCallback((params) => {
         const id = params.id;
@@ -80,9 +80,9 @@ const BagFilterTask = (props) => {
         return () => {
             const getRandomId = () => Math.floor(Math.random() * 16534 + 4096).toString(16);
             const targetTopics = selectedTopics;
-            const sourcePath = selectedBags[0].path.replace(/\/[^\/]+$/, "");
+            const sourcePath = selectedBags[0].path.replace(/\/[^/]+$/, "");
             const exportPath = sourcePath + "/export_" + getDateTime() + "_" + getRandomId() + "/";
-            const filenames = selectedBags.map((bag) => (mergeBagsGlobal ? "Combined.bag" : bag.path.replace(/^.*[\\\/]/, "")));
+            const filenames = selectedBags.map((bag) => (mergeBagsGlobal ? "Combined.bag" : bag.path.replace(/^.*[\\/]/, "")));
             const pathIns = selectedBags.filter((bag) => bag.selected).map((bag) => bag.path);
             const pathOuts = filenames.map((filename) => exportPath + filename);
             const cropDataSmall = cropDataGlobal.map((bag) => {
@@ -111,7 +111,7 @@ const BagFilterTask = (props) => {
                 ])
             );
         };
-    }, []);
+    }, [dispatch]);
 
     const handleToggleMergeBags = () => {
         setMergeBags((state) => !state);
@@ -190,7 +190,7 @@ const BagFilterTask = (props) => {
                                     id="demo-simple-select"
                                     value={odometryTopic}
                                     label="Odometry Topic"
-                                    onChange={() => {}}
+                                    onChange={() => { }}
                                 >
                                     {Object.keys(props.topics)
                                         .filter((topic) => props.topics[topic].type === "nav_msgs/Odometry")
