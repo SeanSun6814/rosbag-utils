@@ -19,10 +19,11 @@
 
 ### Installation
 
-1. Clone this repo
-2. `pip3 install bagpy laspy tdigest websocket_server`
-3. `python3 app.py`
-4. _Alternatively: `python3 app.py -n` to don't automatically launch browser_
+1. Install ROS
+2. Clone this repo
+3. `pip3 install bagpy laspy tdigest websocket_server`
+4. `python3 app.py`
+5. _Alternatively: `python3 app.py -n` to don't automatically launch browser_
 
 _Tested on Ubuntu 20.04 with Python3, ROS Noetic, and Google Chrome._
 
@@ -34,9 +35,13 @@ Coming soon...
 
 ### Build
 
-- `cd client`
-- `npm i --legacy-peer-deps`
-- `npm run build`
+- `cd client && npm i --legacy-peer-deps && npm run build`
+
+### Contribute
+
+- Make a new branch for changes
+- Format code: `pip3 install black && black . && cd client && npm i --legacy-peer-deps && npm run lint`
+- Create PR and confirm lint passes
 
 ## Support & Warranty
 
