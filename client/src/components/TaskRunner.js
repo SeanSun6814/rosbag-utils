@@ -31,7 +31,7 @@ const TaskRunner = ({ allTasks, bags, topics }) => {
                 console.log("START_TASK:", message);
             }
         }
-    }, [dispatch, allTasks]);
+    }, [dispatch, allTasks, sendJsonMessage]);
     return <div style={{ display: "none" }}></div>;
 };
 

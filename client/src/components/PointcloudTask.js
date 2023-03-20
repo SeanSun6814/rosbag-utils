@@ -29,7 +29,7 @@ const PointcloudTask = (props) => {
             let tempTasks = [];
 
             targetTopics.forEach((topic) => {
-                const sourcePath = selectedBags[0].path.replace(/\/[^\/]+$/, "");
+                const sourcePath = selectedBags[0].path.replace(/\/[^/]+$/, "");
                 const pathIns = selectedBags.filter((bag) => bag.selected).map((bag) => bag.path);
                 const topic_clean_name = topic.replace(/\//g, "_");
                 const filename = (topic_clean_name + "_").replace(/__/g, "_").replace(/_$/g, "").replace(/^_/, "");
@@ -48,7 +48,7 @@ const PointcloudTask = (props) => {
             });
             dispatch(setTempTasks(tempTasks));
         };
-    }, []);
+    }, [dispatch]);
 
     React.useEffect(() => {
         selectedBags = props.bags.filter((bag) => bag.selected);
@@ -138,13 +138,13 @@ const PointcloudTask = (props) => {
                     <FormControl fullWidth sx={{ marginTop: "30px" }} disabled={!config.collapseAxisEnabled}>
                         <InputLabel id="collapseAxisDropdownLabel">Axis</InputLabel>
                         <Select labelId="collapseAxisDropdownLabel" id="collapseAxisDropdown" value={config.collapseAxis} label="Axis" onChange={() => { }}>
-                            <MenuItem key={"X"} value={"X"} onClick={() => setConfig((prev) => { return { ...prev, collapseAxis: "X" } })}>
+                            <MenuItem key={"X"} value={"X"} onClick={() => setConfig((prev) => { return { ...prev, collapseAxis: "X" }; })}>
                                 X
                             </MenuItem>
-                            <MenuItem key={"Y"} value={"Y"} onClick={() => setConfig((prev) => { return { ...prev, collapseAxis: "Y" } })}>
+                            <MenuItem key={"Y"} value={"Y"} onClick={() => setConfig((prev) => { return { ...prev, collapseAxis: "Y" }; })}>
                                 Y
                             </MenuItem>
-                            <MenuItem key={"Z"} value={"Z"} onClick={() => setConfig((prev) => { return { ...prev, collapseAxis: "Z" } })}>
+                            <MenuItem key={"Z"} value={"Z"} onClick={() => setConfig((prev) => { return { ...prev, collapseAxis: "Z" }; })}>
                                 Z
                             </MenuItem>
                         </Select>
