@@ -13,7 +13,7 @@ class FastArr:
         self.shape = shape
         self.data = np.zeros((100, *shape[1:]), dtype=dtype)
         self.capacity = 100
-        self.size = 0
+        self.size =    0
 
     def update(self, x):
         if self.size == self.capacity:
