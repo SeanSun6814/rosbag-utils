@@ -45,6 +45,8 @@ def processWebsocketRequest(req, res):
         )
 
     def sendResult(result):
+        if result is None:
+            return
         sendProgress(percentage=1, details="Finished", status="COMPLETE")
         res(
             {
@@ -56,6 +58,7 @@ def processWebsocketRequest(req, res):
         )
 
     def sendError(error):
+        print("ERROR", error)
         res({"type": "error", "id": req["id"], "action": req["action"], "error": error})
 
     print("REQUEST " + req["action"])

@@ -1,6 +1,5 @@
 import rosbag
 import json
-from cv_bridge import CvBridge
 import cv2
 import numpy as np
 import os
@@ -29,7 +28,16 @@ def exportVideo(
     livePreview,
     envInfo,
     sendProgress,
+    sendError,
 ):
+    try:
+        from cv_bridge import CvBridge
+    except:
+        sendError("cv_bridge not installed. Please install ROS on your computer first")
+        return None
+
+    from cv_bridge import CvBridge
+
     speed = int(speed)
     fps = int(fps)
     server.utils.mkdir(server.utils.getFolderFromPath(pathOut))

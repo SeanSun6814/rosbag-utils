@@ -55,13 +55,14 @@ const Ws = ({ children, state: database }) => {
                 const processError = (message) => {
                     dispatch(TASK.updateTask(message.id, { status: "ERROR", progress: 1, endTime: new Date().getTime(), result: message.error }));
                     console.log("ERROR: " + message.error);
+                    showAlert("Error", message.error, "error", true);
                 };
 
                 const processWsInfo = (message) => {
                     console.log("WEBSOCKET_INFO", message);
                     if (message.message === "TOO_MANY_CONNECTIONS") {
                         console.log("TOO_MANY_CONNECTIONS, SHOWING ALERT");
-                        showAlert("Too many connections", message.num_clients + " browser apps are connected to backend server.<br><br>Please close other windows before continuing...", "error");
+                        showAlert("Too many connections", message.num_clients + " browser apps are connected to backend server.<br><br>Please close other windows before continuing...", "error", false);
                     } else if (message.message === "TOO_MANY_CONNECTIONS_RESOLVED") {
                         console.log("TOO_MANY_CONNECTIONS_RESOLVED, HIDING ALERT");
                         hideAlert();
@@ -121,14 +122,14 @@ const Ws = ({ children, state: database }) => {
     return <WebSocketContext.Provider value={sendJsonMessage}>{children}</WebSocketContext.Provider>;
 };
 
-function showAlert(title, text, icon, callback) {
+function showAlert(title, text, icon, allowDismiss, callback) {
     Swal.fire({
         title: title,
         html: text,
         icon: icon,
-        allowEscapeKey: false,
-        allowOutsideClick: false,
-        showConfirmButton: false,
+        allowEscapeKey: allowDismiss,
+        allowOutsideClick: allowDismiss,
+        showConfirmButton: allowDismiss,
     }).then((result) => {
         if (callback)
             callback(result);
