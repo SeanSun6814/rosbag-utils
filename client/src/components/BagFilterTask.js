@@ -10,7 +10,7 @@ import { Stack } from "@mui/system";
 import { getDateTime } from "../utils/convert";
 
 const columns = [
-    { field: "file", headerName: "Filesasdfasdf", flex: 2.5, editable: false, sortable: false },
+    { field: "file", headerName: "Files", flex: 2.5, editable: false, sortable: false },
     { field: "duration", headerName: "Bag Duration", flex: 1, editable: false, sortable: false },
     { field: "cropStart", headerName: "Crop From", flex: 1, editable: true, sortable: false, type: "number" },
     { field: "cropEnd", headerName: "Crop To", flex: 1, editable: true, sortable: false, type: "number" },

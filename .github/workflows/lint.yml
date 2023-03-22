@@ -63,7 +63,7 @@ jobs:
       - name: Save previous build
         run: cd client && mv build build1
 
-      - name: Install Project
+      - name: Build Project
         run: |
           cd client && npm i --legacy-peer-deps && npm run build
 
