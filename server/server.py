@@ -8,8 +8,6 @@ import urllib
 from urllib.parse import urlparse, parse_qs
 import json
 import os
-import tkinter as tk
-from tkinter import filedialog
 import time
 from threading import Thread
 
