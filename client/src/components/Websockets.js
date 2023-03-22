@@ -61,7 +61,7 @@ const Ws = ({ children, state: database }) => {
                     console.log("WEBSOCKET_INFO", message);
                     if (message.message === "TOO_MANY_CONNECTIONS") {
                         console.log("TOO_MANY_CONNECTIONS, SHOWING ALERT");
-                        showAlert("Too many connections", message.num_clients + " browser apps are connected to backend server.<br><br>Please close other windows before continuing...", "error");
+                        showAlert("Too many connections", (message.num_clients - 1) + " other browser windows are connected to server.<br><br>Please close other windows before continuing<br><br>Or try refreshing the page (all progress will be lost)", "error");
                     } else if (message.message === "TOO_MANY_CONNECTIONS_RESOLVED") {
                         console.log("TOO_MANY_CONNECTIONS_RESOLVED, HIDING ALERT");
                         hideAlert();
