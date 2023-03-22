@@ -6,7 +6,7 @@ echo -e "To change dataset folder, run \e[33m./mac_docker_start.sh /your/folder/
 docker run \
 -it \
 --name rosbag-utils \
---volume $(pwd)/../:/root/rosbag-utils \
+--volume $(pwd)/:/root/rosbag-utils \
 -v "$FOLDER:/data" \
 -p 8000-8001:8000-8001 \
 --env DISPLAY=host.docker.internal:0 \

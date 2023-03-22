@@ -33,9 +33,14 @@ class handler(BaseHTTPRequestHandler):
         else:
             self.send_header("Content-type", "text/html")
         self.end_headers()
-        with open(filename, "rb") as fh:
-            html = fh.read()
-            self.wfile.write(html)
+        try:
+            with open(filename, "rb") as fh:
+                html = fh.read()
+                self.wfile.write(html)
+        except:
+            with open(root + "/client/build/index.html", "rb") as fh:
+                html = fh.read()
+                self.wfile.write(html)
 
 
 def startServer(requestOpenBrowser, port):

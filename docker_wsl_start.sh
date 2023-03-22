@@ -15,7 +15,7 @@ echo -e "Starting rosbag-utils with /data folder: \e[32m${FOLDER}\e[0m"
 docker run \
 -it \
 --name rosbag-util \
--v $(readlink -f "../."):/root/rosbag-utils \
+-v $(readlink -f "./."):/root/rosbag-utils \
 -v "$FOLDER:/data" \
 -p 8000-8001:8000-8001 \
 -e "DISPLAY" \

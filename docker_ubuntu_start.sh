@@ -18,7 +18,7 @@ xhost + > /dev/null 2>&1
 docker run \
 -it \
 --name rosbag-util \
--v $(readlink -f "../."):/root/rosbag-utils \
+-v $(readlink -f "./."):/root/rosbag-utils \
 -v "$FOLDER:/data" \
 -p 8000-8001:8000-8001 \
 -v /tmp/.X11-unix:/tmp/.X11-unix \
