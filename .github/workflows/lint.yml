@@ -48,3 +48,25 @@ jobs:
       - name: Run Black
         run: black --check --verbose .
         continue-on-error: false
+
+  build:
+    name: Check Build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Save previous build
+        run: cd client && mv build build1
+
+      - name: Install Project
+        run: |
+          cd client && npm i --legacy-peer-deps && npm run build
+
+      - name: Check build
+        run: cd client && node checkBuild.js
+        continue-on-error: false

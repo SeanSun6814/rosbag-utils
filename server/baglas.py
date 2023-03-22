@@ -106,7 +106,7 @@ def exportPointCloud(
             details=("Processing " + str(totalNumPoints) + " points"),
         )
         sendProgressEveryHowManyMessages = max(
-            random.randint(2, 5), int(totalMessages / (100 / len(paths)))
+            random.randint(2, 5), int(totalMessages / (300 / len(paths)))
         )
         bagStartCount = count
         for topic, msg, t in bagIn.read_messages(topics=[targetTopic]):

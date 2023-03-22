@@ -19,10 +19,8 @@
 ### Docker Installation
 
 1. `git clone https://github.com/SeanSun6814/rosbag-utils.git`
-2. `cd docker`
-3. `./build.sh`
-4. `./wsl_start.sh` or `./ubuntu_start.sh` or `./mac_start.sh`
-5. Open browser and go to `127.0.0.1:8000`
+2. `./docker_build.sh`
+3. `./docker_wsl_start.sh` or `./docker_ubuntu_start.sh` or `./docker_mac_start.sh`
 
 ### Linux Installation
 

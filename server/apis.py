@@ -32,7 +32,7 @@ def processWebsocketRequest(req, res):
             details = progressDetails
         else:
             progressDetails = details
-        print("PROGRESS", progressPercentage, details)
+        # print("PROGRESS", progressPercentage, details)
         res(
             {
                 "type": "progress",

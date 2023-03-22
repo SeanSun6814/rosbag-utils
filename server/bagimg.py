@@ -69,7 +69,7 @@ def exportVideo(
             ]
         )
         sendProgressEveryHowManyMessages = max(
-            random.randint(7, 9), int(totalMessages / (100 / len(paths)))
+            random.randint(7, 9), int(totalMessages / (300 / len(paths)))
         )
         bagStartCount = frameCount
         for topic, msg, t in bagIn.read_messages(topics=[targetTopic]):
