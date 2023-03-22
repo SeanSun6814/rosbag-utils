@@ -1,3 +1,8 @@
+{
+    docker kill rosbag-util || true
+    docker rm rosbag-util
+} &> /dev/null
+
 if [ -z "$1" ]; then
     echo -e "To change dataset folder, run \e[33m./docker_start.sh /your/folder/here\e[0m"
 fi
