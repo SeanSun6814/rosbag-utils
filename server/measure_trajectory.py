@@ -156,8 +156,8 @@ def dist(a, b):
 
 
 def quaternion_to_euler(x, y, z, w):
-    roll = math.atan2(2 * (w * x + y * z), 1 - 2 * (x**2 + y**2))
+    roll = math.atan2(2 * (w * x + y * z), 1 - 2 * (x ** 2 + y ** 2))
     pitch = math.asin(2 * (w * y - z * x))
-    yaw = math.atan2(2 * (w * z + x * y), 1 - 2 * (y**2 + z**2))
+    yaw = math.atan2(2 * (w * z + x * y), 1 - 2 * (y ** 2 + z ** 2))
 
     return np.rad2deg(roll), np.rad2deg(pitch), np.rad2deg(yaw)

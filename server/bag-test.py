@@ -25,10 +25,7 @@ def writeIMUAngles(topic, msg, t, bagOut):
         return X, Y, Z
 
     x, y, z = quaternion_to_euler_angle_vectorized1(
-        msg.orientation.w,
-        msg.orientation.x,
-        msg.orientation.y,
-        msg.orientation.z,
+        msg.orientation.w, msg.orientation.x, msg.orientation.y, msg.orientation.z
     )
     xStr = String()
     xStr.data = str(x)

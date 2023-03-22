@@ -1,1 +1,0 @@
-docker build -t airlab/rosbag-utils:latest .

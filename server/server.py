@@ -44,8 +44,11 @@ def startServer(requestOpenBrowser, port):
             import webbrowser
 
             time.sleep(0.25)
-            print("Opening app at 127.0.0.1:" + str(port))
-            print(webbrowser.open("http://127.0.0.1:" + str(port)))
+            if requestOpenBrowser:
+                print("Opening app at 127.0.0.1:" + str(port))
+                print(webbrowser.open("http://127.0.0.1:" + str(port)))
+            else:
+                print("\033[33mPlease open app at 127.0.0.1:" + str(port) + "\033[0m")
         except:
             print(
                 "Cannot open browser automatically. Please go to 127.0.0.1:" + str(port)
@@ -57,7 +60,4 @@ def startServer(requestOpenBrowser, port):
             server.serve_forever()
 
     Thread(target=createServer).start()
-    if requestOpenBrowser:
-        Thread(target=openBrowser).start()
-    else:
-        print("Please open app at 127.0.0.1:" + str(port))
+    Thread(target=openBrowser).start()
