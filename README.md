@@ -9,7 +9,9 @@
                                     |___/
 ```
 
-![image](https://user-images.githubusercontent.com/33432158/177209138-464c6e66-9022-4b29-a144-82997ce2c797.png)
+![1 (1)](https://user-images.githubusercontent.com/33432158/214935335-cd55eb9f-0621-4fe9-ad81-3fd05969c80a.png)
+![2 (1)](https://user-images.githubusercontent.com/33432158/214935344-a193ef27-ee3a-4dfb-8118-df0a229f38c7.png)
+
 
 # Rosbag-utils
 
@@ -17,54 +19,29 @@
 
 ### Installation
 
-1. Clone this repo
-2. `pip3 install laspy`
-3. `python3 app.py`
-4. _Alternatively:_ `python3 app.py -n -p 8000 8001 8002` to open three instances of rosbag utils and don't automatically launch browser
+1. Install ROS
+2. Clone this repo
+3. `pip3 install bagpy laspy tdigest websocket_server`
+4. `python3 app.py`
+5. _Alternatively: `python3 app.py -n` to don't automatically launch browser_
 
 _Tested on Ubuntu 20.04 with Python3, ROS Noetic, and Google Chrome._
+
+_Tested on Windows 11 WSL2 (Ubuntu 20.04) with Python3, ROS Noetic, and Google Chrome._
 
 ### Tutorial
 
 Coming soon...
 
-## Rosbag Filter
+### Build
 
--   Filter topics from rosbags
+- `cd client && npm i --legacy-peer-deps && npm run build`
 
--   Calculate trajectory length
+### Contribute
 
--   Crop bag between specified time intervals
-
--   Auto crop blank space at the beginning of rosbags
-
--   Batch processing
-
-## Rosbag Points
-
--   Exports pointcloud messages to `.las` files
-
--   Auto split las files into specified sizes
-
--   Downsample pointcloud
-
--   Flatten pointcloud into 2 dimensions
-
--   Trim cloud based on x, y, z limits
-
--   Batch processing
-
-## Rosbag Visualize
-
--   Export 8-bit and 16-bit color and mono images to mp4 video
-
--   Speed up video by specified amount
-
--   Print timestamp into video
-
--   Custom video fps
-
--   Batch processing
+- Make a new branch for changes
+- Format code: `pip3 install black && black . && cd client && npm i --legacy-peer-deps && npm run lint`
+- Create PR and confirm lint passes
 
 ## Support & Warranty
 
