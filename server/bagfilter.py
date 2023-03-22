@@ -34,7 +34,7 @@ def getBagInfoJson(path):
                 "name": t["topic"],
                 "type": t["type"],
                 "messages": t["messages"],
-                "frequency": t["frequency"],
+                "frequency": int(t["messages"]) / info["duration"],
             }
         info["topics"] = topics
     except Exception:
