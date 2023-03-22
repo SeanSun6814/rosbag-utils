@@ -11,7 +11,7 @@ const options = {
 };
 
 const path1 = './build';
-const path2 = './public';
+const path2 = './build1';
 const res = dircompare.compareSync(path1, path2, options);
 console.log("\x1b[33mThe build folder is " + (res.same ? "" : "NOT") + " up to date.\x1b[0m");
 if (!res.same) {
