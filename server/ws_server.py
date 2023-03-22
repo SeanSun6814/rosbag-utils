@@ -56,8 +56,8 @@ def messageReceived(client, server, message):
 
 def startServer(port):
     global websocketServer
-    print("Starting websockets server on 127.0.0.1:" + str(port))
-    websocketServer = WebsocketServer(host="127.0.0.1", port=port)
+    print("Starting websockets server on 0.0.0.0:" + str(port))
+    websocketServer = WebsocketServer(host="0.0.0.0", port=port)
     websocketServer.set_fn_new_client(newClient)
     websocketServer.set_fn_client_left(clientLeft)
     websocketServer.set_fn_message_received(messageReceived)

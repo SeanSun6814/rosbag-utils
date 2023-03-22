@@ -12,16 +12,23 @@
 ![1 (1)](https://user-images.githubusercontent.com/33432158/214935335-cd55eb9f-0621-4fe9-ad81-3fd05969c80a.png)
 ![2 (1)](https://user-images.githubusercontent.com/33432158/214935344-a193ef27-ee3a-4dfb-8118-df0a229f38c7.png)
 
-
 # Rosbag-utils
 
 ## Get started
 
-### Installation
+### Docker Installation
+
+1. `git clone https://github.com/SeanSun6814/rosbag-utils.git`
+2. `cd docker`
+3. `./build.sh`
+4. `./wsl_start.sh` or `./ubuntu_start.sh` or `./mac_start.sh`
+5. Open browser and go to `127.0.0.1:8000`
+
+### Linux Installation
 
 1. Install ROS
-2. Clone this repo
-3. `pip3 install bagpy laspy tdigest websocket_server`
+2. `pip3 install laspy tdigest websocket_server`
+3. `git clone https://github.com/SeanSun6814/rosbag-utils.git`
 4. `python3 app.py`
 5. _Alternatively: `python3 app.py -n` to don't automatically launch browser_
 
@@ -33,15 +40,12 @@ _Tested on Windows 11 WSL2 (Ubuntu 20.04) with Python3, ROS Noetic, and Google C
 
 Coming soon...
 
-### Build
-
-- `cd client && npm i --legacy-peer-deps && npm run build`
-
 ### Contribute
 
-- Make a new branch for changes
-- Format code: `pip3 install black && black . && cd client && npm i --legacy-peer-deps && npm run lint`
-- Create PR and confirm lint passes
+-   Create issue, make new branch for changes
+-   Format code: `pip3 install black && black . && cd client && npm i --legacy-peer-deps && npm run lint`
+-   Build client: `cd client && npm i --legacy-peer-deps && npm run build`
+-   Create PR and confirm lint passes
 
 ## Support & Warranty
 
