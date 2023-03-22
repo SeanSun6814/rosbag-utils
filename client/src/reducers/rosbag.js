@@ -25,7 +25,9 @@ export const setSelectedBags = (selectedIdxs) => ({
 
 export default (state = [], action) => {
     if (action.type === "ADD_BAG") {
-        return [...state, action.bag];
+        const numBagsBefore = state.length;
+        const newId = numBagsBefore + 1;
+        return [...state, { ...action.bag, id: newId }];
     } else if (action.type === "REMOVE_BAG") {
         return state.filter(({ name }) => name !== action.name);
     } else if (action.type === "SET_SELECTED_BAGS") {
