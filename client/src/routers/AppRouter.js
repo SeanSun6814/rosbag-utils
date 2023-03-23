@@ -7,7 +7,8 @@ import HomePage from "../components/HomePage";
 const AppRouter = () => (
     <BrowserRouter>
         <Routes>
-            <Route path={"/"} element={<HomePage />} />
+            <Route path={"/"} element={<RosbagUtilsPage />} />
+            <Route path={"/home"} element={<HomePage />} />
             <Route path={"/rosbag-utils"} element={<RosbagUtilsPage />} />
             <Route path={"*"} element={<NotFoundPage />} />
         </Routes>
