@@ -36,7 +36,7 @@ _Tested on Windows 11 WSL2 (Ubuntu 20.04) with Python3, ROS Noetic, and Google C
 
 ### Tutorial
 
-Coming soon...
+[https://superodometry.com/rosbagutils](https://superodometry.com/rosbagutils)
 
 ### Contribute
 
