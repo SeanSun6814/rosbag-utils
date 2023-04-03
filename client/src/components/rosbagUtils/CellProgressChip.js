@@ -2,7 +2,8 @@ import * as React from "react";
 import DoneIcon from "@mui/icons-material/Done";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import ScheduleIcon from "@mui/icons-material/Schedule";
-import { blue, green, orange } from "@mui/material/colors";
+import ErrorIcon from '@mui/icons-material/Error';
+import { blue, green, orange, red } from "@mui/material/colors";
 import { Chip } from "@mui/material";
 
 function CellProgressChip(params) {
@@ -37,6 +38,14 @@ function CellProgressChip(params) {
             label: "Queued",
             style: {
                 borderColor: orange[800],
+            },
+        };
+    } else if (params.value === "ERROR") {
+        return {
+            icon: <ErrorIcon style={{ fill: red[800] }} />,
+            label: "Error",
+            style: {
+                borderColor: red[800],
             },
         };
     }
