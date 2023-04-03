@@ -8,6 +8,7 @@ from tkinter import filedialog
 import json
 import time
 import server.utils
+import traceback
 
 progressPercentage = 0
 progressDetails = ""
@@ -58,10 +59,10 @@ def processWebsocketRequest(req, res):
     def sendError(error):
         res({"type": "error", "id": req["id"], "action": req["action"], "error": error})
 
-    print("REQUEST " + req["action"])
-    if req["action"] == "OPEN_BAG_TASK":
-        file_names = []
-        try:
+    try:
+        print("REQUEST " + req["action"])
+        if req["action"] == "OPEN_BAG_TASK":
+            file_names = []
             root = tk.Tk()
             root.withdraw()
             msg = tk.filedialog.askopenfiles(
@@ -72,84 +73,81 @@ def processWebsocketRequest(req, res):
             print("SELECTED:", file_names)
             if len(file_names) > 0:
                 prev_dir = server.utils.getFolderFromPath(file_names[0])
-        except Exception as e:
-            print(e)
-        sendResult(file_names)
-    elif req["action"] == "BAG_INFO_TASK":
-        path = req["path"]
-        try:
+            sendResult(file_names)
+        elif req["action"] == "BAG_INFO_TASK":
+            path = req["path"]
             msg = server.bagfilter.getBagInfoJson(path)
             sendResult(msg)
-        except Exception as e:
-            sendError(str(e))
-            print(e)
-    elif req["action"] == "FILTER_BAG_TASK":
-        result = server.bagfilter.exportBag(
-            req["pathIn"],
-            req["pathOut"],
-            req["targetTopics"],
-            req["cropType"],
-            req["cropData"],
-            req["autoCropData"],
-            req["mergeBags"],
-            req["odometryTopic"],
-            req,
-            sendProgress,
-        )
-        sendResult({"finalCropTimes": result})
-    elif req["action"] == "POINTCLOUD_EXPORT_TASK":
-        result = server.baglas.exportPointCloud(
-            req["paths"],
-            req["targetTopic"],
-            req["outPathNoExt"],
-            req["maxPointsPerFile"],
-            req["collapseAxis"],
-            req["speed"],
-            None if req["trimCloud"] == "" else req["trimCloud"],
-            req,
-            sendProgress,
-        )
-        sendResult(result)
-    elif req["action"] == "POINTCLOUD_COLOR_TASK":
-        result = server.baglas_uncertainty.exportPointCloud(
-            req["paths"],
-            req["targetTopic"],
-            req["odomStatsTopic"],
-            req["outPathNoExt"],
-            req["maxPointsPerFile"],
-            req["collapseAxis"],
-            req["speed"],
-            None if req["trimCloud"] == "" else req["trimCloud"],
-            req,
-            sendProgress,
-        )
-        sendResult(result)
-    elif req["action"] == "VIDEO_EXPORT_TASK":
-        result = server.bagimg.exportVideo(
-            req["paths"],
-            req["pathOut"],
-            req["targetTopic"],
-            req["speed"],
-            req["fps"],
-            req["printTimestamp"],
-            req["invertImage"],
-            req["rangeFor16Bit"] if req["useManual16BitRange"] else None,
-            req["livePreview"],
-            req,
-            sendProgress,
-        )
-        sendResult(result)
-    elif req["action"] == "MEASURE_TRAJECTORY_TASK":
-        result = server.measure_trajectory.measureTrajectory(
-            req["pathIns"],
-            req["pathOut"],
-            req["targetTopic"],
-            req["exportPosition"],
-            req["exportVelocity"],
-            req,
-            sendProgress,
-        )
+        elif req["action"] == "FILTER_BAG_TASK":
+            result = server.bagfilter.exportBag(
+                req["pathIn"],
+                req["pathOut"],
+                req["targetTopics"],
+                req["cropType"],
+                req["cropData"],
+                req["autoCropData"],
+                req["mergeBags"],
+                req["odometryTopic"],
+                req,
+                sendProgress,
+            )
+            sendResult({"finalCropTimes": result})
+        elif req["action"] == "POINTCLOUD_EXPORT_TASK":
+            result = server.baglas.exportPointCloud(
+                req["paths"],
+                req["targetTopic"],
+                req["outPathNoExt"],
+                req["maxPointsPerFile"],
+                req["collapseAxis"],
+                req["speed"],
+                None if req["trimCloud"] == "" else req["trimCloud"],
+                req,
+                sendProgress,
+            )
+            sendResult(result)
+        elif req["action"] == "POINTCLOUD_COLOR_TASK":
+            result = server.baglas_uncertainty.exportPointCloud(
+                req["paths"],
+                req["targetTopic"],
+                req["odomStatsTopic"],
+                req["outPathNoExt"],
+                req["maxPointsPerFile"],
+                req["collapseAxis"],
+                req["speed"],
+                None if req["trimCloud"] == "" else req["trimCloud"],
+                req,
+                sendProgress,
+            )
+            sendResult(result)
+        elif req["action"] == "VIDEO_EXPORT_TASK":
+            result = server.bagimg.exportVideo(
+                req["paths"],
+                req["pathOut"],
+                req["targetTopic"],
+                req["speed"],
+                req["fps"],
+                req["printTimestamp"],
+                req["invertImage"],
+                req["rangeFor16Bit"] if req["useManual16BitRange"] else None,
+                req["livePreview"],
+                req,
+                sendProgress,
+            )
+            sendResult(result)
+        elif req["action"] == "MEASURE_TRAJECTORY_TASK":
+            result = server.measure_trajectory.measureTrajectory(
+                req["pathIns"],
+                req["pathOut"],
+                req["targetTopic"],
+                req["exportPosition"],
+                req["exportVelocity"],
+                req,
+                sendProgress,
+            )
 
-        sendResult(result)
-    else:
-        sendError("Unknown action: " + req["action"])
+            sendResult(result)
+        else:
+            sendError("Unknown action: " + req["action"])
+    except Exception as e:
+        print(str(e) + ": " + str(traceback.format_exc()))
+        sendError(str(e) + ": " + str(traceback.format_exc()))

@@ -8,8 +8,9 @@ import Swal from "sweetalert2";
 export const WebSocketContext = React.createContext();
 let client;
 let seenMessageUUIDs = {};
+let fatalError = false;
 
-const Ws = ({ children }) => {
+const Ws = ({ children, tasks }) => {
     const dispatch = useDispatch();
     let [sendJsonMessage, setSendJsonMessage] = React.useState(null);
 
@@ -50,15 +51,43 @@ const Ws = ({ children }) => {
             };
 
             const processError = (message) => {
-                dispatch(TASK.updateTask(message.id, { status: "ERROR", progress: 1, endTime: new Date().getTime(), result: message.error }));
-                console.log("ERROR: " + message.error);
+                const isSystem = tasks.some((task) => task.id === message.id && task.isSystem);
+                if (isSystem) {
+                    fatalError = true;
+                    console.log("SYSTEM_TASK_ERROR: " + message.error);
+                    message.error = message.error.replace(/\n/g, "<br>");
+                    showAlert(
+                        "Fatal Error",
+                        message.error +
+                        `<br><br><a style='color: #3085d6;' target='_blank' href='https://github.com/SeanSun6814/rosbag-utils'>
+                    Report issue</a><br>`,
+                        "error",
+                        "Restart app",
+                        () => { location.reload(); }
+                    );
+                } else {
+                    dispatch(TASK.updateTask(message.id, { status: "ERROR", progress: 1, endTime: new Date().getTime(), result: message.error }));
+                    console.log("NON_SYSTEM_TASK_ERROR: " + message.error);
+                    showAlert(
+                        "Internal Error",
+                        message.error +
+                        `<br><br><a style='color: #3085d6;' target='_blank' href='https://github.com/SeanSun6814/rosbag-utils'>
+                    Report issue</a><br>`,
+                        "error",
+                        "Continue", null
+                    );
+                }
             };
 
             const processWsInfo = (message) => {
+                if (fatalError) return;
                 console.log("WEBSOCKET_INFO", message);
                 if (message.message === "TOO_MANY_CONNECTIONS") {
                     console.log("TOO_MANY_CONNECTIONS, SHOWING ALERT");
-                    showAlert("Too many connections", (message.num_clients - 1) + " other browser windows are connected to server.<br><br>Please close other windows before continuing<br><br>Or try refreshing the page (all progress will be lost)", "error");
+                    showAlert("Too many connections",
+                        (message.num_clients - 1) + ` other browser windows are connected to server.<br><br>
+                    Please close other windows before continuing<br><br>
+                    Or try refreshing the page (all progress will be lost)`, "error", "", null);
                 } else if (message.message === "TOO_MANY_CONNECTIONS_RESOLVED") {
                     console.log("TOO_MANY_CONNECTIONS_RESOLVED, HIDING ALERT");
                     hideAlert();
@@ -83,7 +112,7 @@ const Ws = ({ children }) => {
 
     useEffect(() => {
         const connect = () => {
-            if (client && client.readyState !== client.CLOSED) return;
+            if (client && client.readyState !== client.CLOSED) return updateHandlers();
             console.log("Connecting to WebSocket server...");
             client = new WebSocket("ws://127.0.0.1:8001");
             client.onopen = () => {
@@ -115,19 +144,20 @@ const Ws = ({ children }) => {
             setSendJsonMessage(() => sendMsg);
         };
         connect();
-    }, [dispatch]);
+    }, [dispatch, tasks]);
 
     return <WebSocketContext.Provider value={sendJsonMessage}>{children}</WebSocketContext.Provider>;
 };
 
-function showAlert(title, text, icon, callback) {
+function showAlert(title, text, icon, buttonText, callback) {
     Swal.fire({
         title: title,
         html: text,
         icon: icon,
         allowEscapeKey: false,
         allowOutsideClick: false,
-        showConfirmButton: false,
+        showConfirmButton: !!(buttonText),
+        confirmButtonText: buttonText,
     }).then((result) => {
         if (callback)
             callback(result);
@@ -138,4 +168,4 @@ function hideAlert() {
     Swal.close();
 }
 
-export default connect((state) => ({ state }))(Ws);
+export default connect((state) => ({ tasks: state.tasks }))(Ws);
