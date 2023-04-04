@@ -13,6 +13,20 @@ RUN apt-get install -y --no-install-recommends x11-apps
 
 RUN pip3 install laspy tdigest websocket_server
 
+RUN add-apt-repository ppa:mozillateam/ppa
+
+RUN echo $' \n\
+Package: * \n\
+Pin: release o=LP-PPA-mozillateam \n\
+Pin-Priority: 1001 \n\
+ \n\
+Package: firefox \n\
+Pin: version 1:1snap1-0ubuntu2 \n\
+Pin-Priority: -1 \n\
+' | tee /etc/apt/preferences.d/mozilla-firefox
+
+RUN apt-get install firefox -y
+
 RUN mkdir data
 
 RUN echo "cd /root/rosbag-utils && python3 app.py" >> start.sh
