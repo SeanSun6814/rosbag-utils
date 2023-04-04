@@ -10,7 +10,7 @@ fi
 FOLDER="${1:-/}"
 echo -e "Starting rosbag-utils with /data folder: \e[32m${FOLDER}\e[0m"
 
-(sleep 1 && xdg-open http://127.0.0.1:8000 > /dev/null 2>&1) &
+# (sleep 1 && xdg-open http://127.0.0.1:8000 > /dev/null 2>&1) &
 
 docker run \
 -it \
@@ -22,5 +22,4 @@ docker run \
 -e "QT_X11_NO_MITSHM=1" \
 -v "/tmp/.X11-unix:/tmp/.X11-unix:rw" \
 --privileged \
-rosbag-utils:latest \
-/bin/bash -c "cd /root/rosbag-utils && python3 app.py -n"
+rosbag-utils:latest
