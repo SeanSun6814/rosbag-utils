@@ -29,6 +29,6 @@ RUN apt-get install firefox -y
 
 RUN mkdir data
 
-RUN echo "cd /root/rosbag-utils && python3 app.py" >> start.sh
+RUN echo "(xdg-open http://127.0.0.1:8000 > /dev/null 2>&1) & cd /root/rosbag-utils && python3 app.py" >> start.sh
 
 CMD ["sh", "start.sh"]
