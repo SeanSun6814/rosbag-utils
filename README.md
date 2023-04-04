@@ -25,10 +25,11 @@
 ### Linux Installation
 
 1. Install ROS
-2. `pip3 install laspy tdigest websocket_server`
-3. `git clone https://github.com/SeanSun6814/rosbag-utils.git`
-4. `python3 app.py`
-5. _Alternatively: `python3 app.py -n` to don't automatically launch browser_
+2. `sudo apt-get install libgtk-3-dev`
+3. `pip3 install laspy tdigest websocket_server attrdict3 wxPython`
+4. `git clone https://github.com/SeanSun6814/rosbag-utils.git`
+5. `python3 app.py`
+6. _Alternatively: `python3 app.py -n` to don't automatically launch browser_
 
 _Tested on Ubuntu 20.04 with Python3, ROS Noetic, and Google Chrome._
 

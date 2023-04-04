@@ -3,8 +3,7 @@ import server.baglas
 import server.baglas_uncertainty
 import server.bagimg
 import server.measure_trajectory
-import tkinter as tk
-from tkinter import filedialog
+import wx
 import json
 import time
 import server.utils
@@ -62,15 +61,24 @@ def processWebsocketRequest(req, res):
     try:
         print("REQUEST " + req["action"])
         if req["action"] == "OPEN_BAG_TASK":
-            file_names = []
-            root = tk.Tk()
-            root.withdraw()
-            msg = tk.filedialog.askopenfiles(
-                filetypes=[("Rosbag", "*.bag")], initialdir=prev_dir
+            app = wx.App()
+            frame = wx.Frame(None, -1, "win.py")
+            frame.SetSize(0, 0, 200, 50)
+            openFileDialog = wx.FileDialog(
+                frame,
+                "Open Bag Files",
+                prev_dir,
+                "",
+                "Rosbag files (*.bag)|*.bag",
+                wx.FD_OPEN | wx.FD_FILE_MUST_EXIST | wx.FD_MULTIPLE,
             )
-            root.destroy()
-            file_names = [file.name for file in msg]
+            file_names = []
+            userResponse = openFileDialog.ShowModal()
+            if userResponse == wx.ID_OK:
+                file_names = openFileDialog.GetPaths()
             print("SELECTED:", file_names)
+            openFileDialog.Destroy()
+
             if len(file_names) > 0:
                 prev_dir = server.utils.getFolderFromPath(file_names[0])
             sendResult(file_names)
