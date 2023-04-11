@@ -9,8 +9,14 @@
                                     |___/
 ```
 
-![1 (1)](https://user-images.githubusercontent.com/33432158/214935335-cd55eb9f-0621-4fe9-ad81-3fd05969c80a.png)
-![2 (1)](https://user-images.githubusercontent.com/33432158/214935344-a193ef27-ee3a-4dfb-8118-df0a229f38c7.png)
+<p align="center" style="display: flex; justify-content: center;">
+  <img src="https://github.com/SeanSun6814/rosbag-utils/actions/workflows/lint.yml/badge.svg" alt="Build Status">
+    <img src="https://github.com/SeanSun6814/rosbag-utils/actions/workflows/build.yml/badge.svg" alt="Build Status">
+</p>
+
+
+![1](https://user-images.githubusercontent.com/33432158/214935335-cd55eb9f-0621-4fe9-ad81-3fd05969c80a.png)
+![2](https://user-images.githubusercontent.com/33432158/214935344-a193ef27-ee3a-4dfb-8118-df0a229f38c7.png)
 
 # Rosbag-utils
 
