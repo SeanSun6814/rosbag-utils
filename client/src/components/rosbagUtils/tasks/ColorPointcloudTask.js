@@ -3,9 +3,9 @@ import Grid from "@mui/material/Unstable_Grid2";
 import Box from "@mui/material/Box";
 import { FormControl, FormControlLabel, FormGroup, InputLabel, MenuItem, Select, Switch, TextField, Typography } from "@mui/material";
 import { connect, useDispatch } from "react-redux";
-import * as TASK from "../../reducers/task";
-import { getDateTime } from "../../utils/convert";
-import { setPageComplete, setTempTasks } from "../../reducers/status";
+import * as TASK from "../../../reducers/task";
+import { getDateTime } from "../../../utils/convert";
+import { setPageComplete, setTempTasks } from "../../../reducers/status";
 
 let selectedBags, selectedTopics;
 let configGlobal;
