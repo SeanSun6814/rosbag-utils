@@ -17,57 +17,48 @@ const columns = [
 ];
 
 let selectedBags, selectedTopics;
-let mergeBagsGlobal, cropBagsGlobal, cropDataGlobal, autoCropDataGlobal, odometryTopicGlobal;
+let configGlobal;
 
 const BagFilterTask = (props) => {
     const dispatch = useDispatch();
-    const [mergeBags, setMergeBags] = React.useState(false);
-    const [cropBags, setCropBags] = React.useState("MANUAL");
-    const [autoCropData, setAutoCropData] = React.useState({ start: 5, end: 5 });
-    const [odometryTopic, setOdometryTopic] = React.useState("");
-    const [cropData, setCropData] = React.useState([]);
-
-    React.useEffect(() => {
-        if (cropBags === "AUTO" && odometryTopic === "") dispatch(setPageComplete(false));
-        else dispatch(setPageComplete(true));
-    }, [cropBags, odometryTopic, dispatch]);
+    const [config, setConfig] = React.useState({
+        mergeBags: false,
+        cropBags: "MANUAL",
+        autoCropData: { start: 5, end: 5 },
+        odometryTopic: "",
+        cropData: [],
+    });
 
     const handleCropEdit = React.useCallback((params) => {
         const id = params.id;
         const key = params.field;
         const value = params.value;
-        setCropData((prevState) => {
-            const newCropData = [...prevState];
-            const index = newCropData.findIndex((item) => item.id === id);
-            newCropData[index][key] = value;
-            return newCropData;
+        setConfig((prevState) => {
+            const newConfig = { ...prevState };
+            const index = newConfig.cropData.findIndex((item) => item.id === id);
+            newConfig.cropData[index][key] = value;
+            return newConfig;
         });
     }, []);
+
     React.useEffect(() => {
         selectedBags = props.bags.filter((bag) => bag.selected);
     }, [props.bags]);
+
     React.useEffect(() => {
         selectedTopics = Object.keys(props.topics).filter((topic) => props.topics[topic].selected);
     }, [props.topics]);
-    React.useEffect(() => {
-        mergeBagsGlobal = mergeBags;
-    }, [mergeBags]);
-    React.useEffect(() => {
-        cropBagsGlobal = cropBags;
-    }, [cropBags]);
-    React.useEffect(() => {
-        cropDataGlobal = cropData;
-    }, [cropData]);
-    React.useEffect(() => {
-        autoCropDataGlobal = autoCropData;
-    }, [autoCropData]);
-    React.useEffect(() => {
-        odometryTopicGlobal = odometryTopic;
-    }, [odometryTopic]);
 
     React.useEffect(() => {
-        setCropData(() => {
-            return selectedBags.map((bag) => {
+        configGlobal = config;
+        if (config.cropBags === "AUTO" && config.odometryTopic === "") dispatch(setPageComplete(false));
+        else dispatch(setPageComplete(true));
+    }, [config, dispatch]);
+
+    React.useEffect(() => {
+        setConfig((prevState) => {
+            const newConfig = { ...prevState };
+            newConfig.cropData = selectedBags.map((bag) => {
                 return {
                     ...bag,
                     file: bag.path.split("/").pop(),
@@ -75,6 +66,7 @@ const BagFilterTask = (props) => {
                     cropEnd: bag.duration,
                 };
             });
+            return newConfig;
         });
 
         return () => {
@@ -82,18 +74,18 @@ const BagFilterTask = (props) => {
             const targetTopics = selectedTopics;
             const sourcePath = selectedBags[0].path.replace(/\/[^/]+$/, "");
             const exportPath = sourcePath + "/export_" + getDateTime() + "_" + getRandomId() + "/";
-            const filenames = selectedBags.map((bag) => (mergeBagsGlobal ? "Combined.bag" : bag.path.replace(/^.*[\\/]/, "")));
+            const filenames = selectedBags.map((bag) => (configGlobal.mergeBags ? "Combined.bag" : bag.path.replace(/^.*[\\/]/, "")));
             const pathIns = selectedBags.filter((bag) => bag.selected).map((bag) => bag.path);
             const pathOuts = filenames.map((filename) => exportPath + filename);
-            const cropDataSmall = cropDataGlobal.map((bag) => {
+            const cropDataSmall = configGlobal.cropData.map((bag) => {
                 return {
                     cropStart: bag.cropStart,
                     cropEnd: bag.cropEnd,
                 };
             });
             const autoCropDataNum = {
-                start: parseFloat(autoCropDataGlobal.start),
-                end: parseFloat(autoCropDataGlobal.end),
+                start: parseFloat(configGlobal.autoCropData.start),
+                end: parseFloat(configGlobal.autoCropData.end),
             };
             dispatch(
                 setTempTasks([
@@ -101,34 +93,17 @@ const BagFilterTask = (props) => {
                         action: TASK.FILTER_BAG_TASK,
                         pathIn: pathIns,
                         pathOut: pathOuts,
-                        cropType: cropBagsGlobal,
+                        cropType: configGlobal.cropBags,
                         cropData: cropDataSmall,
                         targetTopics,
                         autoCropData: autoCropDataNum,
-                        mergeBags: mergeBagsGlobal,
-                        odometryTopic: odometryTopicGlobal,
+                        mergeBags: configGlobal.mergeBags,
+                        odometryTopic: configGlobal.odometryTopic,
                     },
                 ])
             );
         };
     }, [dispatch]);
-
-    const handleToggleMergeBags = () => {
-        setMergeBags((state) => !state);
-    };
-
-    const handleToggleCropBags = (newState) => {
-        setCropBags(() => newState);
-    };
-
-    const handleAutoCropData = (changes) => {
-        setAutoCropData((prevState) => {
-            return {
-                ...prevState,
-                ...changes,
-            };
-        });
-    };
 
     return (
         <Box sx={{ width: "100%", height: "calc(100vh - 18em)", overflow: "hidden", overflowY: "scroll" }}>
@@ -149,8 +124,8 @@ const BagFilterTask = (props) => {
                     </Typography>
                     <FormGroup>
                         <FormControlLabel
-                            control={<Switch defaultChecked={false} onClick={handleToggleMergeBags} />}
-                            label={mergeBags ? "Enabled" : "Disabled"}
+                            control={<Switch defaultChecked={false} onClick={(event) => setConfig((prevState) => ({ ...prevState, mergeBags: event.target.checked }))} />}
+                            label={config.mergeBags ? "Enabled" : "Disabled"}
                         />
                     </FormGroup>
                     <Typography marginTop={"10px"} fontSize={"1em"}>
@@ -173,13 +148,13 @@ const BagFilterTask = (props) => {
                     </Typography>
                     <FormControl>
                         <RadioGroup defaultValue="MANUAL" name="radio-buttons-group">
-                            <FormControlLabel value="MANUAL" control={<Radio />} label="Manual Cropping" onClick={() => handleToggleCropBags("MANUAL")} />
-                            <FormControlLabel value="AUTO" control={<Radio />} label="Automatic Cropping" onClick={() => handleToggleCropBags("AUTO")} />
+                            <FormControlLabel value="MANUAL" control={<Radio />} label="Manual Cropping" onClick={() => setConfig((prevState) => ({ ...prevState, cropBags: "MANUAL" }))} />
+                            <FormControlLabel value="AUTO" control={<Radio />} label="Automatic Cropping" onClick={() => setConfig((prevState) => ({ ...prevState, cropBags: "AUTO" }))} />
                         </RadioGroup>
                     </FormControl>
-                    {cropBags === "MANUAL" ? (
+                    {config.cropBags === "MANUAL" ? (
                         <div style={{ width: "50vw", height: "50vh" }}>
-                            <DataGrid rows={cropData} columns={columns} onCellEditCommit={handleCropEdit} />
+                            <DataGrid rows={config.cropData} columns={columns} onCellEditCommit={handleCropEdit} />
                         </div>
                     ) : (
                         <Stack direction="column">
@@ -188,7 +163,7 @@ const BagFilterTask = (props) => {
                                 <Select
                                     labelId="demo-simple-select-label"
                                     id="demo-simple-select"
-                                    value={odometryTopic}
+                                    value={config.odometryTopic}
                                     label="Odometry Topic"
                                     onChange={() => { }}
                                 >
@@ -196,7 +171,7 @@ const BagFilterTask = (props) => {
                                         .filter((topic) => props.topics[topic].type === "nav_msgs/Odometry")
                                         .map((topic) => {
                                             return (
-                                                <MenuItem key={topic} value={topic} onClick={() => setOdometryTopic(() => topic)}>
+                                                <MenuItem key={topic} value={topic} onClick={() => setConfig((prevState) => ({ ...prevState, odometryTopic: topic }))}>
                                                     {topic}
                                                 </MenuItem>
                                             );
@@ -207,10 +182,8 @@ const BagFilterTask = (props) => {
                                 sx={{ marginTop: "30px" }}
                                 label="Start Time Margin"
                                 type="number"
-                                value={autoCropData.start}
-                                onChange={(e) => {
-                                    handleAutoCropData({ start: e.target.value });
-                                }}
+                                value={config.autoCropData.start}
+                                onChange={(e) => { setConfig((prevState) => ({ ...prevState, autoCropData: { ...prevState.autoCropData, start: parseFloat(e.target.value) } })); }}
                                 InputLabelProps={{
                                     shrink: true,
                                 }}
@@ -219,10 +192,8 @@ const BagFilterTask = (props) => {
                                 sx={{ marginTop: "30px" }}
                                 label="End Time Margin"
                                 type="number"
-                                value={autoCropData.end}
-                                onChange={(e) => {
-                                    handleAutoCropData({ end: e.target.value });
-                                }}
+                                value={config.autoCropData.end}
+                                onChange={(e) => { setConfig((prevState) => ({ ...prevState, autoCropData: { ...prevState.autoCropData, end: parseFloat(e.target.value) } })); }}
                                 InputLabelProps={{
                                     shrink: true,
                                 }}
@@ -239,3 +210,5 @@ export default connect((state) => ({
     bags: state.bags,
     topics: state.topics,
 }))(BagFilterTask);
+
+

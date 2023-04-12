@@ -45,6 +45,8 @@ export const VIDEO_EXPORT_TASK = "VIDEO_EXPORT_TASK";
 
 export const FILTER_BAG_TASK = "FILTER_BAG_TASK";
 
+export const DATASET_RELEASE_TASK = "DATASET_RELEASE_TASK";
+
 export const MEASURE_TRAJECTORY_TASK = "MEASURE_TRAJECTORY_TASK";
 
 export const makeOpenBagTask = () => ({

@@ -13,6 +13,7 @@ const TaskTypes = (props) => {
     const dispatch = useDispatch();
     const [expanded, setExpanded] = React.useState(false);
     const [filterBagEnabled, setFilterBagEnabled] = React.useState(false);
+    const [datasetReleaseEnabled, setDatasetReleaseEnabled] = React.useState(false);
     const [exportPointcloudEnabled, setExportPointcloudEnabled] = React.useState(false);
     const [exportVideoEnabled, setExportVideoEnabled] = React.useState(false);
     const [measureTrajectoryEnabled, setMeasureTrajectoryEnabled] = React.useState(false);
@@ -24,6 +25,7 @@ const TaskTypes = (props) => {
 
     React.useEffect(() => {
         let filterBagEnabled = true;
+        let datasetReleaseEnabled = true;
         let exportPointcloudEnabled = true;
         let exportVideoEnabled = true;
         let measureTrajectoryEnabled = true;
@@ -43,6 +45,7 @@ const TaskTypes = (props) => {
         });
 
         setFilterBagEnabled(() => filterBagEnabled && numSelected > 0);
+        setDatasetReleaseEnabled(() => datasetReleaseEnabled && numSelected > 0);
         setExportPointcloudEnabled(() => exportPointcloudEnabled && numSelected > 0);
         setExportVideoEnabled(() => exportVideoEnabled && numSelected > 0);
         setMeasureTrajectoryEnabled(() => measureTrajectoryEnabled && numSelected > 0);
@@ -65,6 +68,36 @@ const TaskTypes = (props) => {
                 sx={{ borderRadius: "15px", marginTop: "30px", padding: "15px", paddingBottom: "40px", backgroundColor: "inactive", height: "fit-content" }}
             >
                 <Typography sx={{ fontSize: "2em", textAlign: "center", marginBottom: "15px" }}>Tasks</Typography>
+                <Accordion expanded={expanded === "panel6"} onChange={handleChange("panel6")}>
+                    <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel6bh-content" id="panel6bh-header">
+                        <Grid container>
+                            <Grid item>
+                                <Typography sx={{ fontSize: "1.2em" }}>Dataset Release</Typography>
+                            </Grid>
+                            <Grid item xs>
+                                <Grid container direction="row-reverse">
+                                    <Grid item>
+                                        <Button
+                                            disabled={!datasetReleaseEnabled}
+                                            size="small"
+                                            variant="contained"
+                                            sx={{ marginRight: "10px" }}
+                                            onClick={(e) => {
+                                                buttonHandler(e, TASK.DATASET_RELEASE_TASK);
+                                            }}
+                                            onChange={buttonHandler}
+                                        >
+                                            Add task
+                                        </Button>
+                                    </Grid>
+                                </Grid>
+                            </Grid>
+                        </Grid>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                        <Typography>Export dataset in the format of Azure data release.</Typography>
+                    </AccordionDetails>
+                </Accordion>
                 <Accordion expanded={expanded === "panel1"} onChange={handleChange("panel1")}>
                     <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1bh-content" id="panel1bh-header">
                         <Grid container>
@@ -222,36 +255,6 @@ const TaskTypes = (props) => {
                     </AccordionSummary>
                     <AccordionDetails>
                         <Typography>Color the point cloud according to confidence values! This task needs one <b>super_odometry_msgs/OptimizationStats</b> topic and can color many <b>sensor_msgs/PointCloud2</b> topics.</Typography>
-                    </AccordionDetails>
-                </Accordion>
-                <Accordion expanded={expanded === "panel6"} onChange={handleChange("panel6")}>
-                    <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel6bh-content" id="panel6bh-header">
-                        <Grid container>
-                            <Grid item>
-                                <Typography sx={{ fontSize: "1.2em" }}>Super Odometry</Typography>
-                            </Grid>
-                            <Grid item xs>
-                                <Grid container direction="row-reverse">
-                                    <Grid item>
-                                        <Button
-                                            disabled={!false}
-                                            size="small"
-                                            variant="contained"
-                                            sx={{ marginRight: "10px" }}
-                                            onClick={(e) => {
-                                                buttonHandler(e, TASK.MEASURE_TRAJECTORY_TASK);
-                                            }}
-                                            onChange={buttonHandler}
-                                        >
-                                            Coming soon
-                                        </Button>
-                                    </Grid>
-                                </Grid>
-                            </Grid>
-                        </Grid>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                        <Typography>Run Super Odometry offline. This feature is coming soon!</Typography>
                     </AccordionDetails>
                 </Accordion>
             </Paper>
