@@ -2,11 +2,11 @@ import { Typography } from "@mui/material";
 import React from "react";
 import { connect } from "react-redux";
 import * as TASK from "../../reducers/task";
-import BagFilterTask from "./tasks/BagFilterTask";
-import ExportVideoTask from "./tasks/ExportVideoTask";
-import PointcloudTask from "./tasks/PointcloudTask";
-import MeasureTrajectoryTask from "./tasks/MeasureTrajectoryTask";
-import ColorPointcloudTask from "./tasks/ColorPointcloudTask";
+import BagFilterTask from "./BagFilterTask";
+import ExportVideoTask from "./ExportVideoTask";
+import PointcloudTask from "./PointcloudTask";
+import MeasureTrajectoryTask from "./MeasureTrajectoryTask";
+import ColorPointcloudTask from "./ColorPointcloudTask";
 
 const TaskPage = (props) => {
     let title, page;

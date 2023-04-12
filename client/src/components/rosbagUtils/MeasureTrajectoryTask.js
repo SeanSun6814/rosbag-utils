@@ -2,9 +2,9 @@ import * as React from "react";
 import Box from "@mui/material/Box";
 import { FormControlLabel, FormGroup, Grid, Switch, Typography } from "@mui/material";
 import { connect, useDispatch } from "react-redux";
-import { setPageComplete, setTempTasks } from "../../../reducers/status";
-import * as TASK from "../../../reducers/task";
-import { getDateTime } from "../../../utils/convert";
+import { setPageComplete, setTempTasks } from "../../reducers/status";
+import * as TASK from "../../reducers/task";
+import { getDateTime } from "../../utils/convert";
 
 let selectedBags, selectedTopics;
 let configGlobal;
