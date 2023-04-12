@@ -7,6 +7,7 @@ import ExportVideoTask from "./tasks/ExportVideoTask";
 import PointcloudTask from "./tasks/PointcloudTask";
 import MeasureTrajectoryTask from "./tasks/MeasureTrajectoryTask";
 import ColorPointcloudTask from "./tasks/ColorPointcloudTask";
+import DatasetReleaseTask from "./tasks/DatasetReleaseTask";
 
 const TaskPage = (props) => {
     let title, page;
@@ -40,6 +41,9 @@ const TaskPage = (props) => {
     } else if (props.status.task_type === TASK.MEASURE_TRAJECTORY_TASK) {
         title = "Measure Trajectory Task";
         page = <MeasureTrajectoryTask />;
+    } else if (props.status.task_type === TASK.DATASET_RELEASE_TASK) {
+        title = "Dataset Release Task";
+        page = <DatasetReleaseTask />;
     } else title = "Unknown Task";
     return (
         <div>
