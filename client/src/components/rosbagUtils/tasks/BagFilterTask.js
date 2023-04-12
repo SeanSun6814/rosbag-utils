@@ -4,10 +4,10 @@ import Box from "@mui/material/Box";
 import { FormControl, FormControlLabel, FormGroup, InputLabel, MenuItem, Radio, RadioGroup, Select, Switch, TextField, Typography } from "@mui/material";
 import { connect, useDispatch } from "react-redux";
 import { DataGrid } from "@mui/x-data-grid";
-import { setPageComplete, setTempTasks } from "../../reducers/status";
-import * as TASK from "../../reducers/task";
+import { setPageComplete, setTempTasks } from "../../../reducers/status";
+import * as TASK from "../../../reducers/task";
 import { Stack } from "@mui/system";
-import { getDateTime } from "../../utils/convert";
+import { getDateTime } from "../../../utils/convert";
 
 const columns = [
     { field: "file", headerName: "Files", flex: 2.5, editable: false, sortable: false },
