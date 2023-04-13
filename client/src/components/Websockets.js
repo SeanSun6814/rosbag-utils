@@ -74,7 +74,7 @@ const Ws = ({ children, tasks }) => {
                         `<br><br><a style='color: #3085d6;' target='_blank' href='https://github.com/SeanSun6814/rosbag-utils'>
                     Report issue</a><br>`,
                         "error",
-                        "Continue", null
+                        "Ignore", null
                     );
                 }
             };
