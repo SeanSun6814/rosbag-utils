@@ -24,6 +24,7 @@ def convertBags(datasetName, paths, topics, outPath, link, envInfo, sendProgress
         if cleanTopicName[0] == "_":
             cleanTopicName = cleanTopicName[1:]
         topicPath = outPath + cleanTopicName + "/"
+        topics[topicId]["cleanName"] = cleanTopicName
 
         def sendSubtaskProgress(percentage=None, details=None):
             sendProgress(
@@ -72,7 +73,8 @@ def writeDatasetInfo(datasetName, topics, link, outPath):
     for topicId, value in topics.items():
         topicName = value["name"]
         topicType = value["type"]
-        datasetInfo["datasets"][datasetName]["topics"][topicName] = {
+        cleanName = value["cleanName"]
+        datasetInfo["datasets"][datasetName]["topics"][cleanName] = {
             "type": topicType,
             "id": topicId,
         }
