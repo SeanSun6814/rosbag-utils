@@ -1,55 +1,66 @@
 import * as React from "react";
 import Grid from "@mui/material/Unstable_Grid2";
 import Box from "@mui/material/Box";
-import { FormControl, FormControlLabel, FormGroup, InputLabel, MenuItem, Select, Switch, TextField, Typography } from "@mui/material";
+import { TextField, Typography } from "@mui/material";
 import { connect, useDispatch } from "react-redux";
 import * as TASK from "../../../reducers/task";
 import { getDateTime } from "../../../utils/convert";
 import { setPageComplete, setTempTasks } from "../../../reducers/status";
+import { DataGrid } from "@mui/x-data-grid";
+
+const columns = [
+    { field: "id", headerName: "Topic", flex: 1, editable: false, sortable: false },
+    { field: "type", headerName: "Type", flex: 1, editable: false, sortable: false },
+    { field: "name", headerName: "Name", flex: 1, editable: true, sortable: false },
+];
 
 let selectedBags, selectedTopics;
 let configGlobal;
 
 const PointcloudTask = (props) => {
     const dispatch = useDispatch();
+    const [duplicateWarning, setDuplicateWarning] = React.useState(false);
     const [config, setConfig] = React.useState({
-        collapseAxisEnabled: false,
-        collapseAxis: "X",
-        trimCloudEnabled: false,
-        trimCloud: { xMin: -100, xMax: 100, yMin: -100, yMax: 100, zMin: -100, zMax: 100 },
-        downsampleFactor: 1,
-        maxPointsPerFile: 50000000,
+        azureLink: "",
+        datasetName: "",
+        topicNames: [],
     });
+
+    const handleTableEdit = React.useCallback((params) => {
+        const id = params.id;
+        const key = params.field;
+        const value = params.value;
+        setConfig((prevState) => {
+            const newConfig = { ...prevState };
+            const index = newConfig.topicNames.findIndex((item) => item.id === id);
+            newConfig.topicNames[index][key] = value;
+            return newConfig;
+        });
+    }, []);
 
     React.useEffect(() => {
         dispatch(setPageComplete(true));
         return () => {
             const getRandomId = () => Math.floor(Math.random() * 16534 + 4096).toString(16);
-            const odometryStatsTopicIdx = selectedTopics.findIndex((topic) => props.topics[topic].type === "super_odometry_msgs/OptimizationStats");
-            const targetTopics = selectedTopics.filter((topic, idx) => idx !== odometryStatsTopicIdx);
-            const statsTopic = selectedTopics[odometryStatsTopicIdx];
-            let tempTasks = [];
-
-            targetTopics.forEach((topic) => {
-                const sourcePath = selectedBags[0].path.replace(/\/[^/]+$/, "");
-                const pathIns = selectedBags.filter((bag) => bag.selected).map((bag) => bag.path);
-                const topic_clean_name = topic.replace(/\//g, "_");
-                const filename = (topic_clean_name + "_").replace(/__/g, "_").replace(/_$/g, "").replace(/^_/, "");
-                const pathOut = sourcePath + "/confidence_pointcloud_" + getDateTime() + "_" + getRandomId() + "/" + filename;
-
-                tempTasks.push({
-                    action: TASK.POINTCLOUD_COLOR_TASK,
-                    paths: pathIns,
-                    targetTopic: topic,
-                    odomStatsTopic: statsTopic,
-                    outPathNoExt: pathOut,
-                    maxPointsPerFile: configGlobal.maxPointsPerFile,
-                    collapseAxis: configGlobal.collapseAxisEnabled ? configGlobal.collapseAxis : "",
-                    speed: configGlobal.downsampleFactor,
-                    trimCloud: configGlobal.trimCloudEnabled ? configGlobal.trimCloud : "",
-                });
+            const sourcePath = selectedBags[0].path.replace(/\/[^/]+$/, "");
+            const pathIns = selectedBags.filter((bag) => bag.selected).map((bag) => bag.path);
+            const pathOut = sourcePath + "/dataset_release_" + getDateTime() + "_" + getRandomId() + "/";
+            let topics = {};
+            configGlobal.topicNames.map((topic) => {
+                topics[topic.id] = { name: topic.name, type: topic.type };
             });
-            dispatch(setTempTasks(tempTasks));
+            dispatch(
+                setTempTasks([
+                    {
+                        action: TASK.DATASET_RELEASE_TASK,
+                        datasetName: configGlobal.datasetName,
+                        topics: topics,
+                        link: configGlobal.azureLink,
+                        pathIn: pathIns,
+                        pathOut: pathOut,
+                    },
+                ])
+            );
         };
     }, [dispatch, props.topics]);
 
@@ -57,60 +68,37 @@ const PointcloudTask = (props) => {
         selectedBags = props.bags.filter((bag) => bag.selected);
     }, [props.bags]);
     React.useEffect(() => {
+        console.log("topics changed", props.topics);
         selectedTopics = Object.keys(props.topics).filter((topic) => props.topics[topic].selected);
+        setConfig((prevState) => {
+            const newConfig = { ...prevState };
+            newConfig.topicNames = selectedTopics.map((topic) => {
+                return {
+                    id: topic,
+                    type: props.topics[topic].type,
+                    name: topic,
+                };
+            });
+            return newConfig;
+        });
     }, [props.topics]);
     React.useEffect(() => {
         configGlobal = config;
-    }, [config]);
+        const dupTopicNames = new Set(config.topicNames.map((topic) => topic.name)).size !== config.topicNames.length;
+        setDuplicateWarning(() => dupTopicNames);
 
+        if (dupTopicNames) {
+            dispatch(setPageComplete(false));
+        } else if (config.azureLink === "") {
+            dispatch(setPageComplete(false));
+        } else if (config.datasetName === "") {
+            dispatch(setPageComplete(false));
+        } else {
+            dispatch(setPageComplete(true));
+        }
 
-    const handleCollapseAxisSwitch = (event) => {
-        setConfig((prev) => {
-            return {
-                ...prev,
-                collapseAxisEnabled: event.target.checked,
-            };
-        });
-    };
+    }, [config, dispatch]);
 
-    const handleTrimCloudSwitch = (event) => {
-        setConfig((prev) => {
-            return {
-                ...prev,
-                trimCloudEnabled: event.target.checked,
-            };
-        });
-    };
-
-    const handleTrimCloudChange = (event, key) => {
-        setConfig((prev) => {
-            return {
-                ...prev,
-                trimCloud: {
-                    ...prev.trimCloud,
-                    [key]: event.target.value,
-                },
-            };
-        });
-    };
-
-    const handleDownsampleFactorChange = (event) => {
-        setConfig((prev) => {
-            return {
-                ...prev,
-                downsampleFactor: event.target.value,
-            };
-        });
-    };
-
-    const handleMaxPointsPerFileChange = (event) => {
-        setConfig((prev) => {
-            return {
-                ...prev,
-                maxPointsPerFile: event.target.value,
-            };
-        });
-    };
 
     return (
         <Box sx={{ width: "100%", height: "calc(100vh - 18em)", overflow: "hidden", overflowY: "scroll" }}>
@@ -127,34 +115,24 @@ const PointcloudTask = (props) => {
                     margin={"35px"}
                 >
                     <Typography marginBottom={"10px"} fontSize={"1.6em"}>
-                        Collapse axis
+                        Dataset Name
                     </Typography>
-                    <Typography marginTop={"10px"} fontSize={"1em"}>
-                        The resulting pointcloud will be flattened in the selected axis.
+                    <Typography marginTop={"10px"} fontSize={"1em"} width={"400px"}>
+                        A unique identifier for this dataset
                     </Typography>
-                    <FormGroup>
-                        <FormControlLabel
-                            control={<Switch defaultChecked={false} onClick={handleCollapseAxisSwitch} />}
-                            label={config.collapseAxisEnabled ? "Enabled" : "Disabled"}
-                        />
-                    </FormGroup>
-                    <FormControl fullWidth sx={{ marginTop: "30px" }} disabled={!config.collapseAxisEnabled}>
-                        <InputLabel id="collapseAxisDropdownLabel">Axis</InputLabel>
-                        <Select labelId="collapseAxisDropdownLabel" id="collapseAxisDropdown" value={config.collapseAxis} label="Axis" onChange={() => { }}>
-                            <MenuItem key={"X"} value={"X"} onClick={() => setConfig((prev) => { return { ...prev, collapseAxis: "X" }; })}>
-                                X
-                            </MenuItem>
-                            <MenuItem key={"Y"} value={"Y"} onClick={() => setConfig((prev) => { return { ...prev, collapseAxis: "Y" }; })}>
-                                Y
-                            </MenuItem>
-                            <MenuItem key={"Z"} value={"Z"} onClick={() => setConfig((prev) => { return { ...prev, collapseAxis: "Z" }; })}>
-                                Z
-                            </MenuItem>
-                        </Select>
-                    </FormControl>
-                </Grid>
-
-                <Grid
+                    <TextField
+                        sx={{ marginTop: "30px" }}
+                        label="Dataset Name"
+                        placeholder="Subt Challenge Canary Dataset"
+                        fullWidth
+                        type="text"
+                        value={config.datasetName}
+                        onChange={(e) => { setConfig((prevState) => ({ ...prevState, datasetName: e.target.value })) }}
+                        InputLabelProps={{
+                            shrink: true,
+                        }}
+                    />
+                </Grid><Grid
                     width={"fit-content"}
                     minWidth={"300px"}
                     height={"fit-content"}
@@ -166,22 +144,19 @@ const PointcloudTask = (props) => {
                     margin={"35px"}
                 >
                     <Typography marginBottom={"10px"} fontSize={"1.6em"}>
-                        Downsample pointcloud
+                        Azure link
                     </Typography>
-                    <Typography marginTop={"10px"} fontSize={"1em"}>
-                        Only include one frame for every how many frames
+                    <Typography marginTop={"10px"} fontSize={"1em"} width={"600px"}>
+                        Make a new folder on Azure and paste the share link here
                     </Typography>
                     <TextField
                         sx={{ marginTop: "30px" }}
-                        label="Downsample Factor"
-                        type="number"
-                        value={config.downsampleFactor}
-                        onChange={(e) => {
-                            handleDownsampleFactorChange(e);
-                        }}
-                        InputProps={{
-                            inputProps: { min: 1 },
-                        }}
+                        label="Azure link"
+                        placeholder="https://..."
+                        fullWidth
+                        type="text"
+                        value={config.azureLink}
+                        onChange={(e) => { setConfig((prevState) => ({ ...prevState, azureLink: e.target.value })) }}
                         InputLabelProps={{
                             shrink: true,
                         }}
@@ -199,130 +174,19 @@ const PointcloudTask = (props) => {
                     margin={"35px"}
                 >
                     <Typography marginBottom={"10px"} fontSize={"1.6em"}>
-                        Split point cloud into multiple files
+                        Topic Names
                     </Typography>
                     <Typography marginTop={"10px"} fontSize={"1em"}>
-                        Max number of points per file (lower = less memory usage while exporting)
+                        Define friendly names that will be displayed in the dataset download app
                     </Typography>
-                    <TextField
-                        sx={{ marginTop: "30px" }}
-                        label="Max points"
-                        type="number"
-                        value={config.maxPointsPerFile}
-                        onChange={(e) => {
-                            handleMaxPointsPerFileChange(e);
-                        }}
-                        InputProps={{
-                            inputProps: { min: 1 },
-                        }}
-                        InputLabelProps={{
-                            shrink: true,
-                        }}
-                    />
-                </Grid>
-                <Grid
-                    width={"fit-content"}
-                    minWidth={"300px"}
-                    height={"fit-content"}
-                    minHeight={"200px"}
-                    padding={"25px"}
-                    borderRadius={"15px"}
-                    boxShadow={"10"}
-                    xs={6}
-                    margin={"35px"}
-                >
-                    <Typography marginBottom={"10px"} fontSize={"1.6em"}>
-                        Trim pointcloud
-                    </Typography>
-                    <Typography marginTop={"10px"} fontSize={"1em"}>
-                        Only export the points within range
-                    </Typography>
-                    <FormGroup>
-                        <FormControlLabel
-                            control={<Switch defaultChecked={false} onClick={handleTrimCloudSwitch} />}
-                            label={config.trimCloudEnabled ? "Enabled" : "Disabled"}
-                        />
-                    </FormGroup>
-                    <TextField
-                        sx={{ marginTop: "30px" }}
-                        label="X Min"
-                        type="number"
-                        value={config.trimCloud.xMin}
-                        onChange={(e) => {
-                            handleTrimCloudChange(e, "xMin");
-                        }}
-                        disabled={!config.trimCloudEnabled}
-                        InputLabelProps={{
-                            shrink: true,
-                        }}
-                    />
-                    <TextField
-                        sx={{ marginTop: "30px", marginLeft: "20px" }}
-                        label="X Max"
-                        type="number"
-                        value={config.trimCloud.xMax}
-                        onChange={(e) => {
-                            handleTrimCloudChange(e, "xMax");
-                        }}
-                        disabled={!config.trimCloudEnabled}
-                        InputLabelProps={{
-                            shrink: true,
-                        }}
-                    />
-                    <br />
-                    <TextField
-                        sx={{ marginTop: "30px" }}
-                        label="Y Min"
-                        type="number"
-                        value={config.trimCloud.yMin}
-                        onChange={(e) => {
-                            handleTrimCloudChange(e, "yMin");
-                        }}
-                        disabled={!config.trimCloudEnabled}
-                        InputLabelProps={{
-                            shrink: true,
-                        }}
-                    />
-                    <TextField
-                        sx={{ marginTop: "30px", marginLeft: "20px" }}
-                        label="Y Max"
-                        type="number"
-                        value={config.trimCloud.yMax}
-                        onChange={(e) => {
-                            handleTrimCloudChange(e, "yMax");
-                        }}
-                        disabled={!config.trimCloudEnabled}
-                        InputLabelProps={{
-                            shrink: true,
-                        }}
-                    />
-                    <br />
-                    <TextField
-                        sx={{ marginTop: "30px" }}
-                        label="Z Min"
-                        type="number"
-                        value={config.trimCloud.zMin}
-                        onChange={(e) => {
-                            handleTrimCloudChange(e, "zMin");
-                        }}
-                        disabled={!config.trimCloudEnabled}
-                        InputLabelProps={{
-                            shrink: true,
-                        }}
-                    />
-                    <TextField
-                        sx={{ marginTop: "30px", marginLeft: "20px" }}
-                        label="Z Max"
-                        type="number"
-                        value={config.trimCloud.zMax}
-                        onChange={(e) => {
-                            handleTrimCloudChange(e, "zMax");
-                        }}
-                        disabled={!config.trimCloudEnabled}
-                        InputLabelProps={{
-                            shrink: true,
-                        }}
-                    />
+                    {(duplicateWarning) ?
+                        <Typography fontSize={"1em"} marginTop={"15px"} color={"orangered"}>
+                            Duplicate topic names are not allowed.
+                        </Typography>
+                        : <div />}
+                    <div style={{ width: "80vw", height: "70vh", marginTop: "15px" }}>
+                        <DataGrid rows={config.topicNames} columns={columns} onCellEditCommit={handleTableEdit} />
+                    </div>
                 </Grid>
             </Grid>
         </Box>

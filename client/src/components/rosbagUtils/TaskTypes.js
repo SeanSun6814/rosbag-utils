@@ -35,6 +35,13 @@ const TaskTypes = (props) => {
         Object.keys(props.topics).forEach((topicName) => {
             const topic = props.topics[topicName];
             if (topic.selected) {
+                if (
+                    topic.type !== "sensor_msgs/Imu" &&
+                    topic.type !== "sensor_msgs/PointCloud2" &&
+                    topic.type !== "sensor_msgs/Image" &&
+                    topic.type !== "nav_msgs/Odometry"
+                )
+                    datasetReleaseEnabled = false;
                 if (topic.type !== "sensor_msgs/PointCloud2") exportPointcloudEnabled = false;
                 if (topic.type !== "sensor_msgs/Image") exportVideoEnabled = false;
                 if (topic.type !== "nav_msgs/Odometry") measureTrajectoryEnabled = false;
