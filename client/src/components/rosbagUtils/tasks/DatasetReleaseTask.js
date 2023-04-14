@@ -59,7 +59,7 @@ const PointcloudTask = (props) => {
             const pathOut = sourcePath + "/dataset_release_" + getDateTime() + "_" + getRandomId() + "/";
             let topics = {};
             configGlobal.topicNames.map((topic) => {
-                topics[topic.id] = topic.name;
+                topics[topic.id] = { name: topic.name, type: topic.type };
             });
             dispatch(
                 setTempTasks([
