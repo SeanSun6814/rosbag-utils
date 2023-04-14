@@ -3,6 +3,7 @@ import server.baglas
 import server.baglas_uncertainty
 import server.bagimg
 import server.measure_trajectory
+import server.dataset_release.index
 import wx
 import json
 import time
@@ -153,6 +154,17 @@ def processWebsocketRequest(req, res):
                 sendProgress,
             )
 
+            sendResult(result)
+        elif req["action"] == "DATASET_RELEASE_TASK":
+            result = server.dataset_release.index.convertBags(
+                req["datasetName"],
+                req["pathIn"],
+                req["topics"],
+                req["pathOut"],
+                req["link"],
+                req,
+                sendProgress,
+            )
             sendResult(result)
         else:
             sendError("Unknown action: " + req["action"])

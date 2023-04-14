@@ -182,7 +182,7 @@ def exportPointCloud(
         "numPoints": totalNumPoints,
         "totalTimeUsed": str((endTime - startTime) * 1e-9),
         "arrayTimeUsed": str(totalArrayTime * 1e-9),
-        "totalTopics": count + 1,
+        "totalMessages": count + 1,
     }
     server.utils.writeResultFile(
         server.utils.getFolderFromPath(outPathNoExt) + "result.json", envInfo, result

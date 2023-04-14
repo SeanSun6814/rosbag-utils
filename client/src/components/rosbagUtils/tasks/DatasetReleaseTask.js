@@ -39,18 +39,6 @@ const PointcloudTask = (props) => {
     }, []);
 
     React.useEffect(() => {
-        setConfig((prevState) => {
-            const newConfig = { ...prevState };
-            newConfig.topicNames = selectedTopics.map((topic) => {
-                return {
-                    id: topic,
-                    type: props.topics[topic].type,
-                    name: topic,
-                };
-            });
-            return newConfig;
-        });
-
         dispatch(setPageComplete(true));
         return () => {
             const getRandomId = () => Math.floor(Math.random() * 16534 + 4096).toString(16);
@@ -67,6 +55,7 @@ const PointcloudTask = (props) => {
                         action: TASK.DATASET_RELEASE_TASK,
                         datasetName: configGlobal.datasetName,
                         topics: topics,
+                        link: configGlobal.azureLink,
                         pathIn: pathIns,
                         pathOut: pathOut,
                     },
@@ -79,7 +68,19 @@ const PointcloudTask = (props) => {
         selectedBags = props.bags.filter((bag) => bag.selected);
     }, [props.bags]);
     React.useEffect(() => {
+        console.log("topics changed", props.topics);
         selectedTopics = Object.keys(props.topics).filter((topic) => props.topics[topic].selected);
+        setConfig((prevState) => {
+            const newConfig = { ...prevState };
+            newConfig.topicNames = selectedTopics.map((topic) => {
+                return {
+                    id: topic,
+                    type: props.topics[topic].type,
+                    name: topic,
+                };
+            });
+            return newConfig;
+        });
     }, [props.topics]);
     React.useEffect(() => {
         configGlobal = config;
