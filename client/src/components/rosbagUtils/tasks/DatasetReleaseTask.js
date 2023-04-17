@@ -19,7 +19,9 @@ let configGlobal;
 
 const PointcloudTask = (props) => {
     const dispatch = useDispatch();
-    const [duplicateWarning, setDuplicateWarning] = React.useState(false);
+    const [topicNameWarning, setTopicNameWarning] = React.useState("");
+    const [datasetNameWarning, setDatasetNameWarning] = React.useState("");
+    const [linkWarning, setLinkWarning] = React.useState("");
     const [config, setConfig] = React.useState({
         azureLink: "",
         datasetName: "",
@@ -76,7 +78,7 @@ const PointcloudTask = (props) => {
                 return {
                     id: topic,
                     type: props.topics[topic].type,
-                    name: topic,
+                    name: topic.replace(/\//g, "_").replace(/^_/, ""),
                 };
             });
             return newConfig;
@@ -85,13 +87,26 @@ const PointcloudTask = (props) => {
     React.useEffect(() => {
         configGlobal = config;
         const dupTopicNames = new Set(config.topicNames.map((topic) => topic.name)).size !== config.topicNames.length;
-        setDuplicateWarning(() => dupTopicNames);
 
-        if (dupTopicNames) {
-            dispatch(setPageComplete(false));
-        } else if (config.azureLink === "") {
-            dispatch(setPageComplete(false));
-        } else if (config.datasetName === "") {
+        const validNameRegex = /^[a-zA-Z][\w]*$/;
+        const validLinkRegex = /^(http:\/\/|https:\/\/)/;
+        const validTopicNames = config.topicNames.every((topic) => validNameRegex.test(topic.name));
+        const validDatasetName = validNameRegex.test(config.datasetName);
+        const validLink = validLinkRegex.test(config.azureLink);
+
+        setDatasetNameWarning(() => "");
+        setDatasetNameWarning((prev) => (!validDatasetName ? "Dataset name must start with a letter and can only contain letters, numbers, and underscores." : prev));
+        setDatasetNameWarning((prev) => (config.datasetName === "" ? "Required" : prev));
+
+        setTopicNameWarning(() => "");
+        setTopicNameWarning((prev) => (!validTopicNames ? "Topic names must start with a letter and can only contain letters, numbers, and underscores." : prev));
+        setTopicNameWarning((prev) => (dupTopicNames ? "Topic names must be unique" : prev));
+
+        setLinkWarning(() => "");
+        setLinkWarning((prev) => (!validLink ? "Invalid link" : prev));
+        setLinkWarning((prev) => (config.azureLink === "" ? "Required" : prev));
+
+        if (dupTopicNames || !validDatasetName || !validTopicNames || !validLink) {
             dispatch(setPageComplete(false));
         } else {
             dispatch(setPageComplete(true));
@@ -120,7 +135,11 @@ const PointcloudTask = (props) => {
                     <Typography marginTop={"10px"} fontSize={"1em"} width={"400px"}>
                         A unique identifier for this dataset
                     </Typography>
-                    <TextField
+                    {datasetNameWarning !== "" && (
+                        <Typography fontSize={"1em"} marginTop={"15px"} color={"orangered"}>
+                            {datasetNameWarning}
+                        </Typography>)}
+                    < TextField
                         sx={{ marginTop: "30px" }}
                         label="Dataset Name"
                         placeholder="Subt Challenge Canary Dataset"
@@ -149,6 +168,9 @@ const PointcloudTask = (props) => {
                     <Typography marginTop={"10px"} fontSize={"1em"} width={"600px"}>
                         Make a new folder on Azure and paste the share link here
                     </Typography>
+                    {linkWarning !== "" && (<Typography fontSize={"1em"} marginTop={"15px"} color={"orangered"}>
+                        {linkWarning}
+                    </Typography>)}
                     <TextField
                         sx={{ marginTop: "30px" }}
                         label="Azure link"
@@ -179,11 +201,9 @@ const PointcloudTask = (props) => {
                     <Typography marginTop={"10px"} fontSize={"1em"}>
                         Define friendly names that will be displayed in the dataset download app
                     </Typography>
-                    {(duplicateWarning) ?
-                        <Typography fontSize={"1em"} marginTop={"15px"} color={"orangered"}>
-                            Duplicate topic names are not allowed.
-                        </Typography>
-                        : <div />}
+                    {topicNameWarning !== "" && (<Typography fontSize={"1em"} marginTop={"15px"} color={"orangered"}>
+                        {topicNameWarning}
+                    </Typography>)}
                     <div style={{ width: "80vw", height: "70vh", marginTop: "15px" }}>
                         <DataGrid rows={config.topicNames} columns={columns} onCellEditCommit={handleTableEdit} />
                     </div>
