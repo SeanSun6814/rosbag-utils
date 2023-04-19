@@ -3,6 +3,28 @@ import time
 import json
 
 
+class FastArr:
+    def __init__(self, shape=(0,), dtype=float):
+        """First item of shape is ingnored, the rest defines the shape"""
+        self.shape = shape
+        self.data = np.zeros((100, *shape[1:]), dtype=dtype)
+        self.capacity = 100
+        self.size = 0
+
+    def update(self, x):
+        if self.size == self.capacity:
+            self.capacity *= 4
+            newdata = np.zeros((self.capacity, *self.data.shape[1:]))
+            newdata[: self.size] = self.data
+            self.data = newdata
+
+        self.data[self.size] = x
+        self.size += 1
+
+    def finalize(self):
+        return self.data[: self.size]
+
+
 def getFolderFromPath(path):
     return path[: path.rfind("/") + 1]
 
@@ -23,7 +45,16 @@ def writeTextFile(path, text):
 
 def writeResultFile(path, envInfo, results):
     envInfo["results"] = results
-    envInfo["taskTimestamp"] = time.strftime(
-        "%Y-%m-%d %H:%M:%S", time.localtime(time.time())
-    )
+    envInfo["taskTimestamp"] = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time()))
     writeTextFile(path, json.dumps(envInfo, indent=4))
+
+
+def getFolderSize(start_path):
+    total_size = 0
+    for dirpath, dirnames, filenames in os.walk(start_path):
+        for f in filenames:
+            fp = os.path.join(dirpath, f)
+            if not os.path.islink(fp):
+                total_size += os.path.getsize(fp)
+
+    return total_size  # in bytes

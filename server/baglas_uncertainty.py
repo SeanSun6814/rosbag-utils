@@ -4,31 +4,9 @@ import numpy as np
 import laspy
 import time
 import os
-import server.utils
+import server.utils as utils
 import random
 import csv
-
-
-class FastArr:
-    def __init__(self, shape=(0,), dtype=float):
-        """First item of shape is ingnored, the rest defines the shape"""
-        self.shape = shape
-        self.data = np.zeros((100, *shape[1:]), dtype=dtype)
-        self.capacity = 100
-        self.size = 0
-
-    def update(self, x):
-        if self.size == self.capacity:
-            self.capacity *= 4
-            newdata = np.zeros((self.capacity, *self.data.shape[1:]))
-            newdata[: self.size] = self.data
-            self.data = newdata
-
-        self.data[self.size] = x
-        self.size += 1
-
-    def finalize(self):
-        return self.data[: self.size]
 
 
 def exportPointCloud(
@@ -48,7 +26,7 @@ def exportPointCloud(
         totalNumPoints += arrayX.size
         filename = outPathNoExt + "_" + str(outFileCount) + ".las"
         print("Writing to " + filename)
-        sendProgress(details="Writing to " + server.utils.getFilenameFromPath(filename))
+        sendProgress(details="Writing to " + utils.getFilenameFromPath(filename))
         header = laspy.LasHeader(version="1.3", point_format=3)
         lasData = laspy.LasData(header)
         lasData.x = arrayX.finalize()
@@ -74,7 +52,7 @@ def exportPointCloud(
             FastArr(),
         )
 
-    server.utils.mkdir(server.utils.getFolderFromPath(outPathNoExt))
+    utils.mkdir(utils.getFolderFromPath(outPathNoExt))
     maxPointsPerFile = int(maxPointsPerFile)
     outFileCount = 0
     totalNumPoints = 0
@@ -88,9 +66,7 @@ def exportPointCloud(
     totalArrayTime = 0
     count = -1
     color_variable = 0
-    with open(
-        server.utils.getFolderFromPath(outPathNoExt) + "uncertainty.csv", "w"
-    ) as file:
+    with open(utils.getFolderFromPath(outPathNoExt) + "uncertainty.csv", "w") as file:
         file.write(
             "timestamp, x_uncertainty, y_uncertainty, z_uncertainty, roll_uncertainty, pitch_uncertainty, yaw_uncertainty\n"
         )
@@ -101,27 +77,20 @@ def exportPointCloud(
             basePercentage = pathIdx * percentProgressPerBag
             sendProgress(
                 percentage=(basePercentage + 0.05 * percentProgressPerBag),
-                details=("Loading " + server.utils.getFilenameFromPath(path)),
+                details=("Loading " + utils.getFilenameFromPath(path)),
             )
             bagIn = rosbag.Bag(path)
             topicsInfo = bagIn.get_type_and_topic_info().topics
             totalMessages = sum(
-                [
-                    topicsInfo[topic].message_count if topic in topicsInfo else 0
-                    for topic in [targetTopic]
-                ]
+                [topicsInfo[topic].message_count if topic in topicsInfo else 0 for topic in [targetTopic]]
             )
             sendProgress(
                 percentage=(basePercentage + 0.1 * percentProgressPerBag),
                 details=("Processing " + str(totalNumPoints) + " points"),
             )
-            sendProgressEveryHowManyMessages = max(
-                random.randint(2, 5), int(totalMessages / (300 / len(paths)))
-            )
+            sendProgressEveryHowManyMessages = max(random.randint(2, 5), int(totalMessages / (300 / len(paths))))
             bagStartCount = count
-            for topic, msg, t in bagIn.read_messages(
-                topics=[targetTopic, odomStatsTopic]
-            ):
+            for topic, msg, t in bagIn.read_messages(topics=[targetTopic, odomStatsTopic]):
                 if topic == odomStatsTopic:
                     color_variable = min(
                         msg.uncertainty_x,
@@ -156,20 +125,13 @@ def exportPointCloud(
                         sendProgress(
                             percentage=(
                                 basePercentage
-                                + ((count - bagStartCount) / totalMessages * 0.89 + 0.1)
-                                * percentProgressPerBag
+                                + ((count - bagStartCount) / totalMessages * 0.89 + 0.1) * percentProgressPerBag
                             ),
-                            details=(
-                                "Processing "
-                                + str(totalNumPoints + arrayX.size)
-                                + " points"
-                            ),
+                            details=("Processing " + str(totalNumPoints + arrayX.size) + " points"),
                         )
 
                     arrayTimeStart = time.time_ns()
-                    for p in pc2.read_points(
-                        msg, field_names=("x", "y", "z"), skip_nans=True
-                    ):
+                    for p in pc2.read_points(msg, field_names=("x", "y", "z"), skip_nans=True):
                         x, y, z = p[0], p[1], p[2]
                         r_value = 1 - color_variable
                         g_value = color_variable
@@ -200,9 +162,7 @@ def exportPointCloud(
 
                     totalArrayTime += time.time_ns() - arrayTimeStart
                     if arrayX.size > maxPointsPerFile:
-                        writeToFile(
-                            arrayX, arrayY, arrayZ, arrayT, arrayR, arrayG, arrayB
-                        )
+                        writeToFile(arrayX, arrayY, arrayZ, arrayT, arrayR, arrayG, arrayB)
                         (
                             arrayX,
                             arrayY,
@@ -227,7 +187,5 @@ def exportPointCloud(
         "arrayTimeUsed": str(totalArrayTime * 1e-9),
         "totalTopics": count + 1,
     }
-    server.utils.writeResultFile(
-        server.utils.getFolderFromPath(outPathNoExt) + "result.json", envInfo, result
-    )
+    utils.writeResultFile(utils.getFolderFromPath(outPathNoExt) + "result.json", envInfo, result)
     return result

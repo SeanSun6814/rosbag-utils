@@ -5,32 +5,11 @@ import numpy as np
 import laspy
 import time
 import csv
-
-
-class FastArr:
-    def __init__(self, shape=(0,), dtype=float):
-        """First item of shape is ingnored, the rest defines the shape"""
-        self.shape = shape
-        self.data = np.zeros((100, *shape[1:]), dtype=dtype)
-        self.capacity = 100
-        self.size = 0
-
-    def update(self, x):
-        if self.size == self.capacity:
-            self.capacity *= 4
-            newdata = np.zeros((self.capacity, *self.data.shape[1:]))
-            newdata[: self.size] = self.data
-            self.data = newdata
-
-        self.data[self.size] = x
-        self.size += 1
-
-    def finalize(self):
-        return self.data[: self.size]
+import server.utils as utils
 
 
 def exportCsv(paths, targetTopic, outPath):
-    time_arr, data_arr = FastArr(), FastArr()
+    time_arr, data_arr = utils.FastArr(), utils.FastArr()
     paths = paths.split("\n")
     print("Exporting csv from " + targetTopic + " to " + outPath)
 

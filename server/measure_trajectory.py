@@ -4,16 +4,14 @@ import json
 import yaml
 import subprocess
 import traceback
-import server.utils
+import server.utils as utils
 import random
 import numpy as np
 import math
 
 
-def measureTrajectory(
-    paths, pathOut, targetTopic, exportPosition, exportVelocity, envInfo, sendProgress
-):
-    server.utils.mkdir(server.utils.getFolderFromPath(pathOut))
+def measureTrajectory(paths, pathOut, targetTopic, exportPosition, exportVelocity, envInfo, sendProgress):
+    utils.mkdir(utils.getFolderFromPath(pathOut))
     firstPos = None
     prevPos = None
     posFile = velFile = None
@@ -34,7 +32,7 @@ def measureTrajectory(
         basePercentage = pathIdx * percentProgressPerBag
         sendProgress(
             percentage=(basePercentage + 0.05 * percentProgressPerBag),
-            details=("Loading " + server.utils.getFilenameFromPath(path)),
+            details=("Loading " + utils.getFilenameFromPath(path)),
         )
         bagIn = rosbag.Bag(path)
         sendProgress(
@@ -42,15 +40,8 @@ def measureTrajectory(
             details=("Processing " + str(count) + " positions"),
         )
         topicsInfo = bagIn.get_type_and_topic_info().topics
-        totalMessages = sum(
-            [
-                topicsInfo[topic].message_count if topic in topicsInfo else 0
-                for topic in [targetTopic]
-            ]
-        )
-        sendProgressEveryHowManyMessages = max(
-            random.randint(77, 97), int(totalMessages / (100 / len(paths)))
-        )
+        totalMessages = sum([topicsInfo[topic].message_count if topic in topicsInfo else 0 for topic in [targetTopic]])
+        sendProgressEveryHowManyMessages = max(random.randint(77, 97), int(totalMessages / (100 / len(paths))))
         bagStartCount = count
         for topic, msg, t in bagIn.read_messages(topics=[targetTopic]):
             timestamp = int(str(t))
@@ -99,21 +90,11 @@ def measureTrajectory(
                     + ","
                     + str((pos["z"] - prevPos["z"]) / (pos["t"] - prevPos["t"]) * 1e9)
                     + ","
-                    + str(
-                        (pos["roll"] - prevPos["roll"])
-                        / (pos["t"] - prevPos["t"])
-                        * 1e9
-                    )
+                    + str((pos["roll"] - prevPos["roll"]) / (pos["t"] - prevPos["t"]) * 1e9)
                     + ","
-                    + str(
-                        (pos["pitch"] - prevPos["pitch"])
-                        / (pos["t"] - prevPos["t"])
-                        * 1e9
-                    )
+                    + str((pos["pitch"] - prevPos["pitch"]) / (pos["t"] - prevPos["t"]) * 1e9)
                     + ","
-                    + str(
-                        (pos["yaw"] - prevPos["yaw"]) / (pos["t"] - prevPos["t"]) * 1e9
-                    )
+                    + str((pos["yaw"] - prevPos["yaw"]) / (pos["t"] - prevPos["t"]) * 1e9)
                     + "\n"
                 )
             length += dist(pos, prevPos)
@@ -124,9 +105,7 @@ def measureTrajectory(
             if count % sendProgressEveryHowManyMessages == 0:
                 sendProgress(
                     percentage=(
-                        basePercentage
-                        + ((count - bagStartCount) / totalMessages * 0.89 + 0.1)
-                        * percentProgressPerBag
+                        basePercentage + ((count - bagStartCount) / totalMessages * 0.89 + 0.1) * percentProgressPerBag
                     ),
                     details=("Processing " + str(count) + " positions"),
                 )
@@ -141,18 +120,14 @@ def measureTrajectory(
         "lastPose": prevPos,
         "returnToOrigin": bool(dist(firstPos, prevPos) < 5),
     }
-    server.utils.writeResultFile(
-        server.utils.getFolderFromPath(pathOut) + "result.json", envInfo, result
-    )
+    utils.writeResultFile(utils.getFolderFromPath(pathOut) + "result.json", envInfo, result)
     return result
 
 
 def dist(a, b):
     if a is None or b is None:
         return 0.0
-    return (
-        ((b["x"] - a["x"]) ** 2) + ((b["y"] - a["y"]) ** 2) + ((b["z"] - a["z"]) ** 2)
-    ) ** (1 / 2)
+    return (((b["x"] - a["x"]) ** 2) + ((b["y"] - a["y"]) ** 2) + ((b["z"] - a["z"]) ** 2)) ** (1 / 2)
 
 
 def quaternion_to_euler(x, y, z, w):

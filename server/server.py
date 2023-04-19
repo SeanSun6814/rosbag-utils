@@ -55,9 +55,7 @@ def startServer(requestOpenBrowser, port):
             else:
                 print("\033[33mPlease open app at 127.0.0.1:" + str(port) + "\033[0m")
         except:
-            print(
-                "Cannot open browser automatically. Please go to 127.0.0.1:" + str(port)
-            )
+            print("Cannot open browser automatically. Please go to 127.0.0.1:" + str(port))
 
     def createServer():
         print("Starting server on 0.0.0.0:" + str(port))

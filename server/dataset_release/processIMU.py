@@ -4,20 +4,18 @@ import json
 import yaml
 import subprocess
 import traceback
-import server.utils
+import server.utils as utils
 import random
 import numpy as np
 import math
 
 
 def processIMU(paths, targetTopic, pathOut, sendProgress):
-    server.utils.mkdir(server.utils.getFolderFromPath(pathOut))
+    utils.mkdir(utils.getFolderFromPath(pathOut))
     count = 0
     percentProgressPerBag = 1 / len(paths)
     with open(pathOut + "/imu_data.csv", "w") as f:
-        f.write(
-            "timestamp, q_x, q_y, q_z, q_w, ang_vel_x, ang_vel_y, ang_vel_z, lin_acc_x, lin_acc_y, lin_acc_z\n"
-        )
+        f.write("timestamp, q_x, q_y, q_z, q_w, ang_vel_x, ang_vel_y, ang_vel_z, lin_acc_x, lin_acc_y, lin_acc_z\n")
         for path, pathIdx in zip(paths, range(len(paths))):
             if path.strip() == "":
                 continue
@@ -25,7 +23,7 @@ def processIMU(paths, targetTopic, pathOut, sendProgress):
             basePercentage = pathIdx * percentProgressPerBag
             sendProgress(
                 percentage=(basePercentage + 0.05 * percentProgressPerBag),
-                details=("Loading " + server.utils.getFilenameFromPath(path)),
+                details=("Loading " + utils.getFilenameFromPath(path)),
             )
             bagIn = rosbag.Bag(path)
             sendProgress(
@@ -34,14 +32,9 @@ def processIMU(paths, targetTopic, pathOut, sendProgress):
             )
             topicsInfo = bagIn.get_type_and_topic_info().topics
             totalMessages = sum(
-                [
-                    topicsInfo[topic].message_count if topic in topicsInfo else 0
-                    for topic in [targetTopic]
-                ]
+                [topicsInfo[topic].message_count if topic in topicsInfo else 0 for topic in [targetTopic]]
             )
-            sendProgressEveryHowManyMessages = max(
-                random.randint(77, 97), int(totalMessages / (100 / len(paths)))
-            )
+            sendProgressEveryHowManyMessages = max(random.randint(77, 97), int(totalMessages / (100 / len(paths))))
             bagStartCount = count
             for topic, msg, t in bagIn.read_messages(topics=[targetTopic]):
                 timestamp = str(t)
@@ -94,13 +87,13 @@ def processIMU(paths, targetTopic, pathOut, sendProgress):
                     sendProgress(
                         percentage=(
                             basePercentage
-                            + ((count - bagStartCount) / totalMessages * 0.89 + 0.1)
-                            * percentProgressPerBag
+                            + ((count - bagStartCount) / totalMessages * 0.89 + 0.1) * percentProgressPerBag
                         ),
                         details=("Processing " + str(count) + " IMU messages"),
                     )
 
     result = {
         "num_messages": count,
+        "size": utils.getFolderSize(pathOut),
     }
     return result
