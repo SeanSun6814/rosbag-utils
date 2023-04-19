@@ -14,7 +14,7 @@ def processOdometry(paths, targetTopic, pathOut, sendProgress):
     server.utils.mkdir(server.utils.getFolderFromPath(pathOut))
     count = 0
     percentProgressPerBag = 1 / len(paths)
-    with open(pathOut + "/odometry_data.txt", "w") as f:
+    with open(pathOut + "/odometry_data.csv", "w") as f:
         f.write("timestamp, x, y, z, q_x, q_y, q_z, q_w\n")
         for path, pathIdx in zip(paths, range(len(paths))):
             if path.strip() == "":
