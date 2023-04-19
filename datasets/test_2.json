@@ -1,0 +1,26 @@
+{
+    "datasets": {
+        "Subt_challenge_cave": {
+            "link": "http://asdfasdf",
+            "isTartanairV2": false,
+            "topics": {
+                "super_odometry": {
+                    "type": "nav_msgs/Odometry",
+                    "id": "/aft_mapped_to_init_imu"
+                },
+                "imu_data": {
+                    "type": "sensor_msgs/Imu",
+                    "id": "/imu/data"
+                },
+                "rs_down_depth_image_filtered": {
+                    "type": "sensor_msgs/Image",
+                    "id": "/rs_down/depth/image_filtered"
+                },
+                "velodyne_cloud_registered_imu": {
+                    "type": "sensor_msgs/PointCloud2",
+                    "id": "/velodyne_cloud_registered_imu"
+                }
+            }
+        }
+    }
+}

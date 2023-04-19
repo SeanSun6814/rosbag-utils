@@ -74,7 +74,10 @@ def processImage(
                     )
 
                 cv_img = np.array(bridge.imgmsg_to_cv2(msg))
-                # print("Writing to ", pathOut + "/" + str(frameCount) + ".png")
+                
+                if "rgb" in msg.encoding.lower():
+                    cv_img = cv2.cvtColor(cv_img, cv2.COLOR_RGB2BGR)
+
                 cv2.imwrite(pathOut + "/" + str(frameCount) + ".png", cv_img)
                 f.write(str(t) + "\n")
 

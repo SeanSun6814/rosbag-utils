@@ -1,0 +1,42 @@
+{
+    "datasets": {
+        "cave_1": {
+            "link": "https://asdf",
+            "isTartanairV2": false,
+            "topics": {
+                "sup_odometry": {
+                    "type": "nav_msgs/Odometry",
+                    "id": "/aft_mapped_to_init"
+                },
+                "aft_mapped_to_init_imu": {
+                    "type": "nav_msgs/Odometry",
+                    "id": "/aft_mapped_to_init_imu"
+                },
+                "imu": {
+                    "type": "sensor_msgs/Imu",
+                    "id": "/imu/data"
+                },
+                "rs_up_depth_image_filtered": {
+                    "type": "sensor_msgs/Image",
+                    "id": "/rs_up/depth/image_filtered"
+                },
+                "image_drop": {
+                    "type": "sensor_msgs/Image",
+                    "id": "/uav_image_drop"
+                },
+                "uav_image_resize_nodelet_image": {
+                    "type": "sensor_msgs/Image",
+                    "id": "/uav_image_resize_nodelet/image"
+                },
+                "velodyne_cloud_registered": {
+                    "type": "sensor_msgs/PointCloud2",
+                    "id": "/velodyne_cloud_registered"
+                },
+                "pointcloud_1": {
+                    "type": "sensor_msgs/PointCloud2",
+                    "id": "/velodyne_cloud_registered_imu"
+                }
+            }
+        }
+    }
+}

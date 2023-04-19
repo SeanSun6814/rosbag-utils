@@ -118,6 +118,8 @@ def exportVideo(
                 rangeVal = maxVal - minVal
                 cv_img = ((cv_img - minVal) / rangeVal * 256).astype("uint8")
                 cv_img = cv2.cvtColor(cv_img, cv2.COLOR_GRAY2RGB)
+            elif "rgb" in msg.encoding.lower():
+                    cv_img = cv2.cvtColor(cv_img, cv2.COLOR_RGB2BGR)
 
             if invertImage:
                 cv_img = cv2.bitwise_not(cv_img)
