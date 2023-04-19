@@ -1,6 +1,7 @@
 import os
 import time
 import json
+import numpy as np
 
 
 class FastArr:

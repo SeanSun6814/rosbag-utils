@@ -65,9 +65,11 @@ def writeDatasetInfo(datasetName, topics, link, outPath):
         topicName = value["name"]
         topicType = value["type"]
         cleanName = value["cleanName"]
+        size = value["size"]
         datasetInfo["datasets"][datasetName]["topics"][cleanName] = {
             "type": topicType,
             "id": topicId,
+            "size": size,
         }
 
     filename = outPath + datasetName + ".json"
