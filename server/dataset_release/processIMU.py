@@ -14,7 +14,7 @@ def processIMU(paths, targetTopic, pathOut, sendProgress):
     server.utils.mkdir(server.utils.getFolderFromPath(pathOut))
     count = 0
     percentProgressPerBag = 1 / len(paths)
-    with open(pathOut + "/imu_data.txt", "w") as f:
+    with open(pathOut + "/imu_data.csv", "w") as f:
         f.write(
             "timestamp, q_x, q_y, q_z, q_w, ang_vel_x, ang_vel_y, ang_vel_z, lin_acc_x, lin_acc_y, lin_acc_z\n"
         )
