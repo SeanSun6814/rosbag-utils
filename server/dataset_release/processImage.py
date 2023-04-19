@@ -74,7 +74,7 @@ def processImage(
                     )
 
                 cv_img = np.array(bridge.imgmsg_to_cv2(msg))
-                
+
                 if "rgb" in msg.encoding.lower():
                     cv_img = cv2.cvtColor(cv_img, cv2.COLOR_RGB2BGR)
 
