@@ -5,7 +5,7 @@ import cv2
 import numpy as np
 import os
 from tdigest import TDigest
-import server.utils
+import server.utils as utils
 import random
 
 font = cv2.FONT_HERSHEY_SIMPLEX
@@ -17,13 +17,8 @@ thickness = 2
 lineType = cv2.LINE_AA
 
 
-def processImage(
-    paths,
-    targetTopic,
-    pathOut,
-    sendProgress,
-):
-    server.utils.mkdir(server.utils.getFolderFromPath(pathOut))
+def processImage(paths, targetTopic, pathOut, sendProgress):
+    utils.mkdir(utils.getFolderFromPath(pathOut))
     print("Exporting images from " + targetTopic + " to " + pathOut)
     print("Input bags: " + str(paths))
 
@@ -39,7 +34,7 @@ def processImage(
             basePercentage = pathIdx * percentProgressPerBag
             sendProgress(
                 percentage=(basePercentage + 0.05 * percentProgressPerBag),
-                details=("Loading " + server.utils.getFilenameFromPath(path)),
+                details=("Loading " + utils.getFilenameFromPath(path)),
             )
             bagIn = rosbag.Bag(path)
             sendProgress(
@@ -48,14 +43,9 @@ def processImage(
             )
             topicsInfo = bagIn.get_type_and_topic_info().topics
             totalMessages = sum(
-                [
-                    topicsInfo[topic].message_count if topic in topicsInfo else 0
-                    for topic in [targetTopic]
-                ]
+                [topicsInfo[topic].message_count if topic in topicsInfo else 0 for topic in [targetTopic]]
             )
-            sendProgressEveryHowManyMessages = max(
-                random.randint(7, 9), int(totalMessages / (300 / len(paths)))
-            )
+            sendProgressEveryHowManyMessages = max(random.randint(7, 9), int(totalMessages / (300 / len(paths))))
             bagStartCount = frameCount
             for topic, msg, t in bagIn.read_messages(topics=[targetTopic]):
                 frameCount += 1
@@ -64,11 +54,7 @@ def processImage(
                     sendProgress(
                         percentage=(
                             basePercentage
-                            + (
-                                (frameCount - bagStartCount + 1) / totalMessages * 0.89
-                                + 0.1
-                            )
-                            * percentProgressPerBag
+                            + ((frameCount - bagStartCount + 1) / totalMessages * 0.89 + 0.1) * percentProgressPerBag
                         ),
                         details=("Processing " + str(frameCount) + " images"),
                     )
@@ -83,5 +69,6 @@ def processImage(
 
     result = {
         "numFrames": frameCount,
+        "size": utils.getFolderSize(pathOut),
     }
     return result

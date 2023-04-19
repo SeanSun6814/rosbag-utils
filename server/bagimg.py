@@ -5,7 +5,7 @@ import cv2
 import numpy as np
 import os
 from tdigest import TDigest
-import server.utils
+import server.utils as utils
 import random
 
 font = cv2.FONT_HERSHEY_SIMPLEX
@@ -32,7 +32,7 @@ def exportVideo(
 ):
     speed = int(speed)
     fps = int(fps)
-    server.utils.mkdir(server.utils.getFolderFromPath(pathOut))
+    utils.mkdir(utils.getFolderFromPath(pathOut))
     print("Exporting video from " + targetTopic + " to " + pathOut)
     print("Input bags: " + str(paths))
 
@@ -54,7 +54,7 @@ def exportVideo(
         basePercentage = pathIdx * percentProgressPerBag
         sendProgress(
             percentage=(basePercentage + 0.05 * percentProgressPerBag),
-            details=("Loading " + server.utils.getFilenameFromPath(path)),
+            details=("Loading " + utils.getFilenameFromPath(path)),
         )
         bagIn = rosbag.Bag(path)
         sendProgress(
@@ -62,15 +62,8 @@ def exportVideo(
             details=("Processing " + str(frameCount + 1) + " images"),
         )
         topicsInfo = bagIn.get_type_and_topic_info().topics
-        totalMessages = sum(
-            [
-                topicsInfo[topic].message_count if topic in topicsInfo else 0
-                for topic in [targetTopic]
-            ]
-        )
-        sendProgressEveryHowManyMessages = max(
-            random.randint(7, 9), int(totalMessages / (300 / len(paths)))
-        )
+        totalMessages = sum([topicsInfo[topic].message_count if topic in topicsInfo else 0 for topic in [targetTopic]])
+        sendProgressEveryHowManyMessages = max(random.randint(7, 9), int(totalMessages / (300 / len(paths))))
         bagStartCount = frameCount
         for topic, msg, t in bagIn.read_messages(topics=[targetTopic]):
             if startTime == -1:
@@ -94,11 +87,7 @@ def exportVideo(
                 sendProgress(
                     percentage=(
                         basePercentage
-                        + (
-                            (frameCount - bagStartCount + 1) / totalMessages * 0.89
-                            + 0.1
-                        )
-                        * percentProgressPerBag
+                        + ((frameCount - bagStartCount + 1) / totalMessages * 0.89 + 0.1) * percentProgressPerBag
                     ),
                     details=("Processing " + str(frameCount) + " images"),
                 )
@@ -177,14 +166,10 @@ def exportVideo(
 
     if rangeFor16Bit is None and is16BitImage:
         for i in range(0, 101, 1):
-            calculated16BitRangePercentages["maxBrightness"][i] = maxDigest.percentile(
-                i
-            )
+            calculated16BitRangePercentages["maxBrightness"][i] = maxDigest.percentile(i)
         print("")
         for i in range(0, 101, 1):
-            calculated16BitRangePercentages["minBrightness"][i] = minDigest.percentile(
-                i
-            )
+            calculated16BitRangePercentages["minBrightness"][i] = minDigest.percentile(i)
 
     video.release()
     if livePreview:
@@ -194,7 +179,5 @@ def exportVideo(
         "numFrames": frameCount,
         "calculated16BitRangePercentages": calculated16BitRangePercentages,
     }
-    server.utils.writeResultFile(
-        server.utils.getFolderFromPath(pathOut) + "result.json", envInfo, result
-    )
+    utils.writeResultFile(utils.getFolderFromPath(pathOut) + "result.json", envInfo, result)
     return result

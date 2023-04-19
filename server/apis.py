@@ -7,7 +7,7 @@ import server.dataset_release.index
 import wx
 import json
 import time
-import server.utils
+import server.utils as utils
 import traceback
 
 progressPercentage = 0
@@ -81,7 +81,7 @@ def processWebsocketRequest(req, res):
             openFileDialog.Destroy()
 
             if len(file_names) > 0:
-                prev_dir = server.utils.getFolderFromPath(file_names[0])
+                prev_dir = utils.getFolderFromPath(file_names[0])
             sendResult(file_names)
         elif req["action"] == "BAG_INFO_TASK":
             path = req["path"]

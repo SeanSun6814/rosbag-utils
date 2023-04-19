@@ -4,7 +4,7 @@ import json
 import yaml
 import subprocess
 import traceback
-import server.utils
+import server.utils as utils
 import random
 
 
@@ -65,7 +65,7 @@ def exportBag(
         progressSoFar += addPercentage / 2
         sendProgress(
             percentage=progressSoFar,
-            details="Loading " + server.utils.getFilenameFromPath(pathIn),
+            details="Loading " + utils.getFilenameFromPath(pathIn),
         )
         bagIn = rosbag.Bag(pathIn)
         progressSoFar += addPercentage / 2
@@ -114,9 +114,7 @@ def exportBag(
         cropTimes = []
         # first set cropStart using the first move time
         for pathIn, idx in zip(pathIns, range(len(pathIns))):
-            bagIn = openBagWithProgress(
-                pathIn, progressPerBag, "Finding first move time"
-            )
+            bagIn = openBagWithProgress(pathIn, progressPerBag, "Finding first move time")
             duration = bagIn.get_end_time() - bagIn.get_start_time()
             firstMoveTime = getFirstMoveTime(bagIn)
             if firstMoveTime >= 0:
@@ -136,9 +134,7 @@ def exportBag(
         progressSoFar = 0.33
         finalPosition = getFinalPosition(pathIns[-1])
         for pathIn, cropTime in zip(pathIns[::-1], cropTimes[::-1]):
-            bagIn = openBagWithProgress(
-                pathIn, progressPerBag, "Finding last move time"
-            )
+            bagIn = openBagWithProgress(pathIn, progressPerBag, "Finding last move time")
             lastMoveTime = getLastMoveTime(bagIn, finalPosition)
             if lastMoveTime >= 0:
                 cropTime["cropEnd"] = lastMoveTime
@@ -151,7 +147,7 @@ def exportBag(
 
     def exportToOneFileUsingManualCropping(pathIns, pathOut, cropTimes):
         nonlocal progressSoFar
-        server.utils.mkdir(server.utils.getFolderFromPath(pathOut))
+        utils.mkdir(utils.getFolderFromPath(pathOut))
         with rosbag.Bag(pathOut, "w") as bagOut:
             for pathIn, cropTime in zip(pathIns, cropTimes):
                 if cropTime["cropStart"] >= cropTime["cropEnd"]:
@@ -160,45 +156,26 @@ def exportBag(
                 bagIn = openBagWithProgress(
                     pathIn,
                     progressPerBag * 0.1,
-                    "Writing to " + server.utils.getFilenameFromPath(pathOut),
+                    "Writing to " + utils.getFilenameFromPath(pathOut),
                 )
-                startTime = rospy.Time.from_sec(
-                    bagIn.get_start_time() + cropTime["cropStart"]
-                )
-                endTime = rospy.Time.from_sec(
-                    bagIn.get_start_time() + cropTime["cropEnd"]
-                )
+                startTime = rospy.Time.from_sec(bagIn.get_start_time() + cropTime["cropStart"])
+                endTime = rospy.Time.from_sec(bagIn.get_start_time() + cropTime["cropEnd"])
                 topicsInfo = bagIn.get_type_and_topic_info().topics
                 totalMessages = sum(
-                    [
-                        topicsInfo[topic].message_count if topic in topicsInfo else 0
-                        for topic in targetTopics
-                    ]
+                    [topicsInfo[topic].message_count if topic in topicsInfo else 0 for topic in targetTopics]
                 )
                 sendProgressEveryHowManyMessages = max(
                     random.randint(87, 97), int(totalMessages / (100 / len(pathIns)))
                 )
                 count = -1
-                for topic, msg, t in bagIn.read_messages(
-                    topics=targetTopics, start_time=startTime, end_time=endTime
-                ):
+                for topic, msg, t in bagIn.read_messages(topics=targetTopics, start_time=startTime, end_time=endTime):
                     bagOut.write(topic, msg, t)
                     count += 1
                     if count % sendProgressEveryHowManyMessages == 0:
-                        progressSoFar += (
-                            progressPerBag
-                            * 0.9
-                            / (totalMessages / sendProgressEveryHowManyMessages)
-                        )
+                        progressSoFar += progressPerBag * 0.9 / (totalMessages / sendProgressEveryHowManyMessages)
                         sendProgress(
                             percentage=progressSoFar,
-                            details=(
-                                "Processing "
-                                + str(count)
-                                + "/"
-                                + str(totalMessages)
-                                + " messages"
-                            ),
+                            details=("Processing " + str(count) + "/" + str(totalMessages) + " messages"),
                         )
                 print("Finished export bag: " + pathIn)
 
@@ -229,10 +206,6 @@ def exportBag(
         exportToSeparateFilesUsingManualCropping(cropTimes)
 
     result = cropTimes
-    server.utils.mkdir(
-        server.utils.getFolderFromPath(pathOuts[0])
-    )  # in the case of all bags are skipped
-    server.utils.writeResultFile(
-        server.utils.getFolderFromPath(pathOuts[0]) + "result.json", envInfo, result
-    )
+    utils.mkdir(utils.getFolderFromPath(pathOuts[0]))  # in the case of all bags are skipped
+    utils.writeResultFile(utils.getFolderFromPath(pathOuts[0]) + "result.json", envInfo, result)
     return result

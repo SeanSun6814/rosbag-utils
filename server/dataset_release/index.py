@@ -2,7 +2,7 @@ from server.dataset_release.processImage import processImage
 from server.dataset_release.processPointcloud import processPointcloud
 from server.dataset_release.processIMU import processIMU
 from server.dataset_release.processOdometry import processOdometry
-import server.utils
+import server.utils as utils
 
 
 def convertBags(datasetName, paths, topics, outPath, link, envInfo, sendProgress):
@@ -14,7 +14,7 @@ def convertBags(datasetName, paths, topics, outPath, link, envInfo, sendProgress
     #     }
     # },
 
-    server.utils.mkdir(outPath)
+    utils.mkdir(outPath)
     result = {}
 
     for topicIndex, (topicId, value) in enumerate(topics.items()):
@@ -33,29 +33,20 @@ def convertBags(datasetName, paths, topics, outPath, link, envInfo, sendProgress
             )
 
         if topicType == "sensor_msgs/Image":
-            result[topicName] = processImage(
-                paths, topicId, topicPath, sendSubtaskProgress
-            )
+            result[topicName] = processImage(paths, topicId, topicPath, sendSubtaskProgress)
         elif topicType == "sensor_msgs/PointCloud2":
-            result[topicName] = processPointcloud(
-                paths, topicId, topicPath, sendSubtaskProgress
-            )
+            result[topicName] = processPointcloud(paths, topicId, topicPath, sendSubtaskProgress)
         elif topicType == "sensor_msgs/Imu":
-            result[topicName] = processIMU(
-                paths, topicId, topicPath, sendSubtaskProgress
-            )
+            result[topicName] = processIMU(paths, topicId, topicPath, sendSubtaskProgress)
         elif topicType == "nav_msgs/Odometry":
-            result[topicName] = processOdometry(
-                paths, topicId, topicPath, sendSubtaskProgress
-            )
+            result[topicName] = processOdometry(paths, topicId, topicPath, sendSubtaskProgress)
         else:
             raise Exception("Unknown topic type: " + topicType)
+        topics[topicId]["size"] = result[topicName]["size"]
 
     writeDatasetInfo(datasetName, topics, link, outPath)
 
-    server.utils.writeResultFile(
-        server.utils.getFolderFromPath(outPath) + "result.json", envInfo, result
-    )
+    utils.writeResultFile(utils.getFolderFromPath(outPath) + "result.json", envInfo, result)
 
     return result
 
@@ -74,14 +65,16 @@ def writeDatasetInfo(datasetName, topics, link, outPath):
         topicName = value["name"]
         topicType = value["type"]
         cleanName = value["cleanName"]
+        size = value["size"]
         datasetInfo["datasets"][datasetName]["topics"][cleanName] = {
             "type": topicType,
             "id": topicId,
+            "size": size,
         }
 
     filename = outPath + datasetName + ".json"
     with open(filename, "w") as f:
-        f.write(server.utils.json.dumps(datasetInfo, indent=4))
+        f.write(utils.json.dumps(datasetInfo, indent=4))
 
 
 # {
@@ -92,15 +85,18 @@ def writeDatasetInfo(datasetName, topics, link, outPath):
 #             "topics": {
 #                 "rgb camera": {
 #                     "type": "sensor_msg/image",
-#                     "id": "/camera_0"
+#                     "id": "/camera_0",
+#                     "size": 1000000
 #                 },
 #                 "thermal camera": {
 #                     "type": "sensor_msg/image",
-#                     "id": "/thermal_image"
+#                     "id": "/thermal_image",
+#                     "size": 1000000
 #                 },
 #                 "imu": {
 #                     "type": "sensor_msg/imu_data",
-#                     "id": "/imu_0"
+#                     "id": "/imu_0",
+#                     "size": 1000000
 #                 }
 #             }
 #         }

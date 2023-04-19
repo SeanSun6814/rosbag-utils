@@ -23,8 +23,7 @@ jobs:
         run: cd client && mv build build1
 
       - name: Build Project
-        run: |
-          cd client && npm i --legacy-peer-deps && npm run build
+        run: cd client && npm i --legacy-peer-deps && npm run build
 
       - name: Check build
         run: cd client && node checkBuild.js

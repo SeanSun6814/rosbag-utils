@@ -4,42 +4,15 @@ import numpy as np
 import laspy
 import time
 import os
-import server.utils
+import server.utils as utils
 import random
 
 
-class FastArr:
-    def __init__(self, shape=(0,), dtype=float):
-        """First item of shape is ingnored, the rest defines the shape"""
-        self.shape = shape
-        self.data = np.zeros((100, *shape[1:]), dtype=dtype)
-        self.capacity = 100
-        self.size = 0
-
-    def update(self, x):
-        if self.size == self.capacity:
-            self.capacity *= 4
-            newdata = np.zeros((self.capacity, *self.data.shape[1:]))
-            newdata[: self.size] = self.data
-            self.data = newdata
-
-        self.data[self.size] = x
-        self.size += 1
-
-    def finalize(self):
-        return self.data[: self.size]
-
-
-def processPointcloud(
-    paths,
-    targetTopic,
-    outPath,
-    sendProgress,
-):
+def processPointcloud(paths, targetTopic, pathOut, sendProgress):
     def writeToFile(arrayX, arrayY, arrayZ, arrayT, arrayR, arrayG, arrayB):
         nonlocal outFileCount, totalNumPoints
         totalNumPoints += arrayX.size
-        filename = outPath + str(outFileCount) + ".las"
+        filename = pathOut + str(outFileCount) + ".las"
         header = laspy.LasHeader(version="1.3", point_format=3)
         lasData = laspy.LasData(header)
         lasData.x = arrayX.finalize()
@@ -55,19 +28,19 @@ def processPointcloud(
 
     def createArrs():
         return (
-            FastArr(),
-            FastArr(),
-            FastArr(),
-            FastArr(),
-            FastArr(),
-            FastArr(),
-            FastArr(),
+            utils.FastArr(),
+            utils.FastArr(),
+            utils.FastArr(),
+            utils.FastArr(),
+            utils.FastArr(),
+            utils.FastArr(),
+            utils.FastArr(),
         )
 
-    server.utils.mkdir(server.utils.getFolderFromPath(outPath))
+    utils.mkdir(utils.getFolderFromPath(pathOut))
     outFileCount = 0
     totalNumPoints = 0
-    print("Exporting point cloud from " + targetTopic + " to " + outPath)
+    print("Exporting point cloud from " + targetTopic + " to " + pathOut)
     print("Input bags: " + str(paths))
     percentProgressPerBag = 1 / len(paths)
 
@@ -75,7 +48,7 @@ def processPointcloud(
     startTime = time.time_ns()
     totalArrayTime = 0
     count = -1
-    with open(outPath + "/timestamps.txt", "w") as f:
+    with open(pathOut + "/timestamps.txt", "w") as f:
         for path, pathIdx in zip(paths, range(len(paths))):
             if path.strip() == "":
                 continue
@@ -83,23 +56,18 @@ def processPointcloud(
             basePercentage = pathIdx * percentProgressPerBag
             sendProgress(
                 percentage=(basePercentage + 0.05 * percentProgressPerBag),
-                details=("Loading " + server.utils.getFilenameFromPath(path)),
+                details=("Loading " + utils.getFilenameFromPath(path)),
             )
             bagIn = rosbag.Bag(path)
             topicsInfo = bagIn.get_type_and_topic_info().topics
             totalMessages = sum(
-                [
-                    topicsInfo[topic].message_count if topic in topicsInfo else 0
-                    for topic in [targetTopic]
-                ]
+                [topicsInfo[topic].message_count if topic in topicsInfo else 0 for topic in [targetTopic]]
             )
             sendProgress(
                 percentage=(basePercentage + 0.1 * percentProgressPerBag),
                 details=("Processing " + str(totalNumPoints) + " points"),
             )
-            sendProgressEveryHowManyMessages = max(
-                random.randint(2, 5), int(totalMessages / (300 / len(paths)))
-            )
+            sendProgressEveryHowManyMessages = max(random.randint(2, 5), int(totalMessages / (300 / len(paths))))
             bagStartCount = count
             for topic, msg, t in bagIn.read_messages(topics=[targetTopic]):
                 count += 1
@@ -108,20 +76,13 @@ def processPointcloud(
                     sendProgress(
                         percentage=(
                             basePercentage
-                            + ((count - bagStartCount) / totalMessages * 0.89 + 0.1)
-                            * percentProgressPerBag
+                            + ((count - bagStartCount) / totalMessages * 0.89 + 0.1) * percentProgressPerBag
                         ),
-                        details=(
-                            "Processing "
-                            + str(totalNumPoints + arrayX.size)
-                            + " points"
-                        ),
+                        details=("Processing " + str(totalNumPoints + arrayX.size) + " points"),
                     )
 
                 arrayTimeStart = time.time_ns()
-                for p in pc2.read_points(
-                    msg, field_names=("x", "y", "z", "rgba"), skip_nans=True
-                ):
+                for p in pc2.read_points(msg, field_names=("x", "y", "z", "rgba"), skip_nans=True):
                     x, y, z = p[0], p[1], p[2]
                     if len(p) > 3:
                         rgb = p[3]
@@ -152,5 +113,6 @@ def processPointcloud(
         "totalTimeUsed": str((endTime - startTime) * 1e-9),
         "arrayTimeUsed": str(totalArrayTime * 1e-9),
         "totalMessages": count + 1,
+        "size": utils.getFolderSize(pathOut),
     }
     return result

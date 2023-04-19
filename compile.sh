@@ -1,5 +1,5 @@
 pip3 install black
-black .
+black --line-length 120 .
 
 cd client
 npm i --legacy-peer-deps
