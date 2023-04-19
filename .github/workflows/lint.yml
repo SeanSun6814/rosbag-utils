@@ -46,5 +46,5 @@ jobs:
           pip3 install black
 
       - name: Run Black
-        run: black --check --verbose .
+        run: black --check --verbose --line-length 120 .
         continue-on-error: false
