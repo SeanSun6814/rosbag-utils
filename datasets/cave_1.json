@@ -10,12 +10,14 @@
                 "aft_mapped_to_init_imu": {
                     "type": "nav_msgs/Odometry",
                     "id": "/aft_mapped_to_init_imu",
-                    "size": 53819
+                    "size": 53819,
+                    "messages": 10
                 },
                 "imu_data": {
                     "type": "sensor_msgs/Imu",
                     "id": "/imu/data",
-                    "size": 3200342
+                    "size": 3200342,
+                    "messages": 20
                 }
             }
         },
@@ -29,12 +31,14 @@
                 "aft_mapped_to_init_imu": {
                     "type": "nav_msgs/Odometry",
                     "id": "/aft_mapped_to_init_imu",
-                    "size": 53819
+                    "size": 53819,
+                    "messages": 30
                 },
                 "imu_data": {
                     "type": "sensor_msgs/Imu",
                     "id": "/imu/data",
-                    "size": 3200342
+                    "size": 3200342,
+                    "messages": 40
                 }
             }
         }

@@ -8,6 +8,11 @@ export const addAllTopicsFromBags = (bags) => ({
     bags,
 });
 
+export const addAllTopicsFromDatasets = (datasets) => ({
+    type: "ADD_ALL_TOPICS_FROM_DATASET_ARR",
+    datasets,
+});
+
 export const removeTopic = (name) => ({
     type: "REMOVE_TOPIC",
     name,
@@ -59,6 +64,25 @@ export default (state = [], action) => {
             });
         });
         return newState;
+    } else if (action.type === "ADD_ALL_TOPICS_FROM_DATASET_ARR") {
+        const datasetArr = action.datasets;
+        console.log("RECEIVED_DATASETARR", datasetArr)
+        const newState = { ...state };
+        datasetArr.forEach((dataset) => {
+            Object.keys(dataset.topics).forEach((topic) => {
+                const addTopic = dataset.topics[topic];
+                let newTopic = { name: topic, messages: addTopic.messages, type: addTopic.type, size: addTopic.size, appeared_in_bags: 1, selected: false };
+                if (newState[topic]) {
+                    const oldTopic = newState[topic];
+                    newTopic.messages = oldTopic.messages + addTopic.messages;
+                    if (oldTopic.type !== addTopic.type) newTopic.type = oldTopic.type + ", " + addTopic.type;
+                    newTopic.appeared_in_bags = oldTopic.appeared_in_bags + 1;
+                    newTopic.size = oldTopic.size + addTopic.size;
+                }
+                newState[newTopic.name] = newTopic;
+            });
+        });
+        return newState;
     } else if (action.type === "SET_SELECTED_TOPICS") {
         const selectedIds = action.selectedIdxs;
         let newState = {};
@@ -75,3 +99,33 @@ export default (state = [], action) => {
         return state;
     }
 };
+
+
+/**
+ * Dataset example:
+ * 
+ * {
+    "id": 4,
+    "selected": true,
+    "name": "cave_3",
+    "link": "https://test3",
+    "isTartanairV2": false,
+    "duration": 200,
+    "messages": 2000,
+    "topics": {
+        "aft_mapped_to_init_imu": {
+            "type": "nav_msgs/Odometry",
+            "id": "/aft_mapped_to_init_imu",
+            "size": 53819,
+            "messages": 30
+        },
+        "imu_data": {
+            "type": "sensor_msgs/Imu",
+            "id": "/imu/data",
+            "size": 3200342,
+            "messages": 40
+        }
+    }
+}
+
+ */

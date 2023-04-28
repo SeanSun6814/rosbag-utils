@@ -3,7 +3,6 @@ import React from "react";
 import { connect, useDispatch } from "react-redux";
 import { setPageComplete, setTempTasks } from "../../reducers/status";
 import { addTask, startTask, stopTask } from "../../reducers/task";
-import TaskTable from "./TaskTable";
 import { Box, Stack } from "@mui/system";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import CancelIcon from "@mui/icons-material/Cancel";
@@ -82,7 +81,6 @@ const FinishPage = (props) => {
     return (
         <Stack direction="row" spacing={2}>
             <div style={{ width: "60%" }}>
-                <TaskTable />
                 <Button
                     startIcon={startedTasks ? <CancelIcon /> : <PlayArrowIcon />}
                     disabled={!startButtonEnabled}

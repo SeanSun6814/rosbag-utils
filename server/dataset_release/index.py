@@ -50,7 +50,7 @@ def convertBags(datasetName, paths, topics, outPath, link, envInfo, sendProgress
     return result
 
 
-def writeDatasetInfo(datasetName, topics, link, outPath):
+def writeDatasetInfo(datasetName, topics, link, outPath, envInfo):
     duration, messages = getDurationAndMessages(envInfo)
     datasetInfo = {
         "datasets": [
@@ -74,6 +74,7 @@ def writeDatasetInfo(datasetName, topics, link, outPath):
             "type": topicType,
             "id": topicId,
             "size": size,
+            "messages": getTopicMessages(topicName, envInfo),
         }
 
     filename = outPath + datasetName + ".json"
@@ -88,6 +89,45 @@ def getDurationAndMessages(envInfo):
         duration += bag["duration"]
         messages += bag["messages"]
     return duration, messages
+
+
+def getTopicMessages(topic, envInfo):
+    bags = envInfo["bags"]
+    messages = 0
+    for bag in bags:
+        if topic in bag["topics"]:
+            messages += bag["topics"][topic]["messages"]
+    return messages
+
+
+# "envInfo": {
+#         "bags": [
+#             {
+#                 "id": 1,
+#                 "selected": true,
+#                 "path": "/home/sean/Documents/airlab/rosbag-utils/testdata/core_2022-11-08-23-16-59_3.bag",
+#                 "size": 1198254564,
+#                 "startTime": 1667967419.405089,
+#                 "endTime": 1667967437.64995,
+#                 "duration": 18.244861,
+#                 "messages": 24111,
+#                 "topics": {
+#                     "/cmu_rc3/aft_mapped_to_init_imu": {
+#                         "name": "/cmu_rc3/aft_mapped_to_init_imu",
+#                         "type": "nav_msgs/Odometry",
+#                         "messages": 91,
+#                         "frequency": 4.987705853171477
+#                     },
+#                     "/cmu_rc3/camera_1/image_raw": {
+#                         "name": "/cmu_rc3/camera_1/image_raw",
+#                         "type": "sensor_msgs/Image",
+#                         "messages": 437,
+#                         "frequency": 23.95195008610918
+#                     }
+#                 }
+#             }
+#         ]
+#     },
 
 
 # {

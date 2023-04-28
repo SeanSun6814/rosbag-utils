@@ -13,10 +13,11 @@ export const addBag = ({ id, path, size, startTime, endTime, duration, messages,
     },
 });
 
-export const addDataset = ({ name, link, isTartanairV2, duration, messages, topics } = {}) => ({
+export const addDataset = ({ id, name, link, isTartanairV2, duration, messages, topics } = {}) => ({
     type: "ADD_BAG",
     bag: {
-        selected: true,
+        id,
+        selected: false,
         name,
         link,
         isTartanairV2,

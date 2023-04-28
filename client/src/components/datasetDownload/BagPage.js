@@ -4,7 +4,7 @@ import { setPageComplete } from "../../reducers/status";
 import { useDispatch, connect } from "react-redux";
 import { addTask, startTask, LOAD_DATASETS_TASK } from "../../reducers/task";
 import BagTable from "./BagTable";
-import { addAllTopicsFromBags, clearTopics } from "../../reducers/topic";
+import { addAllTopicsFromDatasets, clearTopics } from "../../reducers/topic";
 import { clearBags } from "../../reducers/rosbag";
 
 
@@ -17,7 +17,7 @@ const BagPage = (props) => {
         return () => {
             dispatch(setPageComplete(false));
             dispatch(clearTopics());
-            dispatch(addAllTopicsFromBags(selectedBags));
+            dispatch(addAllTopicsFromDatasets(selectedBags));
         };
     }, [dispatch]);
 

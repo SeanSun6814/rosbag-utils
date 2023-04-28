@@ -10,7 +10,8 @@
                 "cmu_rc3_camera_1_image_raw": {
                     "type": "sensor_msgs/Image",
                     "id": "/cmu_rc3/camera_1/image_raw",
-                    "size": 199239510
+                    "size": 199239510,
+                    "messages": 60
                 }
             }
         }

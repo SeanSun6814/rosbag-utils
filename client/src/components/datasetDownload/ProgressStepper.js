@@ -7,7 +7,7 @@ import Button from "@mui/material/Button";
 import { useDispatch, connect } from "react-redux";
 import { setPageNumber } from "../../reducers/status";
 
-const steps = ["Add bags files", "Add message topics", "Add processing tasks", "Finish"];
+const steps = ["Select datasets", "Select topics", "Download options", "Finish"];
 
 const HorizontalLinearStepper = ({ children, status }) => {
     const dispatch = useDispatch();

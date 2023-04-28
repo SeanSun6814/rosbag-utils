@@ -10,7 +10,8 @@
                 "uav_image_drop": {
                     "type": "sensor_msgs/Image",
                     "id": "/uav_image_drop",
-                    "size": 298926930
+                    "size": 298926930,
+                    "messages": 50
                 }
             }
         }

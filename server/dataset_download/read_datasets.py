@@ -15,7 +15,8 @@ def readDatasets():
             if dataset["name"] in datasets:
                 raise Exception("Duplicate dataset name: " + dataset["name"])
             datasets.append(dataset)
-
+    # sort by name
+    datasets.sort(key=lambda x: x["name"])
     print("Found", len(datasets), "datasets")
     cache = datasets
     return datasets
