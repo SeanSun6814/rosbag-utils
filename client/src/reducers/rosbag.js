@@ -13,6 +13,19 @@ export const addBag = ({ id, path, size, startTime, endTime, duration, messages,
     },
 });
 
+export const addDataset = ({ name, link, isTartanairV2, duration, messages, topics } = {}) => ({
+    type: "ADD_BAG",
+    bag: {
+        selected: true,
+        name,
+        link,
+        isTartanairV2,
+        duration,
+        messages,
+        topics,
+    },
+});
+
 export const removeBag = (path) => ({
     type: "REMOVE_BAG",
     path,
@@ -22,6 +35,11 @@ export const setSelectedBags = (selectedIdxs) => ({
     type: "SET_SELECTED_BAGS",
     selectedIdxs,
 });
+
+export const clearBags = () => ({
+    type: "CLEAR_BAGS",
+});
+
 
 export default (state = [], action) => {
     if (action.type === "ADD_BAG") {
@@ -35,6 +53,8 @@ export default (state = [], action) => {
         return state.map((bag, idx) => {
             return { ...bag, selected: idxSelected[idx] };
         });
+    } else if (action.type === "CLEAR_BAGS") {
+        return [];
     } else {
         return state;
     }

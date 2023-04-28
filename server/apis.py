@@ -4,6 +4,7 @@ import server.baglas_uncertainty
 import server.bagimg
 import server.measure_trajectory
 import server.dataset_release.index
+import server.dataset_download.read_datasets
 import wx
 import json
 import time
@@ -165,6 +166,9 @@ def processWebsocketRequest(req, res):
                 req,
                 sendProgress,
             )
+            sendResult(result)
+        elif req["action"] == "LOAD_DATASETS_TASK":
+            result = server.dataset_download.read_datasets.readDatasets()
             sendResult(result)
         else:
             sendError("Unknown action: " + req["action"])

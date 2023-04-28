@@ -44,29 +44,33 @@ def convertBags(datasetName, paths, topics, outPath, link, envInfo, sendProgress
             raise Exception("Unknown topic type: " + topicType)
         topics[topicId]["size"] = result[topicName]["size"]
 
-    writeDatasetInfo(datasetName, topics, link, outPath)
-
+    writeDatasetInfo(datasetName, topics, link, outPath, envInfo)
     utils.writeResultFile(utils.getFolderFromPath(outPath) + "result.json", envInfo, result)
 
     return result
 
 
 def writeDatasetInfo(datasetName, topics, link, outPath):
+    duration, messages = getDurationAndMessages(envInfo)
     datasetInfo = {
-        "datasets": {
-            datasetName: {
+        "datasets": [
+            {
+                "name": datasetName,
                 "link": link,
                 "isTartanairV2": False,
+                "duration": duration,
+                "messages": messages,
                 "topics": {},
             }
-        }
+        ]
     }
+
     for topicId, value in topics.items():
         topicName = value["name"]
         topicType = value["type"]
         cleanName = value["cleanName"]
         size = value["size"]
-        datasetInfo["datasets"][datasetName]["topics"][cleanName] = {
+        datasetInfo["datasets"][0]["topics"][cleanName] = {
             "type": topicType,
             "id": topicId,
             "size": size,
@@ -75,6 +79,15 @@ def writeDatasetInfo(datasetName, topics, link, outPath):
     filename = outPath + datasetName + ".json"
     with open(filename, "w") as f:
         f.write(utils.json.dumps(datasetInfo, indent=4))
+
+
+def getDurationAndMessages(envInfo):
+    bags = envInfo["bags"]
+    duration, messages = 0, 0
+    for bag in bags:
+        duration += bag["duration"]
+        messages += bag["messages"]
+    return duration, messages
 
 
 # {

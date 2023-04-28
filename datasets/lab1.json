@@ -1,0 +1,18 @@
+{
+    "datasets": [
+        {
+            "name": "lab1",
+            "link": "https://lab1",
+            "isTartanairV2": false,
+            "duration": 400,
+            "messages": 4000,
+            "topics": {
+                "cmu_rc3_camera_1_image_raw": {
+                    "type": "sensor_msgs/Image",
+                    "id": "/cmu_rc3/camera_1/image_raw",
+                    "size": 199239510
+                }
+            }
+        }
+    ]
+}

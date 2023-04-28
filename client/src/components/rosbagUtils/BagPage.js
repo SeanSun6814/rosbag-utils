@@ -4,7 +4,7 @@ import AddIcon from "@mui/icons-material/Add";
 import Stack from "@mui/material/Stack";
 import { setBagOpening, setPageComplete } from "../../reducers/status";
 import { useDispatch, connect } from "react-redux";
-import { addTask, startTask, makeOpenBagTask } from "../../reducers/task";
+import { addTask, startTask, OPEN_BAG_TASK } from "../../reducers/task";
 import BagTable from "./BagTable";
 import { addAllTopicsFromBags, clearTopics } from "../../reducers/topic";
 
@@ -16,7 +16,9 @@ const BagPage = (props) => {
 
     const handleClick = () => {
         dispatch(setBagOpening(true));
-        const task = addTask(makeOpenBagTask(), true);
+        const task = addTask({
+            action: OPEN_BAG_TASK,
+        }, true);
         const taskId = task.task.id;
         dispatch(task);
         dispatch(startTask(taskId));

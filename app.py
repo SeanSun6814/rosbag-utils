@@ -1,3 +1,4 @@
+import server.dataset_download.read_datasets
 from server import server, ws_server
 import argparse
 
