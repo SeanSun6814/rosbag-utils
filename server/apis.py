@@ -62,7 +62,20 @@ def processWebsocketRequest(req, res):
 
     try:
         print("REQUEST " + req["action"])
-        if req["action"] == "OPEN_BAG_TASK":
+        if req["action"] == "CHOOSE_FOLDER_TASK":
+            app = wx.App()
+            frame = wx.Frame(None, -1, "win.py")
+            frame.SetSize(0, 0, 200, 50)
+            openFileDialog = wx.DirDialog(frame, "Choose folder", prev_dir, wx.DD_DEFAULT_STYLE | wx.DD_DIR_MUST_EXIST)
+            folder_name = ""
+            userResponse = openFileDialog.ShowModal()
+            if userResponse == wx.ID_OK:
+                folder_name = openFileDialog.GetPath()
+                prev_dir = folder_name
+            print("SELECTED:", folder_name)
+            openFileDialog.Destroy()
+            sendResult(folder_name)
+        elif req["action"] == "OPEN_BAG_TASK":
             app = wx.App()
             frame = wx.Frame(None, -1, "win.py")
             frame.SetSize(0, 0, 200, 50)

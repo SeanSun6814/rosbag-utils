@@ -5,10 +5,12 @@ import { connect, useDispatch } from "react-redux";
 import { setPageComplete, setTempTasks } from "../../reducers/status";
 import * as TASK from "../../reducers/task";
 import { getDateTime } from "../../utils/convert";
-
+import LoadingButton from "@mui/lab/LoadingButton/LoadingButton";
+import FolderIcon from '@mui/icons-material/Folder';
 
 let selectedBags, selectedTopics;
 let configGlobal;
+let taskId = "";
 
 const TaskPage = (props) => {
 
@@ -17,6 +19,7 @@ const TaskPage = (props) => {
         convertToRosbag: true,
         downloadPath: "",
     });
+    const [pathWarning, setPathWarning] = React.useState("");
 
     React.useEffect(() => {
         selectedBags = props.bags.filter((bag) => bag.selected);
@@ -26,6 +29,18 @@ const TaskPage = (props) => {
     }, [props.topics]);
     React.useEffect(() => {
         configGlobal = config;
+        const regex = /^(\/[\w-]+)+$/;
+        const pathValid = regex.test(config.downloadPath);
+        const pathEmpty = config.downloadPath === "";
+
+        setPathWarning(() => "");
+        setPathWarning((prev) => (!pathValid ? "Invalid path" : prev));
+        setPathWarning((prev) => (pathEmpty ? "Required" : prev));
+
+        if (pathEmpty || !pathValid)
+            dispatch(setPageComplete(false));
+        else
+            dispatch(setPageComplete(true));
     }, [config]);
 
     React.useEffect(() => {
@@ -53,6 +68,20 @@ const TaskPage = (props) => {
         };
     }, [dispatch]);
 
+    function handleChooseFolder() {
+        const task = TASK.addTask({ action: TASK.CHOOSE_FOLDER_TASK }, true);
+        taskId = task.task.id;
+        dispatch(task);
+        dispatch(TASK.startTask(taskId));
+    }
+
+    React.useEffect(() => {
+        const task = props.tasks.find((task) => task.id === taskId && task.status === "COMPLETE");
+        if (!task) return;
+        setConfig((config) => ({ ...config, downloadPath: task.result }));
+    }, [props.tasks]);
+
+
     return (
         <div>
             <Typography sx={{ fontSize: "2em" }}>Configure Download Task</Typography>
@@ -72,25 +101,35 @@ const TaskPage = (props) => {
                         <Typography marginBottom={"10px"} fontSize={"1.6em"}>
                             Download location
                         </Typography>
-                        <Typography marginTop={"10px"} fontSize={"1em"} width={"400px"}>
+                        <Typography marginTop={"10px"} fontSize={"1.2em"} width={"400px"}>
                             Where to save the dataset
                         </Typography>
-                        {/* {datasetNameWarning !== "" && (
+                        {pathWarning !== "" && (
                             <Typography fontSize={"1em"} marginTop={"15px"} color={"orangered"}>
-                                {datasetNameWarning}
-                            </Typography>)} */}
-                        <TextField
-                            sx={{ marginTop: "30px" }}
-                            label="Download Path"
-                            placeholder="/home/user/dataset/"
-                            fullWidth
-                            type="text"
-                            value={config.downloadPath}
-                            onChange={(e) => { setConfig((prevState) => ({ ...prevState, downloadPath: e.target.value })) }}
-                            InputLabelProps={{
-                                shrink: true,
-                            }}
-                        />
+                                {pathWarning}
+                            </Typography>)}
+                        {/* put the textfield and the button on the same row */}
+                        <Grid container direction="row" alignItems="center" marginTop={"30px"}>
+                            <Grid width={"400px"}>
+                                <TextField
+                                    sx={{ paddingRight: "10px" }}
+                                    label="Download Path"
+                                    placeholder="/home/user/dataset/"
+                                    fullWidth
+                                    type="text"
+                                    value={config.downloadPath}
+                                    onChange={(e) => { setConfig((prevState) => ({ ...prevState, downloadPath: e.target.value })) }}
+                                    InputLabelProps={{
+                                        shrink: true,
+                                    }}
+                                />
+                            </Grid>
+                            <Grid sx={{ height: "56px" }}>
+                                <LoadingButton loading={props.status.server_busy} variant="contained" size="large" onClick={() => handleChooseFolder()} style={{ height: "100%" }}>
+                                    <FolderIcon />
+                                </LoadingButton>
+                            </Grid>
+                        </Grid>
                     </Grid>
                     <Grid
                         width={"fit-content"}
@@ -123,4 +162,6 @@ const TaskPage = (props) => {
 export default connect((state) => ({
     bags: state.bags,
     topics: state.topics,
+    status: state.status,
+    tasks: state.tasks,
 }))(TaskPage);

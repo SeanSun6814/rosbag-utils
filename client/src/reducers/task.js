@@ -35,6 +35,8 @@ export const clearTasks = () => ({
 
 export const BAG_INFO_TASK = "BAG_INFO_TASK";
 
+export const CHOOSE_FOLDER_TASK = "CHOOSE_FOLDER_TASK";
+
 export const OPEN_BAG_TASK = "OPEN_BAG_TASK";
 
 export const LOAD_DATASETS_TASK = "LOAD_DATASETS_TASK";
