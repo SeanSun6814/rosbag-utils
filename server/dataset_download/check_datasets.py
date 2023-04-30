@@ -25,7 +25,7 @@ def readDatasets():
 
             validate(dataset)
             datasets.append(dataset)
-    # sort by name
+
     datasets.sort(key=lambda x: x["name"])
     print("Found", len(datasets), "datasets")
     cache = datasets
@@ -44,29 +44,15 @@ def walk_dir(root_dir, file_ext):
 
 
 def readJson(path):
-    with open(path, "r") as f:
-        return json.load(f)
+    try:
+        with open(path, "r") as f:
+            return json.load(f)
+    except Exception as e:
+        raise Exception("Invalid JSON file: " + path) from e
 
 
-# readDatasets()
-
-
-# Each dataset JSON file has the following format:
-# {
-#     "datasets": [
-#         {
-#             "name": "cave_1",
-#             "link": "https://asdf",
-#             "isTartanairV2": false,
-#             "topics": {
-#                 "sup_odometry": {
-#                     "type": "nav_msgs/Odometry",
-#                     "id": "/aft_mapped_to_init"
-#                 },
-#                 "aft_mapped_to_init_imu": {
-#                     "type": "nav_msgs/Odometry",
-#                     "id": "/aft_mapped_to_init_imu"
-#                 }
-#         }
-#     ]
-# }
+try:
+    readDatasets()
+except Exception as e:
+    print(e)
+    exit(1)
