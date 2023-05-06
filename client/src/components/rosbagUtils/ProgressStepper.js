@@ -32,7 +32,7 @@ const HorizontalLinearStepper = ({ children, status }) => {
     const enablePrevButton = activeStep !== 0 && activeStep !== steps.length && !status.server_busy;
     if (activeStep === 0) {
         nextButton = "Next";
-        prevButton = "Batch Mode";
+        prevButton = "";
     } else if (activeStep === 1) {
         nextButton = "Next";
         prevButton = "Back";

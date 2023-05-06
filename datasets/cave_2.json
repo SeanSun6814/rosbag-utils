@@ -1,0 +1,19 @@
+{
+    "datasets": [
+        {
+            "name": "cave_2",
+            "link": "https://cave2",
+            "isTartanairV2": false,
+            "duration": 300,
+            "messages": 3000,
+            "topics": {
+                "uav_image_drop": {
+                    "type": "sensor_msgs/Image",
+                    "id": "/uav_image_drop",
+                    "size": 298926930,
+                    "messages": 50
+                }
+            }
+        }
+    ]
+}

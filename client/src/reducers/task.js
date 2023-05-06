@@ -35,7 +35,11 @@ export const clearTasks = () => ({
 
 export const BAG_INFO_TASK = "BAG_INFO_TASK";
 
+export const CHOOSE_FOLDER_TASK = "CHOOSE_FOLDER_TASK";
+
 export const OPEN_BAG_TASK = "OPEN_BAG_TASK";
+
+export const LOAD_DATASETS_TASK = "LOAD_DATASETS_TASK";
 
 export const POINTCLOUD_EXPORT_TASK = "POINTCLOUD_EXPORT_TASK";
 
@@ -48,15 +52,6 @@ export const FILTER_BAG_TASK = "FILTER_BAG_TASK";
 export const DATASET_RELEASE_TASK = "DATASET_RELEASE_TASK";
 
 export const MEASURE_TRAJECTORY_TASK = "MEASURE_TRAJECTORY_TASK";
-
-export const makeOpenBagTask = () => ({
-    action: OPEN_BAG_TASK,
-});
-
-export const makeBagInfoTask = (path) => ({
-    action: BAG_INFO_TASK,
-    path,
-});
 
 export default (state = [], action) => {
     if (action.type === "ADD_TASK") {

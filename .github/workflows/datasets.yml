@@ -1,0 +1,24 @@
+name: Datasets
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    # The branches below must be a subset of the branches above
+    branches: ["main"]
+
+jobs:
+  build:
+    name: Check Datasets
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Scan datasets for errors
+        run: python3 ./server/dataset_download/check_datasets.py
+

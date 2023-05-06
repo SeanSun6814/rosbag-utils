@@ -13,11 +13,6 @@ export const setPageComplete = (complete) => ({
     complete,
 });
 
-export const setBagOpening = (complete) => ({
-    type: "SET_BAG_OPENING",
-    complete,
-});
-
 export const setPageNumber = (page_number) => ({
     type: "SET_PAGE_NUMBER",
     page_number,
@@ -35,8 +30,6 @@ export default (state = [], action) => {
         return { ...state, server_busy: action.busy };
     } else if (action.type === "SET_PAGE_COMPLETE") {
         return { ...state, page_complete: action.complete };
-    } else if (action.type === "SET_BAG_OPENING") {
-        return { ...state, bag_opening: action.complete };
     } else if (action.type === "SET_PAGE_NUMBER") {
         return { ...state, page_number: action.page_number };
     } else if (action.type === "SET_TASK_TYPE") {

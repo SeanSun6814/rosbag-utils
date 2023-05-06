@@ -16,7 +16,7 @@ import { renderStatus } from "./CellProgressChip";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { removeTask } from "../../reducers/task";
 import { IconButton } from "@mui/material";
-import ModalViewCode from "./ModalViewCode";
+import ModalViewCode from "../ModalViewCode";
 
 const TaskTable = (props) => {
     const dispatch = useDispatch();

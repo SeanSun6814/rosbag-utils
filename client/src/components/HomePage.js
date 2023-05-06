@@ -1,35 +1,37 @@
+import { ThemeContext } from "@emotion/react";
 import { Button, Stack } from "@mui/material";
 import React from "react";
 import TopBar from "./TopBar";
 
-// This has 3 big buttons in the center stacked side by side that leads to the rosbag utils page, download page, and evaulation page
 export default function RosbagUtilsPage() {
+    const theme = React.useContext(ThemeContext);
+    const imageUrl = theme.palette.mode === "light" ? "/home_page_background_light.png" : "/home_page_background_dark.png";
+    const rgba = theme.palette.mode === "light" ? "rgba(255, 255, 255, 0.7)" : "rgba(0, 0, 0, 0)";
+
     return (
         <div style={{
             height: "100vh",
             zIndex: "-10",
-            backgroundImage: "url('/home_page_background.png')",
+            backgroundImage: "url('" + imageUrl + "')",
             backgroundSize: "cover",
             backgroundPosition: "center",
         }}>
-
             <TopBar />
-            <br /><br /><br />
+            <br /><br /><br /><br />
             <center>
                 <div style={{
-                    backgroundColor: "rgba(100, 100, 100, 0.5)",
+                    backgroundColor: rgba,
                     borderRadius: "20px",
                     width: "fit-content",
                     paddingLeft: "20px",
                     paddingRight: "20px",
-                    filter: "brightness(1)"
                 }}>
-                    <h1 style={{ color: "white", fontSize: "50px", fontFamily: "'Montserrat', sans-serif", fontWeight: "bolder" }}>
+                    <h1 style={{ fontSize: "50px", fontFamily: "'Montserrat', sans-serif", fontWeight: "bolder" }}>
                         Welcome to Rosbag Utils</h1>
                 </div>
             </center>
 
-            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "60vh" }}>
+            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", marginTop: "30vh", height: "10vh" }}>
                 <Stack direction="row" spacing={4}>
                     <Button variant="contained" size="large" href="/download">
                         Download Datasets

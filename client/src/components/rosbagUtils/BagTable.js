@@ -12,7 +12,7 @@ import { connect, useDispatch } from "react-redux";
 import * as convert from "../../utils/convert";
 import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 import { setSelectedBags } from "../../reducers/rosbag";
-import ModalViewCode from "./ModalViewCode";
+import ModalViewCode from "../ModalViewCode";
 
 const columns = [
     { field: "id", headerName: "#", flex: 0.5 },

@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useDispatch, connect } from "react-redux";
-import { addBag } from "../reducers/rosbag";
-import { setBagOpening, setServerBusy, setWSConnection } from "../reducers/status";
+import { addBag, addDataset } from "../reducers/rosbag";
+import { setServerBusy, setWSConnection } from "../reducers/status";
 import * as TASK from "../reducers/task";
 import Swal from "sweetalert2";
 
@@ -36,16 +36,21 @@ const Ws = ({ children, tasks }) => {
                 if (message.action === TASK.OPEN_BAG_TASK) {
                     const paths = result;
                     paths.forEach((element) => {
-                        const task = TASK.addTask(TASK.makeBagInfoTask(element), true);
+                        const task = TASK.addTask({
+                            action: TASK.BAG_INFO_TASK,
+                            path: element,
+                        }, true);
                         const taskId = task.task.id;
                         dispatch(task);
                         dispatch(TASK.startTask(taskId));
                     });
-                    if (paths.length === 0) dispatch(setBagOpening(false));
                 } else if (message.action === TASK.BAG_INFO_TASK) {
                     const bagInfo = { ...result };
                     dispatch(addBag(bagInfo));
-                    dispatch(setBagOpening(false));
+                } else if (message.action === TASK.LOAD_DATASETS_TASK) {
+                    result.forEach((bag) => {
+                        dispatch(addDataset(bag));
+                    });
                 }
                 dispatch(setServerBusy(false));
             };
