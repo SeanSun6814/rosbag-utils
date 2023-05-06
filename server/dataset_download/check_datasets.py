@@ -38,7 +38,7 @@ def walk_dir(root_dir, file_ext):
         path = os.path.join(root_dir, item)
         if os.path.isdir(path):
             result.extend(walk_dir(path, file_ext))
-        elif path.endswith(file_ext):
+        elif path.lower().endswith(file_ext):
             result.append(path)
     return result
 

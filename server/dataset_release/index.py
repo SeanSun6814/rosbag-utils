@@ -51,7 +51,7 @@ def convertBags(datasetName, paths, topics, outPath, link, envInfo, sendProgress
 
 
 def writeDatasetInfo(datasetName, topics, link, outPath, envInfo):
-    duration, messages = getDurationAndMessages(envInfo)
+    duration, messages = getDurationAndMessages(envInfo["envInfo"])
     datasetInfo = {
         "datasets": [
             {
@@ -74,7 +74,7 @@ def writeDatasetInfo(datasetName, topics, link, outPath, envInfo):
             "type": topicType,
             "id": topicId,
             "size": size,
-            "messages": getTopicMessages(topicName, envInfo),
+            "messages": getTopicMessages(topicName, envInfo["envInfo"]),
         }
 
     filename = outPath + datasetName + ".json"
