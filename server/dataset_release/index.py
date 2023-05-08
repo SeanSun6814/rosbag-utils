@@ -20,11 +20,11 @@ def convertBags(datasetName, paths, topics, outPath, link, envInfo, sendProgress
     for topicIndex, (topicId, value) in enumerate(topics.items()):
         topicName = value["name"]
         topicType = value["type"]
-        cleanTopicName = topicName.replace("/", "_")
-        if cleanTopicName[0] == "_":
-            cleanTopicName = cleanTopicName[1:]
-        topicPath = outPath + cleanTopicName + "/"
-        topics[topicId]["cleanName"] = cleanTopicName
+        topicName = topicName.replace("/", "_")
+        if topicName[0] == "_":
+            topicName = topicName[1:]
+        topicPath = outPath + topicName + "/"
+        topics[topicId]["name"] = topicName
 
         def sendSubtaskProgress(percentage=None, details=None):
             sendProgress(
@@ -68,13 +68,12 @@ def writeDatasetInfo(datasetName, topics, link, outPath, envInfo):
     for topicId, value in topics.items():
         topicName = value["name"]
         topicType = value["type"]
-        cleanName = value["cleanName"]
         size = value["size"]
-        datasetInfo["datasets"][0]["topics"][cleanName] = {
+        datasetInfo["datasets"][0]["topics"][topicName] = {
             "type": topicType,
             "id": topicId,
             "size": size,
-            "messages": getTopicMessages(topicName, envInfo["envInfo"]),
+            "messages": getTopicMessages(topicId, envInfo["envInfo"]),
         }
 
     filename = outPath + datasetName + ".json"
