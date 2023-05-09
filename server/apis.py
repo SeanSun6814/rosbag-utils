@@ -5,6 +5,7 @@ import server.bagimg
 import server.measure_trajectory
 import server.dataset_release.index
 import server.dataset_download.read_datasets
+import server.dataset_download.azure_download
 import wx
 import json
 import time
@@ -183,6 +184,11 @@ def processWebsocketRequest(req, res):
         elif req["action"] == "LOAD_DATASETS_TASK":
             result = server.dataset_download.read_datasets.readDatasets()
             sendResult(result)
+
+        elif req["action"] == "DOWNLOAD_DATASET_TASK":
+            print(json.dumps(req, indent=4))
+            time.sleep(1)
+            sendResult("Done!")
         else:
             sendError("Unknown action: " + req["action"])
     except Exception as e:

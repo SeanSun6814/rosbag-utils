@@ -37,14 +37,14 @@ const HorizontalLinearStepper = ({ children, status }) => {
         nextButton = "Next";
         prevButton = "Back";
     } else if (activeStep === 2) {
-        nextButton = "Add task";
+        nextButton = "Download";
         prevButton = "Back";
     } else if (activeStep === 3) {
         nextButton = "Finish";
-        prevButton = "Add more tasks";
+        prevButton = "";
     } else if (activeStep === 4) {
         nextButton = "Done";
-        prevButton = "Add more tasks";
+        prevButton = "";
     }
 
     return (

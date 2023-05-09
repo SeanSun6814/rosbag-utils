@@ -4,11 +4,10 @@ import { FormControlLabel, FormGroup, Grid, Switch, TextField, Typography } from
 import { connect, useDispatch } from "react-redux";
 import { setPageComplete, setTempTasks } from "../../reducers/status";
 import * as TASK from "../../reducers/task";
-import { getDateTime } from "../../utils/convert";
 import LoadingButton from "@mui/lab/LoadingButton/LoadingButton";
 import FolderIcon from '@mui/icons-material/Folder';
 
-let selectedBags, selectedTopics;
+let selectedDatasets, selectedTopics;
 let configGlobal;
 let taskId = "";
 
@@ -22,7 +21,7 @@ const TaskPage = (props) => {
     const [pathWarning, setPathWarning] = React.useState("");
 
     React.useEffect(() => {
-        selectedBags = props.bags.filter((bag) => bag.selected);
+        selectedDatasets = props.bags.filter((bag) => bag.selected);
     }, [props.bags]);
     React.useEffect(() => {
         selectedTopics = Object.keys(props.topics).filter((topic) => props.topics[topic].selected);
@@ -47,23 +46,22 @@ const TaskPage = (props) => {
         dispatch(setPageComplete(true));
 
         return () => {
-            const getRandomId = () => Math.floor(Math.random() * 16534 + 4096).toString(16);
-            const targetTopics = selectedTopics;
-            const sourcePath = selectedBags[0].path.replace(/\/[^/]+$/, "");
-            const pathIns = selectedBags.filter((bag) => bag.selected).map((bag) => bag.path);
             let tempTasks = [];
-
-            targetTopics.forEach((topic) => {
-                const exportPath = sourcePath + "/trajectory_" + getDateTime() + "_" + getRandomId() + "/";
-                tempTasks.push({
-                    action: TASK.MEASURE_TRAJECTORY_TASK,
-                    exportPosition: configGlobal.exportPosition,
-                    exportVelocity: configGlobal.exportVelocity,
-                    targetTopic: topic,
-                    pathIns: pathIns,
-                    pathOut: exportPath,
+            selectedDatasets.forEach((dataset) => {
+                selectedTopics.forEach((topic) => {
+                    tempTasks.push({
+                        action: TASK.DOWNLOAD_DATASET_TASK,
+                        dataset: dataset.name,
+                        topic: topic,
+                        outPath: configGlobal.downloadPath,
+                    });
                 });
             });
+
+            // if (convertToRosbag) {
+            //     selectedBags.forEach((bag) => {
+
+            // }
             dispatch(setTempTasks(tempTasks));
         };
     }, [dispatch]);
@@ -108,7 +106,6 @@ const TaskPage = (props) => {
                             <Typography fontSize={"1em"} marginTop={"15px"} color={"orangered"}>
                                 {pathWarning}
                             </Typography>)}
-                        {/* put the textfield and the button on the same row */}
                         <Grid container direction="row" alignItems="center" marginTop={"30px"}>
                             <Grid width={"400px"}>
                                 <TextField

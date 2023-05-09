@@ -21,7 +21,6 @@ const FinishPage = (props) => {
 
     React.useEffect(() => {
         dispatch(setPageComplete(false));
-        console.clear();
     }, [dispatch]);
 
     React.useEffect(() => { }, [props.tasks]);
