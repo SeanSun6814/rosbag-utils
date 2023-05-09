@@ -3,6 +3,7 @@ import sys
 from server.dataset_download.read_datasets import readDatasets
 from server.utils import joinPaths, mkdir
 
+
 def checkAzcopy():
     if not os.path.exists("./azcopy"):
         print("Azcopy not found. Installing Azcopy...")

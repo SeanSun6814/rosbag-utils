@@ -60,6 +60,7 @@ def getFolderSize(start_path):
 
     return total_size  # in bytes
 
+
 def joinPaths(a, b):
     if a[-1] == "/" and b[0] == "/":
         result = a + b[1:]
