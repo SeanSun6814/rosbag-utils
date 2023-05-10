@@ -14,18 +14,6 @@ const FinishPage = (props) => {
     const [statusMessage, setStatusMessage] = React.useState("Not started");
 
     React.useEffect(() => {
-        setTotalTasks(() => props.tasks.filter((task) => task.status === "WAITING" || task.status === "RUNNING").length);
-        props.tasks.forEach((task) => {
-            if (task.status === "WAITING") {
-                const taskId = task.id;
-                dispatch(startTask(taskId));
-            }
-        });
-
-        dispatch(setPageComplete(totalTasks === 0));
-    }, [props.tasks, dispatch]);
-
-    React.useEffect(() => {
         const waitingTasks = props.tasks.filter((task) => task.status === "WAITING");
         const queuedTasks = props.tasks.filter((task) => task.status === "READY");
         const runningTasks = props.tasks.filter((task) => task.status === "RUNNING");
@@ -34,6 +22,7 @@ const FinishPage = (props) => {
         const percentPerTask = totalTasks === 0 ? 0 : 1 / totalTasks;
         const numCompleted = totalTasks - queuedTasks.length - runningTasks.length - waitingTasks.length;
         const percentCompleted = (numCompleted * percentPerTask + runningTaskProgress * percentPerTask) * 100;
+
         setPercentage(() => percentCompleted);
         if (runningTasks.length > 0) {
             setStatusMessage(() => runningTasks[0].progressDetails);
@@ -51,7 +40,15 @@ const FinishPage = (props) => {
         tmpTasks.forEach((task) => {
             dispatch(addTask(task, false));
         });
-        if (tmpTasks.length > 0) dispatch(setTempTasks([]));
+        props.tasks.forEach((task) => {
+            if (task.status === "WAITING") {
+                dispatch(startTask(task.id));
+            }
+        });
+        if (tmpTasks.length > 0) {
+            setTotalTasks(() => tmpTasks.length);
+            dispatch(setTempTasks([]));
+        }
     }, [props.status, dispatch]);
 
     return (
