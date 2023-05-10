@@ -56,11 +56,11 @@ const FinishPage = (props) => {
         <Box alignItems={"center"}>
             <Box width={"90vw"} display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
                 <Stack direction="column" spacing={4} alignItems={"center"}>
-                    <Typography fontSize={"3em"}>Overall Progress</Typography>
-                    <Box width={"20vw"}>
+                    <Typography fontSize={"4em"}>Overall Progress</Typography>
+                    <Box width={"25vw"}>
                         <CircularProgressbar value={percentage} text={`${Math.round(percentage)}%`} />
                     </Box>
-                    <Typography fontSize={"1.5em"}>{statusMessage}</Typography>
+                    <Typography fontSize={"2em"}>{statusMessage}</Typography>
                 </Stack>
             </Box>
         </Box>

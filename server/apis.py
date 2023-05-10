@@ -6,26 +6,24 @@ import server.measure_trajectory
 import server.dataset_release.index
 import server.dataset_download.read_datasets
 import server.dataset_download.azure_download
-import server.rate_limiter
 import wx
 import json
 import time
 import server.utils as utils
 import traceback
+import threading
 
 progressPercentage = 0
 progressDetails = ""
 prev_dir = "/data"
 # prev_dir = "~/Documents/airlab/rosbag-utils/testdata"
 
-rate_limiter = server.rate_limiter.RateLimiter(1 / 4, lambda: True, lambda: False)
-
 
 def processWebsocketRequest(req, res):
     global prev_dir
 
     def sendProgress(percentage=-1, details="", status="RUNNING"):
-        global progressPercentage, progressDetails
+        global progressPercentage, progressDetails, timer
         if percentage == progressPercentage and details == progressDetails:
             return
         if percentage == -1:
@@ -38,7 +36,8 @@ def processWebsocketRequest(req, res):
             details = progressDetails
         else:
             progressDetails = details
-        if rate_limiter.run()():
+
+        def sendProgressMessage():
             res(
                 {
                     "type": "progress",
@@ -49,6 +48,11 @@ def processWebsocketRequest(req, res):
                     "progress": progressPercentage,
                 }
             )
+
+        if "timer" in globals():
+            timer.cancel()
+        timer = threading.Timer(1 / 4, sendProgressMessage)
+        timer.start()
 
     def sendResult(result):
         sendProgress(percentage=1, details="Finished", status="COMPLETE")
@@ -189,10 +193,13 @@ def processWebsocketRequest(req, res):
             sendResult(result)
 
         elif req["action"] == "DOWNLOAD_DATASET_TASK":
-            print(json.dumps(req, indent=4))
-            for i in range(100):
-                time.sleep(0.01)
-                sendProgress(percentage=i / 100, details="Downloading", status="RUNNING")
+            result = server.dataset_download.azure_download.downloadTopic(
+                req["dataset"],
+                req["topic"],
+                req["outPath"],
+                req,
+                sendProgress,
+            )
             sendResult("Done!")
         else:
             sendError("Unknown action: " + req["action"])
