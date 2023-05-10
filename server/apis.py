@@ -6,6 +6,7 @@ import server.measure_trajectory
 import server.dataset_release.index
 import server.dataset_download.read_datasets
 import server.dataset_download.azure_download
+import server.rate_limiter
 import wx
 import json
 import time
@@ -16,6 +17,8 @@ progressPercentage = 0
 progressDetails = ""
 prev_dir = "/data"
 # prev_dir = "~/Documents/airlab/rosbag-utils/testdata"
+
+rate_limiter = server.rate_limiter.RateLimiter(1 / 4, lambda: True, lambda: False)
 
 
 def processWebsocketRequest(req, res):
@@ -35,17 +38,17 @@ def processWebsocketRequest(req, res):
             details = progressDetails
         else:
             progressDetails = details
-        # print("PROGRESS", progressPercentage, details)
-        res(
-            {
-                "type": "progress",
-                "id": req["id"],
-                "action": req["action"],
-                "status": status,
-                "progressDetails": progressDetails,
-                "progress": progressPercentage,
-            }
-        )
+        if rate_limiter.run()():
+            res(
+                {
+                    "type": "progress",
+                    "id": req["id"],
+                    "action": req["action"],
+                    "status": status,
+                    "progressDetails": progressDetails,
+                    "progress": progressPercentage,
+                }
+            )
 
     def sendResult(result):
         sendProgress(percentage=1, details="Finished", status="COMPLETE")
@@ -187,7 +190,9 @@ def processWebsocketRequest(req, res):
 
         elif req["action"] == "DOWNLOAD_DATASET_TASK":
             print(json.dumps(req, indent=4))
-            time.sleep(1)
+            for i in range(100):
+                time.sleep(0.01)
+                sendProgress(percentage=i / 100, details="Downloading", status="RUNNING")
             sendResult("Done!")
         else:
             sendError("Unknown action: " + req["action"])
