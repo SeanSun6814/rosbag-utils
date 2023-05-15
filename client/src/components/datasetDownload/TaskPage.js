@@ -15,7 +15,7 @@ const TaskPage = (props) => {
 
     const dispatch = useDispatch();
     const [config, setConfig] = React.useState({
-        convertToRosbag: true,
+        convertToRosbag: false,
         downloadPath: "",
     });
     const [pathWarning, setPathWarning] = React.useState("");
@@ -146,7 +146,7 @@ const TaskPage = (props) => {
                         </Typography>
                         <FormGroup>
                             <FormControlLabel
-                                control={<Switch defaultChecked={true} onClick={(event) => setConfig({ ...config, convertToRosbag: event.target.checked })} />}
+                                control={<Switch defaultChecked={true} onClick={(event) => setConfig({ ...config, convertToRosbag: event.target.checked })} disabled/>}
                                 label={config.convertToRosbag ? "ROS Bags" : "Individual files"}
                             />
                         </FormGroup>

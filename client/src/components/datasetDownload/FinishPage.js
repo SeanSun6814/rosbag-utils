@@ -29,7 +29,8 @@ const FinishPage = (props) => {
         }
 
         if (numCompleted === totalTasks) {
-            setStatusMessage(() => "Finished");
+            const lastTask = completedTasks[completedTasks.length - 1];
+            setStatusMessage(() => "Downloaded to " + lastTask.config.outPath);
         }
 
         dispatch(setPageComplete(completedTasks.length === props.tasks.length));

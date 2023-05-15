@@ -5,6 +5,7 @@ from server.utils import joinPaths, mkdir, getFolderSize
 import subprocess
 import time
 import re
+from subprocess import Popen, PIPE, CalledProcessError
 
 
 def checkAzcopy():
@@ -24,33 +25,24 @@ def checkAzcopy():
 
 
 def downloadTopic(datasetName, topicName, outPath, envInfo, sendProgress):
-    sendProgress(percentage=0.1, details="Installing azcopy...")
+    sendProgress(percentage=0.5, details="Installing azcopy...")
     checkAzcopy()
     # ./azcopy copy https://tartanairv2.blob.core.windows.net/subtmrs/run_6/system ./downloads --recursive
     dataset = list(filter(lambda x: x["name"] == datasetName, readDatasets()))[0]
-    topicTotalSize = dataset["topics"][topicName]["size"]
     link = joinPaths(dataset["link"], topicName)
-    topicOutPath = joinPaths(outPath, joinPaths(datasetName, topicName))
-    mkdir(topicOutPath)
-    command = "./azcopy copy " + link + " " + topicOutPath + " --recursive"
+    datasetOutPath = joinPaths(outPath, datasetName)
+    mkdir(datasetOutPath)
+    command = "./azcopy copy " + link + " " + datasetOutPath + " --recursive"
     print("Executing", command)
-    process = subprocess.Popen(command, shell=True)
-    sendProgress(
-        details="Downloading " + datasetName + "/" + topicName,
-    )
-    while process.poll() is None:
-        # try:
-        #     output = str(process.stdout.readline())
-        #     percentage_match = re.search(r"(\d+\.\d+)\s+%", output)
-        #     if percentage_match:
-        #         percentage = float(percentage_match.group(1))
-        #         print("PERCENT", percentage)
-        # except Exception as e:
-        #     print(e)
-        #     pass
-        time.sleep(2)
-
-    if process.returncode != 0:
-        raise Exception("Azcopy failed with error code " + str(process.returncode))
-    sendProgress(percentage=1, details="Downloaded " + datasetName + "/" + topicName)
+    sendProgress(percentage=0.1, details="Downloading " + datasetName + "/" + topicName)
+    with Popen(command, shell=True, stdout=PIPE, bufsize=1, universal_newlines=True) as p:
+        for line in p.stdout:
+            print("Downloading", line, end="")  # process line here
+            progress = re.findall(r"(\d+\.\d+)\s%", line)
+            if progress:
+                percentage = float(progress[0]) / 100
+                sendProgress(
+                    percentage=percentage * 0.9 + 0.1,
+                    details="Downloading " + datasetName + "/" + topicName + " [" + str(round(percentage * 100)) + "%]",
+                )
     return {"download": "done!"}
