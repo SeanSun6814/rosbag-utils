@@ -25,7 +25,7 @@ def checkAzcopy():
 
 
 def downloadTopic(datasetName, topicName, outPath, envInfo, sendProgress):
-    sendProgress(percentage=0.5, details="Installing azcopy...")
+    sendProgress(percentage=0.05, details="Installing azcopy...")
     checkAzcopy()
     # ./azcopy copy https://tartanairv2.blob.core.windows.net/subtmrs/run_6/system ./downloads --recursive
     dataset = list(filter(lambda x: x["name"] == datasetName, readDatasets()))[0]
