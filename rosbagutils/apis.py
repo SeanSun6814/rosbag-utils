@@ -1,15 +1,15 @@
-import server.bagfilter
-import server.baglas
-import server.baglas_uncertainty
-import server.bagimg
-import server.measure_trajectory
-import server.dataset_release.index
-import server.dataset_download.read_datasets
-import server.dataset_download.azure_download
+from . import bagfilter
+from . import baglas
+from . import baglas_uncertainty
+from . import bagimg
+from . import measure_trajectory
+from .dataset_release import index as dataset_release
+from .dataset_download import read_datasets
+from .dataset_download import azure_download
+from . import utils
 import wx
 import json
 import time
-import server.utils as utils
 import traceback
 import threading
 
@@ -107,10 +107,10 @@ def processWebsocketRequest(req, res):
             sendResult(file_names)
         elif req["action"] == "BAG_INFO_TASK":
             path = req["path"]
-            msg = server.bagfilter.getBagInfoJson(path)
+            msg = bagfilter.getBagInfoJson(path)
             sendResult(msg)
         elif req["action"] == "FILTER_BAG_TASK":
-            result = server.bagfilter.exportBag(
+            result = bagfilter.exportBag(
                 req["pathIn"],
                 req["pathOut"],
                 req["targetTopics"],
@@ -124,7 +124,7 @@ def processWebsocketRequest(req, res):
             )
             sendResult({"finalCropTimes": result})
         elif req["action"] == "POINTCLOUD_EXPORT_TASK":
-            result = server.baglas.exportPointCloud(
+            result = baglas.exportPointCloud(
                 req["paths"],
                 req["targetTopic"],
                 req["outPathNoExt"],
@@ -137,7 +137,7 @@ def processWebsocketRequest(req, res):
             )
             sendResult(result)
         elif req["action"] == "POINTCLOUD_COLOR_TASK":
-            result = server.baglas_uncertainty.exportPointCloud(
+            result = baglas_uncertainty.exportPointCloud(
                 req["paths"],
                 req["targetTopic"],
                 req["odomStatsTopic"],
@@ -151,7 +151,7 @@ def processWebsocketRequest(req, res):
             )
             sendResult(result)
         elif req["action"] == "VIDEO_EXPORT_TASK":
-            result = server.bagimg.exportVideo(
+            result = bagimg.exportVideo(
                 req["paths"],
                 req["pathOut"],
                 req["targetTopic"],
@@ -166,7 +166,7 @@ def processWebsocketRequest(req, res):
             )
             sendResult(result)
         elif req["action"] == "MEASURE_TRAJECTORY_TASK":
-            result = server.measure_trajectory.measureTrajectory(
+            result = measure_trajectory.measureTrajectory(
                 req["pathIns"],
                 req["pathOut"],
                 req["targetTopic"],
@@ -178,7 +178,7 @@ def processWebsocketRequest(req, res):
 
             sendResult(result)
         elif req["action"] == "DATASET_RELEASE_TASK":
-            result = server.dataset_release.index.convertBags(
+            result = dataset_release.convertBags(
                 req["datasetName"],
                 req["pathIn"],
                 req["topics"],
@@ -189,11 +189,11 @@ def processWebsocketRequest(req, res):
             )
             sendResult(result)
         elif req["action"] == "LOAD_DATASETS_TASK":
-            result = server.dataset_download.read_datasets.readDatasets()
+            result = read_datasets.readDatasets()
             sendResult(result)
 
         elif req["action"] == "DOWNLOAD_DATASET_TASK":
-            result = server.dataset_download.azure_download.downloadTopic(
+            result = azure_download.downloadTopic(
                 req["dataset"],
                 req["topic"],
                 req["outPath"],

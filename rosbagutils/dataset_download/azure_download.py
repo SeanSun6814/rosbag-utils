@@ -1,7 +1,7 @@
 import os
 import sys
-from server.dataset_download.read_datasets import readDatasets
-from server.utils import joinPaths, mkdir, getFolderSize
+from ..dataset_download.read_datasets import readDatasets
+from ..utils import joinPaths, mkdir, getFolderSize
 import subprocess
 import time
 import re

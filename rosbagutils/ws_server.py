@@ -1,6 +1,6 @@
 from websocket_server import WebsocketServer
 from threading import Thread
-from server.apis import processWebsocketRequest
+from .apis import processWebsocketRequest
 import json
 import time
 import uuid

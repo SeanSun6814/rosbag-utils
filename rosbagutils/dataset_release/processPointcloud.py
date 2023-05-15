@@ -4,7 +4,7 @@ import numpy as np
 import laspy
 import time
 import os
-import server.utils as utils
+from .. import utils
 import random
 
 

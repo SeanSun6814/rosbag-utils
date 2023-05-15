@@ -5,7 +5,7 @@ import cv2
 import numpy as np
 import os
 from tdigest import TDigest
-import server.utils as utils
+from .. import utils
 import random
 
 font = cv2.FONT_HERSHEY_SIMPLEX

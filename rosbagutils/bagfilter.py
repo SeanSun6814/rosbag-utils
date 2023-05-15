@@ -4,7 +4,7 @@ import json
 import yaml
 import subprocess
 import traceback
-import server.utils as utils
+from . import utils
 import random
 
 
@@ -13,7 +13,7 @@ def getBagInfoJson(path):
     try:
         print("Getting rosbag info for " + path)
         # info_dict = yaml.load(subprocess.Popen(["rosbag", "info", "--yaml", path], stdout=subprocess.PIPE).communicate()[0], Loader=yaml.FullLoader)
-        info_dict = yaml.load(rosbag.Bag(path, "r")._get_yaml_info())
+        info_dict = yaml.load(rosbag.Bag(path, "r")._get_yaml_info(), Loader=yaml.FullLoader)
         info["size"] = 0
         info["path"] = ""
         info["startTime"] = 0

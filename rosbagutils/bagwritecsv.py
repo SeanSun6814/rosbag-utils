@@ -5,7 +5,7 @@ import numpy as np
 import laspy
 import time
 import csv
-import server.utils as utils
+from . import utils
 
 
 def exportCsv(paths, targetTopic, outPath):

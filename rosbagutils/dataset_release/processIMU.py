@@ -4,7 +4,7 @@ import json
 import yaml
 import subprocess
 import traceback
-import server.utils as utils
+from .. import utils
 import random
 import numpy as np
 import math
