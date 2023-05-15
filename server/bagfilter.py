@@ -9,11 +9,11 @@ import random
 
 
 def getBagInfoJson(path):
+    info = {}
     try:
         print("Getting rosbag info for " + path)
         # info_dict = yaml.load(subprocess.Popen(["rosbag", "info", "--yaml", path], stdout=subprocess.PIPE).communicate()[0], Loader=yaml.FullLoader)
         info_dict = yaml.load(rosbag.Bag(path, "r")._get_yaml_info())
-        info = {}
         info["size"] = 0
         info["path"] = ""
         info["startTime"] = 0
@@ -37,11 +37,12 @@ def getBagInfoJson(path):
                 "frequency": int(t["messages"]) / info["duration"],
             }
         info["topics"] = topics
+        print("Finished getting bag info")
+        return info
     except Exception:
         print("Get bag info ERROR: ")
         traceback.print_exc()
-    print("Finished getting bag info")
-    return info
+        raise Exception("Error getting bag info")
 
 
 def exportBag(
@@ -60,7 +61,7 @@ def exportBag(
     progressPerBag = 1.0 / (len(pathIns)) / (3.0 if cropType == "AUTO" else 1.0)
     progressSoFar = 0.0
 
-    def openBagWithProgress(pathIn, addPercentage=0, detailsThen=""):
+    def openBagWithProgress(pathIn, addPercentage=0.0, detailsThen=""):
         nonlocal progressSoFar
         progressSoFar += addPercentage / 2
         sendProgress(
