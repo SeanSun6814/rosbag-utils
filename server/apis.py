@@ -5,11 +5,13 @@ import server.bagimg
 import server.measure_trajectory
 import server.dataset_release.index
 import server.dataset_download.read_datasets
+import server.dataset_download.azure_download
 import wx
 import json
 import time
 import server.utils as utils
 import traceback
+import threading
 
 progressPercentage = 0
 progressDetails = ""
@@ -21,7 +23,7 @@ def processWebsocketRequest(req, res):
     global prev_dir
 
     def sendProgress(percentage=-1, details="", status="RUNNING"):
-        global progressPercentage, progressDetails
+        global progressPercentage, progressDetails, timer
         if percentage == progressPercentage and details == progressDetails:
             return
         if percentage == -1:
@@ -34,17 +36,23 @@ def processWebsocketRequest(req, res):
             details = progressDetails
         else:
             progressDetails = details
-        # print("PROGRESS", progressPercentage, details)
-        res(
-            {
-                "type": "progress",
-                "id": req["id"],
-                "action": req["action"],
-                "status": status,
-                "progressDetails": progressDetails,
-                "progress": progressPercentage,
-            }
-        )
+
+        def sendProgressMessage():
+            res(
+                {
+                    "type": "progress",
+                    "id": req["id"],
+                    "action": req["action"],
+                    "status": status,
+                    "progressDetails": progressDetails,
+                    "progress": progressPercentage,
+                }
+            )
+
+        if "timer" in globals():
+            timer.cancel()
+        timer = threading.Timer(1 / 4, sendProgressMessage)
+        timer.start()
 
     def sendResult(result):
         sendProgress(percentage=1, details="Finished", status="COMPLETE")
@@ -183,6 +191,16 @@ def processWebsocketRequest(req, res):
         elif req["action"] == "LOAD_DATASETS_TASK":
             result = server.dataset_download.read_datasets.readDatasets()
             sendResult(result)
+
+        elif req["action"] == "DOWNLOAD_DATASET_TASK":
+            result = server.dataset_download.azure_download.downloadTopic(
+                req["dataset"],
+                req["topic"],
+                req["outPath"],
+                req,
+                sendProgress,
+            )
+            sendResult("Done!")
         else:
             sendError("Unknown action: " + req["action"])
     except Exception as e:

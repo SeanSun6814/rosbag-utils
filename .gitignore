@@ -152,6 +152,7 @@ cython_debug/
 
 **/node_modules
 testdata/
+azcopy
 
 # Mac related
 .DS_Store
