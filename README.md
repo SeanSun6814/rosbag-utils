@@ -29,7 +29,7 @@
 
 1. `git clone https://github.com/SeanSun6814/rosbag-utils.git`
 2. `./docker_build.sh`
-3. `./docker_wsl_start.sh` or `./docker_ubuntu_start.sh` or `./docker_mac_start.sh`
+3. `./docker_wsl_start.sh` or `./docker_ubuntu_start.sh`
 
 ### Linux Installation
 
