@@ -6,12 +6,13 @@ sys.path.append(".")  # Add rosbag utils library to path
 
 from rosbagutils import rosbagutils
 
+# Example 1: Get bag info
+
 bagPath = "./testdata/core_2022-11-08-23-16-59_3.bag"
 print(json.dumps(rosbagutils.getBagInfo(bagPath), indent=4))
 
 
-# bagPath = "./testdata/2023-01-11-12-44-56.bag"
-
+# Example 2: Filter bag topics
 
 rosbagutils.filterBag(
     [bagPath],
