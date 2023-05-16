@@ -3,16 +3,41 @@ from ..dataset_release.processPointcloud import processPointcloud
 from ..dataset_release.processIMU import processIMU
 from ..dataset_release.processOdometry import processOdometry
 from .. import utils
+from typing import Dict, List, Tuple, Union, Optional, Any, Callable
 
 
-def convertBags(datasetName, paths, topics, outPath, link, envInfo, sendProgress):
-    # topics is dictionary of dictionaries
-    # "topics": {
-    #     "/cmu_rc3/debug/imu_error_stamp": {
-    #         "name": "/cmu_rc3/debug/imu_error_stamp",
-    #         "type": "std_msgs/Float32"
-    #     }
-    # },
+def convertBags(
+    datasetName: str,
+    paths: Dict[str, str],
+    topics: Dict[str, Dict[str, str]],
+    outPath: str,
+    link: str,
+    envInfo: Dict[str, Any],
+    sendProgress: Callable,
+) -> Dict[str, Any]:
+    """
+    Converts ROS bag files to a dataset.
+
+    Args:
+        datasetName (str): Name of the dataset.
+        paths (Dict[str, str]): Dictionary of paths to the bag files.
+        topics (Dict[str, Dict[str, str]]): Dictionary of dictionaries containing information about the topics to be processed.
+            The keys are the topic names, and the values are dictionaries containing the topic friendly name and type.
+            Example:
+                "topics": {
+                    "/cmu_rc3/debug/imu_error_stamp": {
+                        "name": "robot_imu_error_stamp",
+                        "type": "std_msgs/Float32"
+                    }
+                },
+        outPath (str): Path to the output directory.
+        link (str): Link to the dataset.
+        envInfo (Dict[str, Any]): Dictionary containing environment information.
+        sendProgress (Callable): Function to send progress updates.
+
+    Returns:
+        Dict[str, Any]: Dictionary containing information about the processed topics.
+    """
 
     utils.mkdir(outPath)
     result = {}
@@ -33,24 +58,19 @@ def convertBags(datasetName, paths, topics, outPath, link, envInfo, sendProgress
             )
 
         if topicType == "sensor_msgs/Image":
-            result[topicName] = processImage(
-                paths, topicId, topicPath, sendSubtaskProgress)
+            result[topicName] = processImage(paths, topicId, topicPath, sendSubtaskProgress)
         elif topicType == "sensor_msgs/PointCloud2":
-            result[topicName] = processPointcloud(
-                paths, topicId, topicPath, sendSubtaskProgress)
+            result[topicName] = processPointcloud(paths, topicId, topicPath, sendSubtaskProgress)
         elif topicType == "sensor_msgs/Imu":
-            result[topicName] = processIMU(
-                paths, topicId, topicPath, sendSubtaskProgress)
+            result[topicName] = processIMU(paths, topicId, topicPath, sendSubtaskProgress)
         elif topicType == "nav_msgs/Odometry":
-            result[topicName] = processOdometry(
-                paths, topicId, topicPath, sendSubtaskProgress)
+            result[topicName] = processOdometry(paths, topicId, topicPath, sendSubtaskProgress)
         else:
             raise Exception("Unknown topic type: " + topicType)
         topics[topicId]["size"] = result[topicName]["size"]
 
     writeDatasetInfo(datasetName, topics, link, outPath, envInfo)
-    utils.writeResultFile(utils.getFolderFromPath(
-        outPath) + "result.json", envInfo, result)
+    utils.writeResultFile(utils.getFolderFromPath(outPath) + "result.json", envInfo, result)
 
     return result
 
@@ -112,7 +132,7 @@ def getEnvInfo(paths, topics):
     for idx, path in enumerate(paths):
         bagInfo = utils.readJson(path + "bagInfo.json")
         envInfo["bags"].append(bagInfo)
-        envInfo["bags"][-1]["id"] = idx+1
+        envInfo["bags"][-1]["id"] = idx + 1
         envInfo["bags"][-1]["selected"] = True
         for topic, addTopic in bagInfo["topics"].items():
             newTopic = {
@@ -229,22 +249,22 @@ def getEnvInfo(paths, topics):
 #                 }
 #             }
 #         ]
-    # "topics": [
-    #             {
-    #                 "name": "/cmu_rc3/super_odometry_stats",
-    #                 "messages": 91,
-    #                 "type": "super_odometry_msgs/OptimizationStats",
-    #                 "appeared_in_bags": 1,
-    #                 "selected": true
-    #             },
-    #             {
-    #                 "name": "/cmu_rc3/velodyne_cloud_registered_imu",
-    #                 "messages": 91,
-    #                 "type": "sensor_msgs/PointCloud2",
-    #                 "appeared_in_bags": 1,
-    #                 "selected": true
-    #             }
-    #         ]
+# "topics": [
+#             {
+#                 "name": "/cmu_rc3/super_odometry_stats",
+#                 "messages": 91,
+#                 "type": "super_odometry_msgs/OptimizationStats",
+#                 "appeared_in_bags": 1,
+#                 "selected": true
+#             },
+#             {
+#                 "name": "/cmu_rc3/velodyne_cloud_registered_imu",
+#                 "messages": 91,
+#                 "type": "sensor_msgs/PointCloud2",
+#                 "appeared_in_bags": 1,
+#                 "selected": true
+#             }
+#         ]
 #     },
 
 # {

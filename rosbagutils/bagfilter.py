@@ -6,9 +6,31 @@ import subprocess
 import traceback
 from . import utils
 import random
+from typing import Dict, List, Tuple, Union, Optional, Any, Callable
 
 
-def getBagInfoJson(path):
+def getBagInfoJson(path: str) -> Dict[str, Any]:
+    """
+    Returns a dictionary containing information about a ROS bag file.
+
+    Args:
+        path (str): The path to the ROS bag file.
+
+    Returns:
+        A dictionary containing the following keys:
+        - size (int): The size of the bag file in bytes.
+        - path (str): The path to the bag file.
+        - startTime (float): The start time of the bag file in seconds.
+        - endTime (float): The end time of the bag file in seconds.
+        - duration (float): The duration of the bag file in seconds.
+        - messages (int): The number of messages in the bag file.
+        - topics (dict): A dictionary containing information about each topic in the bag file.
+            Each key is the name of a topic, and each value is a dictionary containing the following keys:
+            - name (str): The name of the topic.
+            - type (str): The message type of the topic.
+            - messages (int): The number of messages in the topic.
+            - frequency (float): The frequency of the topic in Hz.
+    """
     info = {}
     try:
         print("Getting rosbag info for " + path)
@@ -46,17 +68,42 @@ def getBagInfoJson(path):
 
 
 def exportBag(
-    pathIns,
-    pathOuts,
-    targetTopics,
-    cropType,
-    cropTimes,
-    autoCropTimes,
-    mergeBags,
-    trajectoryTopic,
-    envInfo,
-    sendProgress,
-):
+    pathIns: List[str],
+    pathOuts: List[str],
+    targetTopics: List[str],
+    cropType: str,
+    cropTimes: List[Dict[str, float]],
+    autoCropTimes: Dict[str, float],
+    mergeBags: bool,
+    trajectoryTopic: str,
+    envInfo: Dict[str, Any],
+    sendProgress: Callable,
+) -> Any:
+    """
+    Exports a filtered ROS bag file.
+
+    Args:
+        pathIns (List[str]): A list of paths to the input ROS bag files.
+        pathOuts (List[str]): A list of paths to the output ROS bag files.
+        targetTopics (List[str]): A list of topics to include in the output bag file.
+        cropType (str): The type of cropping to apply to the bag file.
+            Must be one of "MANUAL" or "AUTO".
+        cropData (List[Dict[str, float]]): A list of dictionaries containing start and end times to crop the bag file.
+            Only used if cropType is "MANUAL".
+            Each dictionary should contain "cropStart" and "cropEnd" keys with float values, or None if no cropping is needed.
+        autoCropData (Dict[str, float]): A dictionary containing start and end times to crop the bag file.
+            Only used if cropType is "AUTO".
+            The dictionary should contain "start" and "end" keys with float values, or None if no cropping is needed.
+        mergeBags (bool): Whether to merge the input bag files into a single output bag file.
+            Only the first path in pathOuts is used if this is True.
+        trajectoryTopic (str): The name of the topic containing the robot's trajectory.
+            Needed for auto cropping.
+        envInfo (Dict[str, Any]): A dictionary containing environment information.
+        sendProgress (Callable): A function to send progress updates to the user.
+
+    Returns:
+        If cropType == "AUTO", returns a list of tuples, where each tuple contains the start and end time of a time range that was kept in the output bag file.
+    """
     print("Including topics: " + str(targetTopics))
     progressPerBag = 1.0 / (len(pathIns)) / (3.0 if cropType == "AUTO" else 1.0)
     progressSoFar = 0.0
@@ -138,7 +185,7 @@ def exportBag(
             bagIn = openBagWithProgress(pathIn, progressPerBag, "Finding last move time")
             lastMoveTime = getLastMoveTime(bagIn, finalPosition)
             if lastMoveTime >= 0:
-                cropTime["cropEnd"] = lastMoveTime
+                cropTime["cropEnd"] = lastMoveTime + autoCropTimes["end"]
                 break
             else:
                 cropTime["cropEnd"] = -1

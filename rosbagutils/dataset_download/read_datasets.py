@@ -1,11 +1,17 @@
 import os
 import json
 import re
+from typing import Dict, List, Tuple, Union, Optional, Any, Callable
 
 cache = None
 
 
-def readDatasets():
+def readDatasets() -> List[Dict[str, Any]]:
+    """
+    Reads datasets from program database and returns a list of datasets.
+
+    :return: A list of dictionaries containing the data from the datasets.
+    """
     global cache
     if cache is not None:
         return cache

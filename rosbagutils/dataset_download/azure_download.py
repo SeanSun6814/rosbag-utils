@@ -6,9 +6,16 @@ import subprocess
 import time
 import re
 from subprocess import Popen, PIPE, CalledProcessError
+from typing import Dict, List, Tuple, Union, Optional, Any, Callable
 
 
-def checkAzcopy():
+def checkAzcopy() -> None:
+    """
+    Checks if Azcopy is installed and installs it if not.
+
+    Returns:
+        None
+    """
     if not os.path.exists("./azcopy"):
         print("Azcopy not found. Installing Azcopy...")
         if os.name == "posix" and sys.platform == "linux":
@@ -24,10 +31,23 @@ def checkAzcopy():
     print("Azcopy found, ready to download.")
 
 
-def downloadTopic(datasetName, topicName, outPath, envInfo, sendProgress):
+def downloadTopic(datasetName: str, topicName: str, outPath: str, envInfo: dict, sendProgress: Callable) -> Dict:
+    """
+    Downloads a topic from a dataset.
+
+    Args:
+        datasetName (str): The name of the dataset.
+        topicName (str): The name of the topic.
+        outPath (str): The path to save the downloaded topic.
+        envInfo (dict): The environment information.
+        sendProgress (callable): A function to send progress updates.
+
+    Returns:
+        dict: A dictionary indicating that the download is done.
+    """
     sendProgress(percentage=0.05, details="Installing azcopy...")
     checkAzcopy()
-    # ./azcopy copy https://tartanairv2.blob.core.windows.net/subtmrs/run_6/system ./downloads --recursive
+    # Example: "./azcopy copy https://tartanairv2.blob.core.windows.net/subtmrs/run_6/system ./downloads --recursive"
     dataset = list(filter(lambda x: x["name"] == datasetName, readDatasets()))[0]
     link = joinPaths(dataset["link"], topicName)
     datasetOutPath = joinPaths(outPath, datasetName)

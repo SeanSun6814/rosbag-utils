@@ -1,6 +1,7 @@
-from . import bagfilter, baglas, bagimg, measure_trajectory, baglas_uncertainty
+from . import bagfilter, baglas, bagimg, measure_trajectory, baglas_uncertainty, utils
 from .dataset_download import azure_download, read_datasets
 from .dataset_release import index as dataset_release
+from typing import Dict, List, Tuple, Union, Optional, Any, Callable
 
 
 def doNothing(percentage=-1, details="", status="RUNNING"):
@@ -8,31 +9,97 @@ def doNothing(percentage=-1, details="", status="RUNNING"):
     pass
 
 
-def getBagInfo(path):
+def getBagInfo(path: str) -> Dict[str, Any]:
+    """
+    Returns a dictionary containing information about a ROS bag file.
+
+    Args:
+        path (str): The path to the ROS bag file.
+
+    Returns:
+        A dictionary containing the following keys:
+        - size (int): The size of the bag file in bytes.
+        - path (str): The path to the bag file.
+        - startTime (float): The start time of the bag file in seconds.
+        - endTime (float): The end time of the bag file in seconds.
+        - duration (float): The duration of the bag file in seconds.
+        - messages (int): The number of messages in the bag file.
+        - topics (dict): A dictionary containing information about each topic in the bag file.
+            Each key is the name of a topic, and each value is a dictionary containing the following keys:
+            - name (str): The name of the topic.
+            - type (str): The message type of the topic.
+            - messages (int): The number of messages in the topic.
+            - frequency (float): The frequency of the topic in Hz.
+    """
     return bagfilter.getBagInfoJson(path)
 
 
-def filterBag(pathsIn, pathOut, targetTopics, cropType, cropData, autoCropData, mergeBags, odometryTopic, onProgress=doNothing):
+def filterBag(
+    pathsIn: List[str],
+    pathsOut: List[str],
+    targetTopics: List[str],
+    cropType: str = "MANUAL",
+    cropTimes: List[Dict[str, float]] = [{"cropStart": 0, "cropEnd": 1e8}],
+    autoCropTimes: Dict[str, float] = {"start": 5, "end": 5},
+    mergeBags: bool = False,
+    trajectoryTopic: str = "",
+    onProgress: Callable = doNothing,
+) -> Any:
+    """
+    Exports a filtered ROS bag file.
+
+    Args:
+        pathIns (List[str]): A list of paths to the input ROS bag files.
+        pathOuts (List[str]): A list of paths to the output ROS bag files.
+        targetTopics (List[str]): A list of topics to include in the output bag file.
+        cropType (str): The type of cropping to apply to the bag file.
+            Must be one of "MANUAL" or "AUTO".
+        cropData (List[Dict[str, float]]): A list of dictionaries containing start and end times to crop the bag file.
+            Only used if cropType is "MANUAL".
+            Each dictionary should contain "cropStart" and "cropEnd" keys with float values, or None if no cropping is needed.
+        autoCropData (Dict[str, float]): A dictionary containing start and end times to crop the bag file.
+            Only used if cropType is "AUTO".
+            The dictionary should contain "start" and "end" keys with float values, or None if no cropping is needed.
+        mergeBags (bool): Whether to merge the input bag files into a single output bag file.
+            Only the first path in pathOuts is used if this is True.
+        trajectoryTopic (str): The name of the topic containing the robot's trajectory.
+            Needed for auto cropping.
+        envInfo (Dict[str, Any]): A dictionary containing environment information.
+        sendProgress (Callable): A function to send progress updates to the user.
+
+    Returns:
+        If cropType == "AUTO", returns a list of tuples, where each tuple contains the start and end time of a time range that was kept in the output bag file.
+    """
     return bagfilter.exportBag(
         pathsIn,
-        pathOut,
+        pathsOut,
         targetTopics,
         cropType,
-        cropData,
-        autoCropData,
+        cropTimes,
+        autoCropTimes,
         mergeBags,
-        odometryTopic,
+        trajectoryTopic,
         getEnvInfo(pathsIn, targetTopics),
         onProgress,
     )
 
 
-def exportPointCloud(pathsIn, pathOut, targetTopic, maxPointsPerFile=50000000, collapseAxis="", speed=1, trimCloud=None, onProgress=doNothing):
-    # TODO: Change pathOut to pathOutNoExt
+def exportPointCloud(
+    pathsIn,
+    pathOut,
+    targetTopic,
+    maxPointsPerFile=50000000,
+    collapseAxis="",
+    speed=1,
+    trimCloud=None,
+    onProgress=doNothing,
+):
+    cleanTopicName = targetTopic.replace("/", "_").replace(r"^_", "")
+    pathOutNoExt = utils.joinPaths(pathOut, cleanTopicName)
     return baglas.exportPointCloud(
         pathsIn,
         targetTopic,
-        pathOut,
+        pathOutNoExt,
         maxPointsPerFile,
         collapseAxis,
         speed,
@@ -42,13 +109,24 @@ def exportPointCloud(pathsIn, pathOut, targetTopic, maxPointsPerFile=50000000, c
     )
 
 
-def exportPointCloudColor(pathsIn, pathOut, targetTopic, odomStatsTopic, maxPointsPerFile=50000000, collapseAxis="", speed=1, trimCloud=None, onProgress=doNothing):
-    # TODO: Change pathOut to pathOutNoExt
+def exportPointCloudColor(
+    pathsIn,
+    pathOut,
+    targetTopic,
+    odomStatsTopic,
+    maxPointsPerFile=50000000,
+    collapseAxis="",
+    speed=1,
+    trimCloud=None,
+    onProgress=doNothing,
+):
+    cleanTopicName = targetTopic.replace("/", "_").replace(r"^_", "")
+    pathOutNoExt = utils.joinPaths(pathOut, cleanTopicName)
     return baglas_uncertainty.exportPointCloud(
         pathsIn,
         targetTopic,
         odomStatsTopic,
-        pathOut,
+        pathOutNoExt,
         maxPointsPerFile,
         collapseAxis,
         speed,
@@ -58,7 +136,18 @@ def exportPointCloudColor(pathsIn, pathOut, targetTopic, odomStatsTopic, maxPoin
     )
 
 
-def exportVideo(pathsIn, pathOut, targetTopic, fps=30, speed=1, printTimestamp="", invertImage=False, rangeFor16Bit=None, livePreview=False, onProgress=doNothing):
+def exportVideo(
+    pathsIn,
+    pathOut,
+    targetTopic,
+    fps=30,
+    speed=1,
+    printTimestamp="",
+    invertImage=False,
+    rangeFor16Bit=None,
+    livePreview=False,
+    onProgress=doNothing,
+):
     return bagimg.exportVideo(
         pathsIn,
         pathOut,
@@ -98,11 +187,28 @@ def datasetRelease(pathsIn, pathOut, datasetName, topics, link, onProgress=doNot
     )
 
 
-def readAvailableDatasets():
+def getAvailableDatasets() -> List[Dict[str, Any]]:
+    """
+    Reads datasets from program database and returns a list of datasets.
+
+    :return: A list of dictionaries containing the data from the datasets.
+    """
     return read_datasets.readDatasets()
 
 
-def downloadDataset(datasetName, topics, pathOut, onProgress=doNothing):
+def downloadDataset(datasetName: str, topics: List[str], pathOut: str, onProgress: Callable = doNothing) -> None:
+    """
+    Downloads all topics in a dataset.
+
+    Args:
+        datasetName (str): The name of the dataset.
+        topics (List[str]): A list of topic names to download.
+        pathOut (str): The path to save the downloaded topics.
+        onProgress (callable): A function to send progress updates. Defaults to doNothing.
+
+    Returns:
+        None
+    """
     for topic in topics:
         azure_download.downloadTopic(
             datasetName,
@@ -113,7 +219,35 @@ def downloadDataset(datasetName, topics, pathOut, onProgress=doNothing):
         )
 
 
-def getEnvInfo(paths, topics):
+def getEnvInfo(
+    paths: List[str], topics: List[str]
+) -> Dict[str, Union[List[Dict[str, Any]], Dict[str, Dict[str, Union[str, int, bool]]]]]:
+    """
+    Internal function. Not meant to be called by the user.
+    Returns a dictionary containing information about the environment.
+
+    Args:
+        paths (List[str]): A list of paths to the bags.
+        topics (List[str]): A list of topics to include in the environment information.
+
+    Returns:
+        A dictionary containing information about the environment. The dictionary has two keys:
+        - "bags": A list of dictionaries containing information about each bag. Each dictionary has the following keys:
+            - "id": An integer representing the ID of the bag.
+            - "path": A string representing the path to the bag.
+            - "topics": A dictionary containing information about each topic in the bag. Each key is the name of a topic, and each value is a dictionary with the following keys:
+                - "name": A string representing the name of the topic.
+                - "messages": An integer representing the number of messages in the topic.
+                - "type": A string representing the type of the topic.
+                - "appeared_in_bags": An integer representing the number of bags the topic appeared in.
+                - "selected": A boolean representing whether the topic is selected.
+        - "topics": A dictionary containing information about each topic in the environment. Each key is the name of a topic, and each value is a dictionary with the following keys:
+            - "name": A string representing the name of the topic.
+            - "messages": An integer representing the total number of messages in the topic across all bags.
+            - "type": A string representing the type of the topic.
+            - "appeared_in_bags": An integer representing the number of bags the topic appeared in.
+            - "selected": A boolean representing whether the topic is selected.
+    """
     envInfo = {
         "bags": [],
         "topics": {},
@@ -122,7 +256,7 @@ def getEnvInfo(paths, topics):
     for idx, path in enumerate(paths):
         bagInfo = getBagInfo(path)
         envInfo["bags"].append(bagInfo)
-        envInfo["bags"][-1]["id"] = idx+1
+        envInfo["bags"][-1]["id"] = idx + 1
         envInfo["bags"][-1]["selected"] = True
         for topic, addTopic in bagInfo["topics"].items():
             if addTopic["name"] not in selected_topics:
@@ -136,56 +270,13 @@ def getEnvInfo(paths, topics):
             }
             if newTopic["name"] in envInfo["topics"]:
                 oldTopic = envInfo["topics"][newTopic["name"]]
-                newTopic["messages"] = oldTopic["messages"] + \
-                    addTopic["messages"]
+                newTopic["messages"] = oldTopic["messages"] + addTopic["messages"]
                 if oldTopic["type"] != addTopic["type"]:
-                    newTopic["type"] = oldTopic["type"] + \
-                        ", " + addTopic["type"]
+                    newTopic["type"] = oldTopic["type"] + ", " + addTopic["type"]
                 newTopic["appeared_in_bags"] = oldTopic["appeared_in_bags"] + 1
             envInfo["topics"][newTopic["name"]] = newTopic
     return envInfo
 
-
-# {
-#     "size":13624743432,
-#     "path":"../testdata/2023-01-11-12-44-56.bag",
-#     "startTime":1667966573.249855,
-#     "endTime":1667967129.396759,
-#     "duration":556.146904,
-#     "messages":12772,
-#     "topics":{
-#         "/aft_mapped_to_init_imu":{
-#             "name":"/aft_mapped_to_init_imu",
-#             "type":"nav_msgs/Odometry",
-#             "messages":2756,
-#             "frequency":4.955525204182383
-#         },
-#         "/velodyne_cloud_registered_imu_confidence":{
-#             "name":"/velodyne_cloud_registered_imu_confidence",
-#             "type":"sensor_msgs/PointCloud2",
-#             "messages":2756,
-#             "frequency":4.955525204182383
-#         },
-#         "/velodyne_cloud_registered_imu_geometry":{
-#             "name":"/velodyne_cloud_registered_imu_geometry",
-#             "type":"sensor_msgs/PointCloud2",
-#             "messages":2756,
-#             "frequency":4.955525204182383
-#         },
-#         "/velodyne_cloud_registered_imu_rgb":{
-#             "name":"/velodyne_cloud_registered_imu_rgb",
-#             "type":"sensor_msgs/PointCloud2",
-#             "messages":1792,
-#             "frequency":3.2221702343595178
-#         },
-#         "/velodyne_cloud_registered_imu_thermal":{
-#             "name":"/velodyne_cloud_registered_imu_thermal",
-#             "type":"sensor_msgs/PointCloud2",
-#             "messages":2712,
-#             "frequency":4.87640941717802
-#         }
-#     }
-# }
 
 # "envInfo": {
 #         "bags": [
@@ -214,20 +305,20 @@ def getEnvInfo(paths, topics):
 #                 }
 #             }
 #         ]
-    # "topics": [
-    #             {
-    #                 "name": "/cmu_rc3/super_odometry_stats",
-    #                 "messages": 91,
-    #                 "type": "super_odometry_msgs/OptimizationStats",
-    #                 "appeared_in_bags": 1,
-    #                 "selected": true
-    #             },
-    #             {
-    #                 "name": "/cmu_rc3/velodyne_cloud_registered_imu",
-    #                 "messages": 91,
-    #                 "type": "sensor_msgs/PointCloud2",
-    #                 "appeared_in_bags": 1,
-    #                 "selected": true
-    #             }
-    #         ]
-#     },
+#         "topics": {
+#             "/cmu_rc3/aft_mapped_to_init_imu": {
+#                 "name": "/cmu_rc3/aft_mapped_to_init_imu",
+#                 "messages": 91,
+#                 "type": "nav_msgs/Odometry",
+#                 "appeared_in_bags": 1,
+#                 "selected": true
+#             },
+#             "/cmu_rc3/controller/path_velocity": {
+#                 "name": "/cmu_rc3/controller/path_velocity",
+#                 "messages": 91,
+#                 "type": "mmpug_msgs/PathVelocity",
+#                 "appeared_in_bags": 1,
+#                 "selected": true
+#             }
+#         },
+# }
