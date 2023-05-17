@@ -2,6 +2,7 @@ import server.dataset_download.read_datasets
 from server import server, ws_server
 import argparse
 
+
 parser = argparse.ArgumentParser(description="Rosbag Utils")
 parser.add_argument("-n", "--no_browser", action="store_true", help="Don't open browser by default.")
 args = parser.parse_args()

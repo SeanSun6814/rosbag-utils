@@ -53,6 +53,9 @@ export const DATASET_RELEASE_TASK = "DATASET_RELEASE_TASK";
 
 export const MEASURE_TRAJECTORY_TASK = "MEASURE_TRAJECTORY_TASK";
 
+export const DOWNLOAD_DATASET_TASK = "DOWNLOAD_DATASET_TASK";
+
+
 export default (state = [], action) => {
     if (action.type === "ADD_TASK") {
         return [...state, action.task];

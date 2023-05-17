@@ -165,8 +165,10 @@ const PointcloudTask = (props) => {
                     <Typography marginBottom={"10px"} fontSize={"1.6em"}>
                         Azure link
                     </Typography>
-                    <Typography marginTop={"10px"} fontSize={"1em"} width={"600px"}>
-                        Make a new folder on Azure and paste the share link here
+                    <Typography marginTop={"10px"} fontSize={"1em"} width={"100%"}>
+                        Make a new folder on Azure and paste the share link here. <br />
+                        <br />
+                        {"https://"}<b>{"{storage-account-name}"}</b>{"."}<b>{"{blob/dfs}"}</b>{".core.windows.net/"}<b>{"{container-name}"}</b>{"/"}<b>{"{directory-path}"}</b>
                     </Typography>
                     {linkWarning !== "" && (<Typography fontSize={"1em"} marginTop={"15px"} color={"orangered"}>
                         {linkWarning}
@@ -174,7 +176,7 @@ const PointcloudTask = (props) => {
                     <TextField
                         sx={{ marginTop: "30px" }}
                         label="Azure link"
-                        placeholder="https://..."
+                        placeholder="https://tartanairv2.blob.core.windows.net/subtmrs/run_6"
                         fullWidth
                         type="text"
                         value={config.azureLink}

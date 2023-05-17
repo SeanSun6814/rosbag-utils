@@ -36,7 +36,7 @@ def getFilenameFromPath(path):
 
 def mkdir(path):
     if not os.path.exists(path):
-        os.makedirs(path)
+        os.makedirs(path, exist_ok=True)
 
 
 def writeTextFile(path, text):
@@ -59,3 +59,17 @@ def getFolderSize(start_path):
                 total_size += os.path.getsize(fp)
 
     return total_size  # in bytes
+
+
+def joinPaths(a, b):
+    if a[-1] == "/" and b[0] == "/":
+        result = a + b[1:]
+    elif a[-1] != "/" and b[0] != "/":
+        result = a + "/" + b
+    else:
+        result = a + b
+
+    if result[-1] == "/":
+        result = result[:-1]
+
+    return result
