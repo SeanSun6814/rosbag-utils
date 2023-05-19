@@ -1,0 +1,1 @@
+/root/rosbag-utils/super_odom_msg_ws/devel/.private/catkin_tools_prebuild/local_setup.bash

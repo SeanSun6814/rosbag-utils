@@ -1,0 +1,2 @@
+- setup-file:
+    local-name: /root/rosbag-utils/super_odom_msg_ws/install/setup.sh

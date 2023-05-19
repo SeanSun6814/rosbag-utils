@@ -1,0 +1,8 @@
+prefix=/root/rosbag-utils/super_odom_msg_ws/install
+
+Name: super_odometry_msgs
+Description: Description of super_odometry_msgs
+Version: 0.0.0
+Cflags: -I${prefix}/include
+Libs: -L${prefix}/lib 
+Requires: 

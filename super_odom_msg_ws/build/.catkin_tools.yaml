@@ -1,0 +1,6 @@
+devel_space: /root/rosbag-utils/super_odom_msg_ws/devel
+install: false
+install_space: /root/rosbag-utils/super_odom_msg_ws/install
+profile: default
+source_space: /root/rosbag-utils/super_odom_msg_ws/src
+workspace: /root/rosbag-utils/super_odom_msg_ws
