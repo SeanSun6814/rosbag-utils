@@ -46,7 +46,7 @@
 
 :white_check_mark: _Tested on Microsoft Edge, and Firefox, and Google Chrome (requires latest update)_
 
-:x: _Known issues: Does **not** support M1 Macs_ :check:
+:x: _Does **not** support M1 Macs_
 
 ### Tutorial
 
@@ -77,6 +77,14 @@ If you would like to contribute code to the repository, please follow these step
 3. Compile and format your code* with `./compile.sh` before making a commit
 4. Create a pull request with your changes, and confirm all GitHub Actions pass
 
+_*Alteratively, build code with:_
+```bash
+pip3 install black && black .
+cd client && npm i --legacy-peer-deps && npm run lint && npm run build
+```
+
+#### Pull Request Guide
+
 Please include in your Pull Request:
 
 - A clear and concise title that summarizes the changes made in the pull request.
@@ -85,12 +93,6 @@ Please include in your Pull Request:
 - Any relevant screenshots or videos that can help demonstrate the changes made.
 - Any relevant tests or test results that can help verify the changes made.
 - Any relevant documentation or code comments that can help explain the changes made.
-
-_*Alteratively, build code with:_
-```bash
-pip3 install black && black .
-cd client && npm i --legacy-peer-deps && npm run lint && npm run build
-```
 
 ## Support & Warranty
 
