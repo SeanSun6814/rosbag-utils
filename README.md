@@ -33,27 +33,64 @@
 
 ### Linux Installation
 
-1. Install ROS
+1. Install ROS Noetic
 2. `sudo apt-get install libgtk-3-dev`
 3. `pip3 install laspy tdigest websocket_server attrdict3 wxPython`
 4. `git clone https://github.com/SeanSun6814/rosbag-utils.git`
 5. `python3 app.py`
 6. _Alternatively: `python3 app.py -n` to don't automatically launch browser_
 
-_Tested on Ubuntu 20.04 with Python3, ROS Noetic, and Google Chrome._
+:white_check_mark: _Tested on Ubuntu 20.04 with Python3, and ROS Noetic._
 
-_Tested on Windows 11 WSL2 (Ubuntu 20.04) with Python3, ROS Noetic, and Google Chrome._
+:white_check_mark: _Tested on Windows 11 WSL2 (Ubuntu 20.04) with Python3, and ROS Noetic._
+
+:white_check_mark: _Tested on Microsoft Edge, and Firefox, and Google Chrome (requires latest update)_
+
+:x: _Known issues: Does **not** support M1 Macs_ :check:
 
 ### Tutorial
 
 [https://superodometry.com/rosbagutils](https://superodometry.com/rosbagutils)
 
-### Contribute
+## Contributing to rosbag-utils
 
--   Create issue, make new branch for changes
--   Format code: `pip3 install black && black . && cd client && npm i --legacy-peer-deps && npm run lint`
--   Build client: `cd client && npm i --legacy-peer-deps && npm run build`
--   Create PR and confirm lint passes
+We welcome contributions to the rosbag utils repository! Here are some guidelines to follow:
+
+### Issues
+If you find a bug or have a feature request, please create an issue on the [GitHub Issues](https://github.com/SeanSun6814/rosbag-utils/issues) page. Please include in your issue:
+- A concise title that summarizes the issue or feature request.
+- A detailed description of the issue or feature request, including steps to reproduce the issue and any relevant error messages.
+- Any relevant system information, such as the operating system and version, browser and version, or device and version.
+- Any relevant logs or screenshots or videos that can help diagnose the issue.
+- A clear and concise summary of what you expect to happen.
+- A clear and concise summary of what actually happens.
+- Any relevant context or background information that can help understand the issue or feature request.
+- Any relevant links or references to related issues or pull requests.
+
+### Pull Requests
+If you would like to contribute code to the repository, please follow these steps:
+
+**All pull requests should be merged into the `develop` branch. Make sure your branch is based from our `develop` branch and _not_ `main`.**
+
+1. Create a new fork for your changes (make sure to fork **_all_** branches).
+2. Write the new feature
+3. Compile and format your code* with `./compile.sh` before making a commit
+4. Create a pull request with your changes, and confirm all GitHub Actions pass
+
+Please include in your Pull Request:
+
+- A clear and concise title that summarizes the changes made in the pull request.
+- A detailed description of the changes made in the pull request, including any relevant context or background information.
+- Any relevant links or references to related issues or pull requests.
+- Any relevant screenshots or videos that can help demonstrate the changes made.
+- Any relevant tests or test results that can help verify the changes made.
+- Any relevant documentation or code comments that can help explain the changes made.
+
+_*Alteratively, build code with:_
+```bash
+pip3 install black && black .
+cd client && npm i --legacy-peer-deps && npm run lint && npm run build
+```
 
 ## Support & Warranty
 
