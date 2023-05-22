@@ -9,6 +9,7 @@ import random
 import numpy as np
 import math
 
+
 def processString(paths, targetTopic, pathOut, sendProgress):
     utils.mkdir(utils.getFolderFromPath(pathOut))
     count = 0
@@ -39,12 +40,7 @@ def processString(paths, targetTopic, pathOut, sendProgress):
                 timestamp = str(t)
                 data = msg.data
 
-                f.write(
-                    timestamp
-                    + ", "
-                    + data
-                    + "\n"
-                )
+                f.write(timestamp + ", " + data + "\n")
 
                 count += 1
                 if count % sendProgressEveryHowManyMessages == 0:
