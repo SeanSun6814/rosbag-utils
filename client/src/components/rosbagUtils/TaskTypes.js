@@ -40,7 +40,8 @@ const TaskTypes = (props) => {
                     topic.type !== "sensor_msgs/PointCloud2" &&
                     topic.type !== "sensor_msgs/Image" &&
                     topic.type !== "nav_msgs/Odometry" && 
-                    topic.type !== "std_msgs/String"
+                    topic.type !== "std_msgs/String" &&
+                    topic.type !== "tf2_msgs/TFMessage"
                 )
                     datasetReleaseEnabled = false;
                 if (topic.type !== "sensor_msgs/PointCloud2") exportPointcloudEnabled = false;

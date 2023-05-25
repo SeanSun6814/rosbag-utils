@@ -3,6 +3,7 @@ from ..dataset_release.processPointcloud import processPointcloud
 from ..dataset_release.processIMU import processIMU
 from ..dataset_release.processOdometry import processOdometry
 from ..dataset_release.processString import processString
+from ..dataset_release.processTF import processTF
 from .. import utils
 from typing import Dict, List, Tuple, Union, Optional, Any, Callable
 
@@ -68,6 +69,8 @@ def convertBags(
             result[topicName] = processOdometry(paths, topicId, topicPath, sendSubtaskProgress)
         elif topicType == "std_msgs/String":
             result[topicName] = processString(paths, topicId, topicPath, sendSubtaskProgress)
+        elif topicType == "tf2_msgs/TFMessage":
+            result[topicName] = processTF(paths, topicId, topicPath, sendSubtaskProgress)
         else:
             raise Exception("Unknown topic type: " + topicType)
         topics[topicId]["size"] = result[topicName]["size"]

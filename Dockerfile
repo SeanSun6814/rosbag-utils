@@ -31,9 +31,9 @@ RUN apt-get install firefox -y
 
 # Install wxPython
 
-RUN pip3 install attrdict3
+RUN pip3 install attrdict3 pandas
 
-RUN apt-get install libgtk-3-dev wget -y
+RUN apt-get update && apt-get install libgtk-3-dev wget -y
 
 RUN wget https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-20.04/wxPython-4.2.0-cp38-cp38-linux_x86_64.whl -O /root/wxPython-4.2.0-cp38-cp38-linux_x86_64.whl
 
