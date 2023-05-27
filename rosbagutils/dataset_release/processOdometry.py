@@ -8,6 +8,8 @@ from .. import utils
 import random
 import numpy as np
 import math
+from tqdm import tqdm
+
 
 
 def processOdometry(paths, targetTopic, pathOut, sendProgress):
@@ -36,7 +38,7 @@ def processOdometry(paths, targetTopic, pathOut, sendProgress):
             )
             sendProgressEveryHowManyMessages = max(random.randint(77, 97), int(totalMessages / (100 / len(paths))))
             bagStartCount = count
-            for topic, msg, t in bagIn.read_messages(topics=[targetTopic]):
+            for topic, msg, t in tqdm(bagIn.read_messages(topics=[targetTopic]) , total=totalMessages ):
                 timestamp = str(t)
 
                 x, y, z = (

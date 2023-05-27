@@ -174,7 +174,6 @@ def measureTrajectory(pathsIn, pathOut, targetTopic, exportPosition=True, export
         onProgress,
     )
 
-
 def datasetRelease(pathsIn, pathOut, datasetName, topics, link, onProgress=doNothing):
     return dataset_release.convertBags(
         datasetName,
@@ -275,4 +274,8 @@ def getEnvInfo(
                     newTopic["type"] = oldTopic["type"] + ", " + addTopic["type"]
                 newTopic["appeared_in_bags"] = oldTopic["appeared_in_bags"] + 1
             envInfo["topics"][newTopic["name"]] = newTopic
-    return envInfo
+            
+    envInfo_temp = {}
+    envInfo_temp['envInfo'] = envInfo
+    
+    return envInfo_temp
