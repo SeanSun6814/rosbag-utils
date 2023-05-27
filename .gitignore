@@ -157,3 +157,6 @@ azcopy
 # Mac related
 .DS_Store
 */.DS_Store
+
+#dataset folder
+datasets/*
