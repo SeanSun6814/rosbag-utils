@@ -94,7 +94,7 @@ If you would like to contribute code to the repository, please follow these step
 
 1. Create a new fork for your changes (make sure to fork **_all_** branches).
 2. Write the new feature
-3. Compile and format your code* with `./compile.sh` before making a commit
+3. Compile and format your code* with `./launch dev` or `./launch dev ubuntu_docker` or `./launch dev wsl_docker` before making a commit
 4. Create a pull request with your changes, and confirm all GitHub Actions pass
 
 _*Alteratively, build code with:_
