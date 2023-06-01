@@ -33,4 +33,5 @@ for arg in args.mode_or_action:
     else:
         action = arg
 
+print("\033[92m" + " ".join(["bash", SCRIPTS[mode][action]] + script_args) + "\033[0m")
 subprocess.run(["bash", SCRIPTS[mode][action]] + script_args)
