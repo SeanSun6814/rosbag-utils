@@ -61,19 +61,40 @@ def convertBags(
             )
 
         if topicType == "sensor_msgs/Image":
+            print("\n\n=============================================Starting {} processing=============================================\n".format(topicName))
             result[topicName] = processImage(paths, topicId, topicPath, sendSubtaskProgress)
+            print("\n=============================================Done {} processing=============================================".format(topicName))
+        
         elif topicType == "sensor_msgs/PointCloud2":
+            print("\n\n=============================================Starting {} processing=============================================\n".format(topicName))
             result[topicName] = processPointcloud(paths, topicId, topicPath, sendSubtaskProgress)
+            print("\n=============================================Done {} processing=============================================".format(topicName))
+            
         elif topicType == "sensor_msgs/Imu":
+            print("\n\n=============================================Starting {} processing=============================================\n".format(topicName))
             result[topicName] = processIMU(paths, topicId, topicPath, sendSubtaskProgress)
+            print("\n=============================================Done {} processing=============================================".format(topicName))
+            
         elif topicType == "nav_msgs/Odometry":
+            print("\n\n=============================================Starting {} processing=============================================\n".format(topicName))
             result[topicName] = processOdometry(paths, topicId, topicPath, sendSubtaskProgress)
+            print("\n=============================================Done {} processing=============================================".format(topicName))
+            
         elif topicType == "std_msgs/String":
+            print("\n\n=============================================Starting {} processing=============================================\n".format(topicName))
             result[topicName] = processString(paths, topicId, topicPath, sendSubtaskProgress)
+            print("\n=============================================Done {} processing=============================================".format(topicName))
+            
         elif topicType == "tf2_msgs/TFMessage":
+            print("\n\n=============================================Starting {} processing=============================================\n".format(topicName))
             result[topicName] = processTF(paths, topicId, topicPath, sendSubtaskProgress)
+            print("\n=============================================Done {} processing=============================================".format(topicName))
+            
         elif topicType == "super_odometry_msgs/OptimizationStats":
+            print("\n\n=============================================Starting {} processing=============================================\n".format(topicName))
             result[topicName] = processSuperOdomStats(paths, topicId, topicPath, sendSubtaskProgress)
+            print("\n=============================================Done {} processing=============================================".format(topicName))
+            
         else:
             raise Exception("Unknown topic type: " + topicType)
         topics[topicId]["size"] = result[topicName]["size"]

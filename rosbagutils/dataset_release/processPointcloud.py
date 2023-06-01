@@ -5,6 +5,7 @@ import laspy
 import time
 import os
 from .. import utils
+from tqdm import tqdm
 import random
 
 
@@ -40,8 +41,8 @@ def processPointcloud(paths, targetTopic, pathOut, sendProgress):
     utils.mkdir(utils.getFolderFromPath(pathOut))
     outFileCount = 0
     totalNumPoints = 0
-    print("Exporting point cloud from " + targetTopic + " to " + pathOut)
-    print("Input bags: " + str(paths))
+    # print("Exporting point cloud from " + targetTopic + " to " + pathOut)
+    # print("Input bags: " + str(paths))
     percentProgressPerBag = 1 / len(paths)
 
     arrayX, arrayY, arrayZ, arrayT, arrayR, arrayG, arrayB = createArrs()
@@ -69,7 +70,7 @@ def processPointcloud(paths, targetTopic, pathOut, sendProgress):
             )
             sendProgressEveryHowManyMessages = max(random.randint(2, 5), int(totalMessages / (300 / len(paths))))
             bagStartCount = count
-            for topic, msg, t in bagIn.read_messages(topics=[targetTopic]):
+            for topic, msg, t in tqdm(bagIn.read_messages(topics=[targetTopic]) , total=totalMessages):
                 count += 1
 
                 if count % sendProgressEveryHowManyMessages == 0:

@@ -77,8 +77,6 @@ def processSuperOdomStats(paths, targetTopic, pathOut, localization_mode=1, send
                     header_write_str += 'iteration' + str(i) + '_' + iter_header + ','
             
             header_write_str = header_write_str[:-1] + "\n"
-            
-            print(header_write_str)
             f.write(header_write_str)
             i = 0
             for topic, msg, t in tqdm(bagIn.read_messages(topics=[targetTopic]) ,total=totalMessages):            

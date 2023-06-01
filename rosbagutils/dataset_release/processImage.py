@@ -6,6 +6,7 @@ import numpy as np
 import os
 from tdigest import TDigest
 from .. import utils
+from tqdm import tqdm
 import random
 
 font = cv2.FONT_HERSHEY_SIMPLEX
@@ -19,8 +20,8 @@ lineType = cv2.LINE_AA
 
 def processImage(paths, targetTopic, pathOut, sendProgress):
     utils.mkdir(utils.getFolderFromPath(pathOut))
-    print("Exporting images from " + targetTopic + " to " + pathOut)
-    print("Input bags: " + str(paths))
+    # print("Exporting images from " + targetTopic + " to " + pathOut)
+    # print("Input bags: " + str(paths))
 
     bridge = CvBridge()
     startTime = -1
@@ -47,7 +48,7 @@ def processImage(paths, targetTopic, pathOut, sendProgress):
             )
             sendProgressEveryHowManyMessages = max(random.randint(7, 9), int(totalMessages / (300 / len(paths))))
             bagStartCount = frameCount
-            for topic, msg, t in bagIn.read_messages(topics=[targetTopic]):
+            for topic, msg, t in tqdm(bagIn.read_messages(topics=[targetTopic]), total=totalMessages ):
                 frameCount += 1
 
                 if frameCount % sendProgressEveryHowManyMessages == 0:
