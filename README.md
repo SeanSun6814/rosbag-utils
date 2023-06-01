@@ -25,20 +25,20 @@
 
 ## Get started
 
-### Docker Installation
+### Run with Docker
 
 1. `git clone https://github.com/SeanSun6814/rosbag-utils.git`
-2. `./docker_build.sh`
-3. `./docker_wsl_start.sh` or `./docker_ubuntu_start.sh`
+2. `./launch build_docker`
+3. `./launch ubuntu_docker` or `./launch wsl_docker`
 
-### Linux Installation
+### Run natively
 
 1. Install ROS Noetic
 2. `sudo apt-get install libgtk-3-dev`
 3. `pip3 install laspy tdigest websocket_server attrdict3 wxPython`
 4. `git clone https://github.com/SeanSun6814/rosbag-utils.git`
-5. `python3 app.py`
-6. _Alternatively: `python3 app.py -n` to don't automatically launch browser_
+5. `./launch`
+6. _Alternatively: `./launch -n` to don't automatically launch browser_
 
 :white_check_mark: _Tested on Ubuntu 20.04 with Python3, and ROS Noetic._
 
@@ -51,6 +51,26 @@
 ### Tutorial
 
 [https://superodometry.com/rosbagutils](https://superodometry.com/rosbagutils)
+
+## Launch scripts
+
+To use the script, navigate to the root directory of the project and run the following command:
+
+```bash
+./launch [mode] [action] [script_args]
+```
+
+- `mode`: The mode to run the script in.
+    - `prod`: _(default)_ launches the rosbag-utils app.
+    - `dev`: runs the pre-commit formatting script.
+- `action`: The action to perform. 
+    - `run`: _(default)_ runs the script natively.
+    - `build_docker`: builds the Docker container for script.
+    - `ubuntu_docker`: starts the script in Docker container in Ubuntu.
+    - `wsl_docker`: starts the script in Docker container in WSL.
+    - `stop_docker`: stops the Docker container.
+- `script_args`: any optional arguments to pass to the script.
+
 
 ## Contributing to rosbag-utils
 
@@ -74,7 +94,7 @@ If you would like to contribute code to the repository, please follow these step
 
 1. Create a new fork for your changes (make sure to fork **_all_** branches).
 2. Write the new feature
-3. Compile and format your code* with `./compile.sh` before making a commit
+3. Compile and format your code* with `./launch dev` or `./launch dev ubuntu_docker` or `./launch dev wsl_docker` before making a commit
 4. Create a pull request with your changes, and confirm all GitHub Actions pass
 
 _*Alteratively, build code with:_

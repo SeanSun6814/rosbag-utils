@@ -1,0 +1,1 @@
+docker build -t rosbag-utils-dev:latest ./docker/dev/
