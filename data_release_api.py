@@ -24,7 +24,11 @@ class odometry_topics:
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter ,
+                                    description="Script for processing bag files using rosbagutils API.\
+                                                \nOrganize the bag files from one run in a single folder.\
+                                                \ne.g. \033[91mdata/file_1.bag file_2.bag ..... file_n.bag\033[0m\
+                                                \nGive the path to this folder in the --datapath argument.")
     parser.add_argument('--datapath' , help='destination of data folder')
     
     args = parser.parse_args()
