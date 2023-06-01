@@ -12,14 +12,14 @@ def check_topic(key, topic, topic_dict):
 
 class velodyne_topics:
     topic_list = ['velodyne_cloud_registered_imu', 'velodyne_cloud_registered',
-                              'velodyne_points', 'velodyne_packets']
+                              'velodyne_points']
     topic_num : int = 100
 
 class odometry_topics:
-    topic_list = ['integrated_to_global' , 'integrated_to_init', 
-                              'integrated_to_init_incremental' ,'integrated_to_init_imu',
-                              'integrated_to_init2', 'aft_mapped_to_init',
-                              'aft_mapped_to_init_imu', 'aft_mapped_to_init_incremental']
+    topic_list = ['integrated_to_init_imu', 'aft_mapped_to_init_imu',
+                  'integrated_to_global' , 'integrated_to_init', 
+                  'integrated_to_init_incremental' , 'integrated_to_init2', 
+                  'aft_mapped_to_init', 'aft_mapped_to_init_incremental']
     topic_num : int = 100
 
 
@@ -30,7 +30,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     bagpath = str(args.datapath)
     bagpath = os.path.abspath(bagpath)
-    print("Processing bag file at: ",bagpath)
+    print("Processing bag files at: ",bagpath)
     
     file_list = os.listdir(bagpath)
     file_list = [file for file in file_list if file[-4:] == '.bag']
@@ -57,7 +57,7 @@ if __name__ == '__main__':
         if 'velodyne' in topic:
             for vel_topic in vel_topics.topic_list:
                 if vel_topic in topic:
-                    if vel_topics.topic_list.index(vel_topic) <= vel_topics.topic_num:
+                    if vel_topics.topic_list.index(vel_topic) <= vel_topics.topic_num:     #checking if there is a topic with higher priority
                         release_topics = check_topic('lidar', topic, release_topics)
         if 'init' in topic:
             for odom_topic in odom_topics.topic_list:

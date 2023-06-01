@@ -6,7 +6,6 @@ from tqdm import tqdm
 
 
 def processTF(paths, targetTopic, pathOut, sendProgress):
-    print("in Tf: ",pathOut)
     utils.mkdir(utils.getFolderFromPath(pathOut))
     count = 0
     percentProgressPerBag = 1 / len(paths)
