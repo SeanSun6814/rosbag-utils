@@ -62,7 +62,7 @@ To use the script, navigate to the root directory of the project and run the fol
 
 - `mode`: The mode to run the script in.
     - `prod`: _(default)_ launches the rosbag-utils app.
-    - `dev`: runs the pre-commit formatting script.
+    - `dev`: runs the pre-commit build script.
 - `action`: The action to perform. 
     - `run`: _(default)_ runs the script natively.
     - `build_docker`: builds the Docker container for script.
