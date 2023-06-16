@@ -37,7 +37,9 @@ def processString(paths, targetTopic, pathOut, sendProgress, start_time=None, en
             )
             sendProgressEveryHowManyMessages = max(random.randint(77, 97), int(totalMessages / (100 / len(paths))))
             bagStartCount = count
-            for topic, msg, t in tqdm(bagIn.read_messages(topics=[targetTopic], start_time=start_time, end_time=end_time), total=totalMessages ):
+            for topic, msg, t in tqdm(
+                bagIn.read_messages(topics=[targetTopic], start_time=start_time, end_time=end_time), total=totalMessages
+            ):
                 timestamp = str(t)
                 data = msg.data
 

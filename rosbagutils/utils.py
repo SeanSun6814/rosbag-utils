@@ -22,6 +22,9 @@ class FastArr:
         self.data[self.size] = x
         self.size += 1
 
+    def get_ith(self, i):
+        return self.data[i]
+
     def finalize(self):
         return self.data[: self.size]
 

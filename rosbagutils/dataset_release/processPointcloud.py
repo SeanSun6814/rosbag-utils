@@ -7,24 +7,31 @@ import os
 from .. import utils
 from tqdm import tqdm
 import random
+import struct
 
 
 def processPointcloud(paths, targetTopic, pathOut, sendProgress, start_time=None, end_time=None):
     def writeToFile(arrayX, arrayY, arrayZ, arrayT, arrayR, arrayG, arrayB):
         nonlocal outFileCount, totalNumPoints
         totalNumPoints += arrayX.size
-        filename = pathOut + str(outFileCount) + ".las"
-        header = laspy.LasHeader(version="1.3", point_format=3)
-        lasData = laspy.LasData(header)
-        lasData.x = arrayX.finalize()
-        lasData.y = arrayY.finalize()
-        lasData.z = arrayZ.finalize()
-        lasData.gps_time = arrayT.finalize()
-        if arrayR.size > 0 and arrayG.size > 0 and arrayB.size > 0:
-            lasData.red = arrayR.finalize()
-            lasData.green = arrayG.finalize()
-            lasData.blue = arrayB.finalize()
-        lasData.write(filename)
+        filename = pathOut + str(outFileCount) + ".bin"
+        with open(filename, "wb") as f:
+            num_of_clouds = 1
+            f.write(num_of_clouds.to_bytes(4, "little"))
+            num_of_points: int = arrayX.size
+            f.write(num_of_points.to_bytes(4, "little"))
+            if arrayR.size > 0 and arrayG.size > 0 and arrayB.size > 0:
+                f.write(0b11000000.to_bytes(1, "little"))
+            else:
+                f.write(0b10000000.to_bytes(1, "little"))
+            for i in range(arrayX.size):
+                f.write(struct.pack("<f", arrayX.get_ith(i)))
+                f.write(struct.pack("<f", arrayY.get_ith(i)))
+                f.write(struct.pack("<f", arrayZ.get_ith(i)))
+                if arrayR.size > 0 and arrayG.size > 0 and arrayB.size > 0:
+                    f.write(struct.pack("B", arrayR.get_ith(i)))
+                    f.write(struct.pack("B", arrayG.get_ith(i)))
+                    f.write(struct.pack("B", arrayB.get_ith(i)))
         outFileCount += 1
 
     def createArrs():
@@ -70,7 +77,9 @@ def processPointcloud(paths, targetTopic, pathOut, sendProgress, start_time=None
             )
             sendProgressEveryHowManyMessages = max(random.randint(2, 5), int(totalMessages / (300 / len(paths))))
             bagStartCount = count
-            for topic, msg, t in tqdm(bagIn.read_messages(topics=[targetTopic], start_time=start_time, end_time=end_time) , total=totalMessages):
+            for topic, msg, t in tqdm(
+                bagIn.read_messages(topics=[targetTopic], start_time=start_time, end_time=end_time), total=totalMessages
+            ):
                 count += 1
 
                 if count % sendProgressEveryHowManyMessages == 0:

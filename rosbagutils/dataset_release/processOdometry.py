@@ -11,7 +11,6 @@ import math
 from tqdm import tqdm
 
 
-
 def processOdometry(paths, targetTopic, pathOut, sendProgress, start_time=None, end_time=None):
     utils.mkdir(utils.getFolderFromPath(pathOut))
     count = 0
@@ -38,7 +37,9 @@ def processOdometry(paths, targetTopic, pathOut, sendProgress, start_time=None, 
             )
             sendProgressEveryHowManyMessages = max(random.randint(77, 97), int(totalMessages / (100 / len(paths))))
             bagStartCount = count
-            for topic, msg, t in tqdm(bagIn.read_messages(topics=[targetTopic], start_time=start_time, end_time=end_time) , total=totalMessages ):
+            for topic, msg, t in tqdm(
+                bagIn.read_messages(topics=[targetTopic], start_time=start_time, end_time=end_time), total=totalMessages
+            ):
                 timestamp = str(t)
 
                 x, y, z = (

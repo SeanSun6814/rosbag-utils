@@ -48,7 +48,9 @@ def processImage(paths, targetTopic, pathOut, sendProgress, start_time=None, end
             )
             sendProgressEveryHowManyMessages = max(random.randint(7, 9), int(totalMessages / (300 / len(paths))))
             bagStartCount = frameCount
-            for topic, msg, t in tqdm(bagIn.read_messages(topics=[targetTopic], start_time=start_time, end_time=end_time), total=totalMessages ):
+            for topic, msg, t in tqdm(
+                bagIn.read_messages(topics=[targetTopic], start_time=start_time, end_time=end_time), total=totalMessages
+            ):
                 frameCount += 1
 
                 if frameCount % sendProgressEveryHowManyMessages == 0:

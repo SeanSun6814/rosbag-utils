@@ -1,12 +1,14 @@
 [
     {
-         "datapath":"/data/home/tianhao/datasets/SubT/2021-05-25/bags/auto_flight/2/",
-         "start_time": 10,
-         "end_time":12
+         "datapath":"/home/tianhao/datasets/SubT/2021-05-25/bags/auto_flight/2/",
+         "namespace":"/cmu_rc7",
+         "start_time": 0,
+         "end_time":-1
     },
     {
-        "datapath":"/data/home/tianhao/datasets/SubT/2021-05-25/bags/auto_flight/1/",
-        "start_time": 10,
-        "end_time": 20
+        "datapath":"/home/tianhao/datasets/SubT/2021-05-25/bags/auto_flight/1/",
+        "namespace":"",
+        "start_time": 0,
+        "end_time": -1
     }
 ]
