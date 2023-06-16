@@ -33,7 +33,7 @@ if __name__ == '__main__':
     # parser.add_argument('--datapath' , help='destination of data folder')
     # parser.add_argument('--start_time', default=0, help='start_time of a bag, in seconds')
     # parser.add_argument('--stop_time', help='stop_time of a bag, in seconds')
-    parser.add_argument('--config_file', help='json config file')
+    parser.add_argument('config_file', help='json config file')
     args = parser.parse_args()
     f = open(args.config_file)
     configs = json.load(f)
