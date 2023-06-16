@@ -37,7 +37,7 @@ def get_info(bag : rosbag.Bag , targetTopic : str):
     return headers, num_iterations
 
 
-def processSuperOdomStats(paths, targetTopic, pathOut, localization_mode=1, sendProgress=None):
+def processSuperOdomStats(paths, targetTopic, pathOut, sendProgress=None, start_time=None, end_time=None):
     utils.mkdir(utils.getFolderFromPath(pathOut))
     count = 0
     percentProgressPerBag = 1 / len(paths)
@@ -68,18 +68,19 @@ def processSuperOdomStats(paths, targetTopic, pathOut, localization_mode=1, send
             bagStartCount = count
             
             headers, num_iterations = get_info(bagIn, targetTopic)
-            header_write_str = 'timestamp' + ','
-            for header in headers:
-                header_write_str += str(header) + ','
-            
-            for i in range(num_iterations):
-                for iter_header in iteration_var_list:
-                    header_write_str += 'iteration' + str(i) + '_' + iter_header + ','
-            
-            header_write_str = header_write_str[:-1] + "\n"
-            f.write(header_write_str)
+            if pathIdx == 0:
+                header_write_str = 'timestamp' + ','
+                for header in headers:
+                    header_write_str += str(header) + ','
+                
+                for i in range(num_iterations):
+                    for iter_header in iteration_var_list:
+                        header_write_str += 'iteration' + str(i) + '_' + iter_header + ','
+                
+                header_write_str = header_write_str[:-1] + "\n"
+                f.write(header_write_str)
             i = 0
-            for topic, msg, t in tqdm(bagIn.read_messages(topics=[targetTopic]) ,total=totalMessages):            
+            for topic, msg, t in tqdm(bagIn.read_messages(topics=[targetTopic], start_time=start_time, end_time=end_time) ,total=totalMessages):            
                 write_str = str(msg.header.stamp) + ','
                 
                 for attr in headers:

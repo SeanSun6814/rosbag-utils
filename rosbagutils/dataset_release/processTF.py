@@ -5,7 +5,7 @@ from .. import utils
 from tqdm import tqdm
 
 
-def processTF(paths, targetTopic, pathOut, sendProgress):
+def processTF(paths, targetTopic, pathOut, sendProgress, start_time=None, end_time=None):
     utils.mkdir(utils.getFolderFromPath(pathOut))
     count = 0
     percentProgressPerBag = 1 / len(paths)
@@ -33,7 +33,7 @@ def processTF(paths, targetTopic, pathOut, sendProgress):
             sendProgressEveryHowManyMessages = max(random.randint(77, 97), int(totalMessages / (100 / len(paths))))
             bagStartCount = count
         
-            for topic, _msg, t in tqdm(bagIn.read_messages(topics=[targetTopic]) , total=totalMessages):
+            for topic, _msg, t in tqdm(bagIn.read_messages(topics=[targetTopic], start_time=start_time, end_time=end_time) , total=totalMessages):
                 for msg in _msg.transforms:          
                     timestamp = msg.header.stamp
                     parent_frame = str(msg.header.frame_id)

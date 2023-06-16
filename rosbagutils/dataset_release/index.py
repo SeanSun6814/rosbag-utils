@@ -7,7 +7,7 @@ from ..dataset_release.processTF import processTF
 from ..dataset_release.processSuperOdomStats import processSuperOdomStats
 from .. import utils
 from typing import Dict, List, Tuple, Union, Optional, Any, Callable
-
+import rospy
 
 def convertBags(
     datasetName: str,
@@ -17,6 +17,8 @@ def convertBags(
     link: str,
     envInfo: Dict[str, Any],
     sendProgress: Callable,
+    start_time: rospy.Time,
+    end_time: rospy.Time
 ) -> Dict[str, Any]:
     """
     Converts ROS bag files to a dataset.
@@ -62,37 +64,37 @@ def convertBags(
 
         if topicType == "sensor_msgs/Image":
             print("\n\n=============================================Starting {} processing=============================================\n".format(topicName))
-            result[topicName] = processImage(paths, topicId, topicPath, sendSubtaskProgress)
+            result[topicName] = processImage(paths, topicId, topicPath, sendSubtaskProgress, start_time, end_time)
             print("\n=============================================Done {} processing=============================================".format(topicName))
         
         elif topicType == "sensor_msgs/PointCloud2":
             print("\n\n=============================================Starting {} processing=============================================\n".format(topicName))
-            result[topicName] = processPointcloud(paths, topicId, topicPath, sendSubtaskProgress)
+            result[topicName] = processPointcloud(paths, topicId, topicPath, sendSubtaskProgress, start_time, end_time)
             print("\n=============================================Done {} processing=============================================".format(topicName))
             
         elif topicType == "sensor_msgs/Imu":
             print("\n\n=============================================Starting {} processing=============================================\n".format(topicName))
-            result[topicName] = processIMU(paths, topicId, topicPath, sendSubtaskProgress)
+            result[topicName] = processIMU(paths, topicId, topicPath, sendSubtaskProgress, start_time, end_time)
             print("\n=============================================Done {} processing=============================================".format(topicName))
             
         elif topicType == "nav_msgs/Odometry":
             print("\n\n=============================================Starting {} processing=============================================\n".format(topicName))
-            result[topicName] = processOdometry(paths, topicId, topicPath, sendSubtaskProgress)
+            result[topicName] = processOdometry(paths, topicId, topicPath, sendSubtaskProgress, start_time, end_time)
             print("\n=============================================Done {} processing=============================================".format(topicName))
             
         elif topicType == "std_msgs/String":
             print("\n\n=============================================Starting {} processing=============================================\n".format(topicName))
-            result[topicName] = processString(paths, topicId, topicPath, sendSubtaskProgress)
+            result[topicName] = processString(paths, topicId, topicPath, sendSubtaskProgress, start_time, end_time)
             print("\n=============================================Done {} processing=============================================".format(topicName))
             
         elif topicType == "tf2_msgs/TFMessage":
             print("\n\n=============================================Starting {} processing=============================================\n".format(topicName))
-            result[topicName] = processTF(paths, topicId, topicPath, sendSubtaskProgress)
+            result[topicName] = processTF(paths, topicId, topicPath, sendSubtaskProgress, start_time, end_time)
             print("\n=============================================Done {} processing=============================================".format(topicName))
             
         elif topicType == "super_odometry_msgs/OptimizationStats":
             print("\n\n=============================================Starting {} processing=============================================\n".format(topicName))
-            result[topicName] = processSuperOdomStats(paths, topicId, topicPath, sendSubtaskProgress)
+            result[topicName] = processSuperOdomStats(paths, topicId, topicPath, sendSubtaskProgress, start_time, end_time)
             print("\n=============================================Done {} processing=============================================".format(topicName))
             
         else:

@@ -11,7 +11,7 @@ from tqdm import tqdm
 import math
 
 
-def processIMU(paths, targetTopic, pathOut, sendProgress):
+def processIMU(paths, targetTopic, pathOut, sendProgress, start_time=None, end_time=None):
     utils.mkdir(utils.getFolderFromPath(pathOut))
     count = 0
     percentProgressPerBag = 1 / len(paths)
@@ -33,11 +33,13 @@ def processIMU(paths, targetTopic, pathOut, sendProgress):
             )
             topicsInfo = bagIn.get_type_and_topic_info().topics
             totalMessages = sum(
-                [topicsInfo[topic].message_count if topic in topicsInfo else 0 for topic in [targetTopic]]
+                [topicsInfo[topic].message_count if topic in topicsInfo else 0 for topic in [
+                    targetTopic]]
             )
-            sendProgressEveryHowManyMessages = max(random.randint(77, 97), int(totalMessages / (100 / len(paths))))
+            sendProgressEveryHowManyMessages = max(random.randint(
+                77, 97), int(totalMessages / (100 / len(paths))))
             bagStartCount = count
-            for topic, msg, t in tqdm(bagIn.read_messages(topics=[targetTopic]) ,total=totalMessages):
+            for topic, msg, t in tqdm(bagIn.read_messages(topics=[targetTopic], start_time=start_time, end_time=end_time), total=totalMessages):
                 timestamp = str(t)
                 q_x, q_y, q_z, q_w = (
                     msg.orientation.x,
@@ -88,7 +90,8 @@ def processIMU(paths, targetTopic, pathOut, sendProgress):
                     sendProgress(
                         percentage=(
                             basePercentage
-                            + ((count - bagStartCount) / totalMessages * 0.89 + 0.1) * percentProgressPerBag
+                            + ((count - bagStartCount) / totalMessages *
+                               0.89 + 0.1) * percentProgressPerBag
                         ),
                         details=("Processing " + str(count) + " IMU messages"),
                     )

@@ -174,7 +174,7 @@ def measureTrajectory(pathsIn, pathOut, targetTopic, exportPosition=True, export
         onProgress,
     )
 
-def datasetRelease(pathsIn, pathOut, datasetName, topics, link, onProgress=doNothing):
+def datasetRelease(pathsIn, pathOut, datasetName, topics, link, onProgress=doNothing, start_time=None, end_time=None):
     return dataset_release.convertBags(
         datasetName,
         pathsIn,
@@ -183,6 +183,8 @@ def datasetRelease(pathsIn, pathOut, datasetName, topics, link, onProgress=doNot
         link,
         getEnvInfo(pathsIn, topics),
         onProgress,
+        start_time,
+        end_time
     )
 
 

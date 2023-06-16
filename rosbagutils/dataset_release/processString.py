@@ -11,7 +11,7 @@ from tqdm import tqdm
 import math
 
 
-def processString(paths, targetTopic, pathOut, sendProgress):
+def processString(paths, targetTopic, pathOut, sendProgress, start_time=None, end_time=None):
     utils.mkdir(utils.getFolderFromPath(pathOut))
     count = 0
     percentProgressPerBag = 1 / len(paths)
@@ -37,7 +37,7 @@ def processString(paths, targetTopic, pathOut, sendProgress):
             )
             sendProgressEveryHowManyMessages = max(random.randint(77, 97), int(totalMessages / (100 / len(paths))))
             bagStartCount = count
-            for topic, msg, t in tqdm(bagIn.read_messages(topics=[targetTopic]), total=totalMessages ):
+            for topic, msg, t in tqdm(bagIn.read_messages(topics=[targetTopic], start_time=start_time, end_time=end_time), total=totalMessages ):
                 timestamp = str(t)
                 data = msg.data
 

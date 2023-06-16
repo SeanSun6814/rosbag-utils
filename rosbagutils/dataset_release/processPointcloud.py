@@ -9,7 +9,7 @@ from tqdm import tqdm
 import random
 
 
-def processPointcloud(paths, targetTopic, pathOut, sendProgress):
+def processPointcloud(paths, targetTopic, pathOut, sendProgress, start_time=None, end_time=None):
     def writeToFile(arrayX, arrayY, arrayZ, arrayT, arrayR, arrayG, arrayB):
         nonlocal outFileCount, totalNumPoints
         totalNumPoints += arrayX.size
@@ -70,7 +70,7 @@ def processPointcloud(paths, targetTopic, pathOut, sendProgress):
             )
             sendProgressEveryHowManyMessages = max(random.randint(2, 5), int(totalMessages / (300 / len(paths))))
             bagStartCount = count
-            for topic, msg, t in tqdm(bagIn.read_messages(topics=[targetTopic]) , total=totalMessages):
+            for topic, msg, t in tqdm(bagIn.read_messages(topics=[targetTopic], start_time=start_time, end_time=end_time) , total=totalMessages):
                 count += 1
 
                 if count % sendProgressEveryHowManyMessages == 0:

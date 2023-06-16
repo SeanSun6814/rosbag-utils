@@ -1,0 +1,12 @@
+[
+    {
+         "datapath":"/data/home/tianhao/datasets/SubT/2021-05-25/bags/auto_flight/2/",
+         "start_time": 10,
+         "end_time":12
+    },
+    {
+        "datapath":"/data/home/tianhao/datasets/SubT/2021-05-25/bags/auto_flight/1/",
+        "start_time": 10,
+        "end_time": 20
+    }
+]

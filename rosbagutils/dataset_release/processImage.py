@@ -18,7 +18,7 @@ thickness = 2
 lineType = cv2.LINE_AA
 
 
-def processImage(paths, targetTopic, pathOut, sendProgress):
+def processImage(paths, targetTopic, pathOut, sendProgress, start_time=None, end_time=None):
     utils.mkdir(utils.getFolderFromPath(pathOut))
     # print("Exporting images from " + targetTopic + " to " + pathOut)
     # print("Input bags: " + str(paths))
@@ -48,7 +48,7 @@ def processImage(paths, targetTopic, pathOut, sendProgress):
             )
             sendProgressEveryHowManyMessages = max(random.randint(7, 9), int(totalMessages / (300 / len(paths))))
             bagStartCount = frameCount
-            for topic, msg, t in tqdm(bagIn.read_messages(topics=[targetTopic]), total=totalMessages ):
+            for topic, msg, t in tqdm(bagIn.read_messages(topics=[targetTopic], start_time=start_time, end_time=end_time), total=totalMessages ):
                 frameCount += 1
 
                 if frameCount % sendProgressEveryHowManyMessages == 0:
@@ -59,7 +59,7 @@ def processImage(paths, targetTopic, pathOut, sendProgress):
                         ),
                         details=("Processing " + str(frameCount) + " images"),
                     )
-
+                msg
                 cv_img = np.array(bridge.imgmsg_to_cv2(msg))
 
                 if "rgb" in msg.encoding.lower():
