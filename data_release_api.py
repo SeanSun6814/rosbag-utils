@@ -14,9 +14,9 @@ def check_topic(key, topic, topic_dict):
 
 
 class velodyne_topics:
-    topic_list = ["velodyne_cloud_registered_imu", "velodyne_cloud_registered", "velodyne_points"]
-    topic_num: int = 100
-
+    topic_list = ['velodyne_cloud_registered_imu', 'velodyne_cloud_registered',
+                              'velodyne_points', 'velodyne_packets']
+    topic_num : int = 100
 
 class odometry_topics:
     topic_list = [
