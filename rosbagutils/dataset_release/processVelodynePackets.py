@@ -15,25 +15,19 @@ def processVelodynePackets(paths, targetTopic, pathOut, sendProgress, start_time
     def writeToFile(arrayX, arrayY, arrayZ, arrayIntensity, arrayT, arrayR, arrayG, arrayB):
         nonlocal outFileCount, totalNumPoints
         totalNumPoints += arrayX.size
-        filename = pathOut + str(outFileCount) + ".bin"
-        with open(filename, "wb") as f:
-            num_of_clouds = 1
-            f.write(num_of_clouds.to_bytes(4, "little"))
-            num_of_points: int = arrayX.size
-            f.write(num_of_points.to_bytes(4, "little"))
-            if arrayR.size > 0 and arrayG.size > 0 and arrayB.size > 0:
-                f.write(0b11000000.to_bytes(1, "little"))
-            else:
-                f.write(0b10000000.to_bytes(1, "little"))
-            for i in range(arrayX.size):
-                f.write(struct.pack("<f", arrayX.get_ith(i)))
-                f.write(struct.pack("<f", arrayY.get_ith(i)))
-                f.write(struct.pack("<f", arrayZ.get_ith(i)))
-                f.write(struct.pack("<f", arrayIntensity.get_ith(i)))
-                if arrayR.size > 0 and arrayG.size > 0 and arrayB.size > 0:
-                    f.write(struct.pack("B", arrayR.get_ith(i)))
-                    f.write(struct.pack("B", arrayG.get_ith(i)))
-                    f.write(struct.pack("B", arrayB.get_ith(i)))
+        filename = pathOut + str(outFileCount) + ".las"
+        header = laspy.LasHeader(version="1.3", point_format=3)
+        lasData = laspy.LasData(header)
+        lasData.x = arrayX.finalize()
+        lasData.y = arrayY.finalize()
+        lasData.z = arrayZ.finalize()
+        lasData.intensity = arrayIntensity.finalize()
+        lasData.gps_time = arrayT.finalize()
+        if arrayR.size > 0 and arrayG.size > 0 and arrayB.size > 0:
+            lasData.red = arrayR.finalize()
+            lasData.green = arrayG.finalize()
+            lasData.blue = arrayB.finalize()
+        lasData.write(filename)
         outFileCount += 1
 
     def createArrs():
@@ -84,7 +78,7 @@ def processVelodynePackets(paths, targetTopic, pathOut, sendProgress, start_time
             #     bagIn.read_messages(topics=[targetTopic], start_time=start_time, end_time=end_time), total=totalMessages
             # ):
             
-            for stamp, points, topic, _ in tqdm(vd.read_bag(path, topics=[targetTopic], as_pcl_structs=True) , total=totalMessages):
+            for stamp, points, topic in tqdm(vd.read_bag(path, vd.Config(model='VLP-16'), topics=[targetTopic], as_pcl_structs=True) , total=totalMessages):
             
                 count += 1
 
@@ -107,6 +101,8 @@ def processVelodynePackets(paths, targetTopic, pathOut, sendProgress, start_time
                 arrayY.size = len(current_cloud.y)
                 arrayZ.size = len(current_cloud.z)
                 arrayIntensity.size = len(current_cloud.intensity)
+
+                arrayT.update(int(str(stamp)))
                 
                 # arrayTimeStart = time.time_ns()
                 # for p in pc2.read_points(msg, field_names=("x", "y", "z", "rgba"), skip_nans=True):
