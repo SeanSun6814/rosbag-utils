@@ -73,7 +73,6 @@ def processPointcloud(paths, targetTopic, pathOut, sendProgress, start_time=None
             )
             sendProgressEveryHowManyMessages = max(random.randint(2, 5), int(totalMessages / (300 / len(paths))))
             bagStartCount = count
-            print(targetTopic)
             for topic, msg, t in tqdm(
                 bagIn.read_messages(topics=[targetTopic], start_time=start_time, end_time=end_time), total=totalMessages
             ):
