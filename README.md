@@ -52,6 +52,23 @@
 
 [https://superodometry.com/rosbagutils](https://superodometry.com/rosbagutils)
 
+## Data Release API Tutorial 
+
+In the rosbag-utils directory velodyne_packets_devel branch, the config.json file contains the information of the bag files to be processed: 
+
+1. "datapath": a path to the folder that contains all the bag files to be processed 
+2. "namespace"
+3. "start_time"
+4. "end_time": the end time to process the file, use -1 if there is no end_time limit
+
+After adding bag information into the config.json file, run: 
+
+`python3 ./data_release_api.py config.json`
+
+If you are using Docker, run:
+
+`python3 ./data_release_api.py --in_docker IN_DOCKER config.json`
+
 ## Contributing to rosbag-utils
 
 We welcome contributions to the rosbag utils repository! Here are some guidelines to follow:
