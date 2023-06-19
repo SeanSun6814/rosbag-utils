@@ -7,27 +7,33 @@ from rosbagutils import rosbagutils
 
 
 def check_topic(key, topic, topic_dict):
-    if key not in topic_dict:
-        topic_dict[key] = topic
-
+    topic_dict[key] = topic
     return topic_dict
 
 
 class velodyne_topics:
-    topic_list = ['velodyne_cloud_registered_imu', 'velodyne_cloud_registered',
-                              'velodyne_points', 'velodyne_packets']
+    topic_list = ['velodyne_points', 'velodyne_packets']
     topic_num : int = 100
 
-class odometry_topics:
+class mapping_topics:
+    topic_list = ['velodyne_cloud_registered_imu', 'velodyne_cloud_registered']
+    topic_num : int = 100
+
+class aft_odometry_topics:
     topic_list = [
-        "integrated_to_init_imu",
         "aft_mapped_to_init_imu",
-        "integrated_to_global",
-        "integrated_to_init",
-        "integrated_to_init_incremental",
-        "integrated_to_init2",
         "aft_mapped_to_init",
-        "aft_mapped_to_init_incremental",
+        "aft_mapped_to_init_incremental"
+    ]
+    topic_num: int = 100
+
+class integrated_odometry_topics:
+    topic_list = [
+        "integrated_to_init",
+        "integrated_to_init2",
+        "integrated_to_init_imu",
+        "integrated_to_init_incremental",
+        "integrated_to_global",
     ]
     topic_num: int = 100
 
@@ -89,20 +95,38 @@ if __name__ == "__main__":
         release_topics = {}
         camera_topics = []
         vel_topics = velodyne_topics()
-        odom_topics = odometry_topics()
+        map_topics = mapping_topics()
+        aft_odom_topics = aft_odometry_topics()
+        integrated_odom_topics = integrated_odometry_topics()
 
         for topic in topic_list:
             if "velodyne" in topic:
                 for vel_topic in vel_topics.topic_list:
                     if vel_topic in topic:
                         # checking if there is a topic with higher priority
-                        if vel_topics.topic_list.index(vel_topic) <= vel_topics.topic_num:
+                        index = vel_topics.topic_list.index(vel_topic)
+                        if index <= vel_topics.topic_num:
+                            vel_topics.topic_num = index
                             release_topics = check_topic("lidar", topic, release_topics)
+                for map_topic in map_topics.topic_list:
+                    if map_topic in topic:
+                        index = map_topics.topic_list.index(map_topic)
+                        if index <= map_topics.topic_num:
+                            map_topics.topic_num = index
+                            release_topics = check_topic("mapping", topic, release_topics)
             if "init" in topic:
-                for odom_topic in odom_topics.topic_list:
-                    if odom_topic in topic:
-                        if odom_topics.topic_list.index(odom_topic) <= odom_topics.topic_num:
-                            release_topics = check_topic("odom", topic, release_topics)
+                for aft_odom_topic in aft_odom_topics.topic_list:
+                    if aft_odom_topic in topic:
+                        index = aft_odom_topics.topic_list.index(aft_odom_topic)
+                        if index <= aft_odom_topics.topic_num:
+                            aft_odom_topics.topic_num = index
+                            release_topics = check_topic("aft_odom", topic, release_topics)
+                for integrated_odom_topic in integrated_odom_topics.topic_list:
+                    if integrated_odom_topic in topic:
+                        index = integrated_odom_topics.topic_list.index(integrated_odom_topic)
+                        if index <= integrated_odom_topics.topic_num:
+                            integrated_odom_topics.topic_num = index
+                            release_topics = check_topic("integrated_odom", topic, release_topics)
             elif "imu/data" in topic:
                 release_topics = check_topic("imu", topic, release_topics)
             elif "thermal/image" in topic:

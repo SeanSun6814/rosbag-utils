@@ -11,31 +11,27 @@ import struct
 
 
 def processPointcloud(paths, targetTopic, pathOut, sendProgress, start_time=None, end_time=None):
-    def writeToFile(arrayX, arrayY, arrayZ, arrayT, arrayR, arrayG, arrayB):
+    def writeToFile(arrayX, arrayY, arrayZ, arrayIntensity, arrayT, arrayR, arrayG, arrayB):
         nonlocal outFileCount, totalNumPoints
         totalNumPoints += arrayX.size
-        filename = pathOut + str(outFileCount) + ".bin"
-        with open(filename, "wb") as f:
-            num_of_clouds = 1
-            f.write(num_of_clouds.to_bytes(4, "little"))
-            num_of_points: int = arrayX.size
-            f.write(num_of_points.to_bytes(4, "little"))
-            if arrayR.size > 0 and arrayG.size > 0 and arrayB.size > 0:
-                f.write(0b11000000.to_bytes(1, "little"))
-            else:
-                f.write(0b10000000.to_bytes(1, "little"))
-            for i in range(arrayX.size):
-                f.write(struct.pack("<f", arrayX.get_ith(i)))
-                f.write(struct.pack("<f", arrayY.get_ith(i)))
-                f.write(struct.pack("<f", arrayZ.get_ith(i)))
-                if arrayR.size > 0 and arrayG.size > 0 and arrayB.size > 0:
-                    f.write(struct.pack("B", arrayR.get_ith(i)))
-                    f.write(struct.pack("B", arrayG.get_ith(i)))
-                    f.write(struct.pack("B", arrayB.get_ith(i)))
+        filename = pathOut + str(outFileCount) + ".las"
+        header = laspy.LasHeader(version="1.3", point_format=3)
+        lasData = laspy.LasData(header)
+        lasData.x = arrayX.finalize()
+        lasData.y = arrayY.finalize()
+        lasData.z = arrayZ.finalize()
+        lasData.intensity = arrayIntensity.finalize()
+        lasData.gps_time = arrayT.finalize()
+        if arrayR.size > 0 and arrayG.size > 0 and arrayB.size > 0:
+            lasData.red = arrayR.finalize()
+            lasData.green = arrayG.finalize()
+            lasData.blue = arrayB.finalize()
+        lasData.write(filename)
         outFileCount += 1
 
     def createArrs():
         return (
+            utils.FastArr(),
             utils.FastArr(),
             utils.FastArr(),
             utils.FastArr(),
@@ -52,7 +48,7 @@ def processPointcloud(paths, targetTopic, pathOut, sendProgress, start_time=None
     # print("Input bags: " + str(paths))
     percentProgressPerBag = 1 / len(paths)
 
-    arrayX, arrayY, arrayZ, arrayT, arrayR, arrayG, arrayB = createArrs()
+    arrayX, arrayY, arrayZ, arrayIntensity, arrayT, arrayR, arrayG, arrayB = createArrs()
     startTime = time.time_ns()
     totalArrayTime = 0
     count = -1
@@ -92,10 +88,10 @@ def processPointcloud(paths, targetTopic, pathOut, sendProgress, start_time=None
                     )
 
                 arrayTimeStart = time.time_ns()
-                for p in pc2.read_points(msg, field_names=("x", "y", "z", "rgba"), skip_nans=True):
-                    x, y, z = p[0], p[1], p[2]
-                    if len(p) > 3:
-                        rgb = p[3]
+                for p in pc2.read_points(msg, field_names=("x", "y", "z", "intensity", "rgba"), skip_nans=True):
+                    x, y, z, intensity = p[0], p[1], p[2], p[3]
+                    if len(p) > 4:
+                        rgb = p[4]
                         r_value = (rgb & 0x00FF0000) >> 16
                         g_value = (rgb & 0x0000FF00) >> 8
                         b_value = rgb & 0x000000FF
@@ -107,10 +103,11 @@ def processPointcloud(paths, targetTopic, pathOut, sendProgress, start_time=None
                     arrayX.update(x)
                     arrayY.update(y)
                     arrayZ.update(z)
+                    arrayIntensity.update(intensity)
 
                 totalArrayTime += time.time_ns() - arrayTimeStart
-                writeToFile(arrayX, arrayY, arrayZ, arrayT, arrayR, arrayG, arrayB)
-                arrayX, arrayY, arrayZ, arrayT, arrayR, arrayG, arrayB = createArrs()
+                writeToFile(arrayX, arrayY, arrayZ, arrayIntensity, arrayT, arrayR, arrayG, arrayB)
+                arrayX, arrayY, arrayZ, arrayIntensity, arrayT, arrayR, arrayG, arrayB = createArrs()
                 f.write(str(t) + "\n")
 
     print("Total points: " + str(totalNumPoints))

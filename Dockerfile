@@ -39,6 +39,8 @@ RUN wget https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-20.04/wx
 
 RUN pip3 install /root/wxPython-4.2.0-cp38-cp38-linux_x86_64.whl
 
+RUN pip3 install bagpy velodyne-decoder
+
 RUN DEBIAN_FRONTEND=noninteractive apt-get install libnotify4 libsdl2-2.0 -y
 
 RUN export LD_LIBRARY_PATH=/path/to/libnotify.so.4:$LD_LIBRARY_PATH
