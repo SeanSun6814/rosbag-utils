@@ -114,7 +114,8 @@ if __name__ == "__main__":
             elif "prediction_source" in topic:
                 release_topics = check_topic("pred_source", topic, release_topics)
             elif "image_raw" in topic:
-                camera_topics.append(topic)
+                if "detection" not in topic:
+                    camera_topics.append(topic)
 
         total_num_topics = len(release_topics) + len(camera_topics)
         assert total_num_topics > 0, "There are no relevant topics available for data release, in the bag files"
