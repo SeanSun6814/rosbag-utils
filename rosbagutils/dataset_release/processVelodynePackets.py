@@ -9,18 +9,31 @@ from .. import utils
 from tqdm import tqdm
 import random
 import struct
+import math
 
 
 def processVelodynePackets(paths, targetTopic, pathOut, sendProgress, start_time=None, end_time=None):
     def writeToFile(arrayX, arrayY, arrayZ, arrayIntensity, arrayT, arrayR, arrayG, arrayB):
         nonlocal outFileCount, totalNumPoints
         totalNumPoints += arrayX.size
+        arrayXfinalized = arrayX.finalize()
+        arrayYfinalized = arrayY.finalize()
+        arrayZfinalized = arrayZ.finalize()
+        arrayXmean = arrayXfinalized.mean()
+        arrayYmean = arrayYfinalized.mean()
+        arrayZmean = arrayZfinalized.mean()
         filename = pathOut + str(outFileCount) + ".las"
         header = laspy.LasHeader(version="1.3", point_format=3)
+        header.offsets = [arrayXfinalized.mean(), arrayYfinalized.mean(), arrayZfinalized.mean()]
+        header.scales = [
+            2**(math.ceil(math.log2(abs(arrayXfinalized - arrayXmean).max())) - 31),
+            2**(math.ceil(math.log2(abs(arrayYfinalized - arrayYmean).max())) - 31),
+            2**(math.ceil(math.log2(abs(arrayZfinalized - arrayZmean).max())) - 31)
+        ]
         lasData = laspy.LasData(header)
-        lasData.x = arrayX.finalize()
-        lasData.y = arrayY.finalize()
-        lasData.z = arrayZ.finalize()
+        lasData.x = arrayXfinalized
+        lasData.y = arrayYfinalized
+        lasData.z = arrayZfinalized
         lasData.intensity = arrayIntensity.finalize()
         lasData.gps_time = arrayT.finalize()
         if arrayR.size > 0 and arrayG.size > 0 and arrayB.size > 0:
