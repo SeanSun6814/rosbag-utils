@@ -1,5 +1,6 @@
 from ..dataset_release.processImage import processImage
 from ..dataset_release.processPointcloud import processPointcloud
+from ..dataset_release.processVelodynePackets import processVelodynePackets
 from ..dataset_release.processIMU import processIMU
 from ..dataset_release.processOdometry import processOdometry
 from ..dataset_release.processString import processString
@@ -88,7 +89,18 @@ def convertBags(
                     topicName
                 )
             )
-
+            
+        elif topicType == "velodyne_msgs/VelodyneScan":
+            print(
+                "\n\n=============================================Starting {} packets processing=============================================\n".format(
+                    topicName)
+                )
+            result[topicName] = processVelodynePackets(paths, topicId, topicPath, sendSubtaskProgress)
+            print(
+                "\n=============================================Done {} packets processing=============================================".format
+                (topicName)
+                ) 
+            
         elif topicType == "sensor_msgs/Imu":
             print(
                 "\n\n=============================================Starting {} processing=============================================\n".format(

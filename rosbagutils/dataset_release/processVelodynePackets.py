@@ -1,4 +1,5 @@
 import rosbag
+import velodyne_decoder as vd
 import sensor_msgs.point_cloud2 as pc2
 import numpy as np
 import laspy
@@ -11,7 +12,7 @@ import struct
 import math
 
 
-def processPointcloud(paths, targetTopic, pathOut, sendProgress, start_time=None, end_time=None):
+def processVelodynePackets(paths, targetTopic, pathOut, sendProgress, start_time=None, end_time=None):
     def writeToFile(arrayX, arrayY, arrayZ, arrayIntensity, arrayT, arrayR, arrayG, arrayB):
         nonlocal outFileCount, totalNumPoints
         totalNumPoints += arrayX.size
@@ -23,7 +24,7 @@ def processPointcloud(paths, targetTopic, pathOut, sendProgress, start_time=None
         arrayZmean = arrayZfinalized.mean()
         filename = pathOut + str(outFileCount) + ".las"
         header = laspy.LasHeader(version="1.3", point_format=3)
-        header.offsets = [arrayXmean, arrayYmean, arrayZmean]
+        header.offsets = [arrayXfinalized.mean(), arrayYfinalized.mean(), arrayZfinalized.mean()]
         header.scales = [
             2**(math.ceil(math.log2(abs(arrayXfinalized - arrayXmean).max())) - 31),
             2**(math.ceil(math.log2(abs(arrayYfinalized - arrayYmean).max())) - 31),
@@ -51,7 +52,7 @@ def processPointcloud(paths, targetTopic, pathOut, sendProgress, start_time=None
             utils.FastArr(),
             utils.FastArr(),
             utils.FastArr(),
-            utils.FastArr(),
+            utils.FastArr()
         )
 
     utils.mkdir(utils.getFolderFromPath(pathOut))
@@ -61,7 +62,7 @@ def processPointcloud(paths, targetTopic, pathOut, sendProgress, start_time=None
     # print("Input bags: " + str(paths))
     percentProgressPerBag = 1 / len(paths)
 
-    arrayX, arrayY, arrayZ, arrayIntensity, arrayT, arrayR, arrayG, arrayB = createArrs()
+    arrayX, arrayY, arrayZ, arrayT, arrayR, arrayG, arrayB, arrayIntensity = createArrs()
     startTime = time.time_ns()
     totalArrayTime = 0
     count = -1
@@ -86,9 +87,12 @@ def processPointcloud(paths, targetTopic, pathOut, sendProgress, start_time=None
             )
             sendProgressEveryHowManyMessages = max(random.randint(2, 5), int(totalMessages / (300 / len(paths))))
             bagStartCount = count
-            for topic, msg, t in tqdm(
-                bagIn.read_messages(topics=[targetTopic], start_time=start_time, end_time=end_time), total=totalMessages
-            ):
+            # for topic, msg, t in tqdm(
+            #     bagIn.read_messages(topics=[targetTopic], start_time=start_time, end_time=end_time), total=totalMessages
+            # ):
+            
+            for stamp, points, topic in tqdm(vd.read_bag(path, vd.Config(model='VLP-16'), topics=[targetTopic], as_pcl_structs=True) , total=totalMessages):
+            
                 count += 1
 
                 if count % sendProgressEveryHowManyMessages == 0:
@@ -99,29 +103,41 @@ def processPointcloud(paths, targetTopic, pathOut, sendProgress, start_time=None
                         ),
                         details=("Processing " + str(totalNumPoints + arrayX.size) + " points"),
                     )
+                current_cloud = points.view(np.recarray)
+                arrayX.data = current_cloud.x
+                arrayY.data = current_cloud.y
+                arrayZ.data = current_cloud.z
+                arrayIntensity.data = current_cloud.intensity
+                
+                
+                arrayX.size = len(current_cloud.x)
+                arrayY.size = len(current_cloud.y)
+                arrayZ.size = len(current_cloud.z)
+                arrayIntensity.size = len(current_cloud.intensity)
 
-                arrayTimeStart = time.time_ns()
-                for p in pc2.read_points(msg, field_names=("x", "y", "z", "intensity", "rgba"), skip_nans=True):
-                    x, y, z, intensity = p[0], p[1], p[2], p[3]
-                    if len(p) > 4:
-                        rgb = p[4]
-                        r_value = (rgb & 0x00FF0000) >> 16
-                        g_value = (rgb & 0x0000FF00) >> 8
-                        b_value = rgb & 0x000000FF
-                        arrayR.update(r_value)
-                        arrayG.update(g_value)
-                        arrayB.update(b_value)
+                arrayT.update(int(str(stamp)))
+                
+                # arrayTimeStart = time.time_ns()
+                # for p in pc2.read_points(msg, field_names=("x", "y", "z", "rgba"), skip_nans=True):
+                #     x, y, z = p[0], p[1], p[2]
+                #     if len(p) > 3:
+                #         rgb = p[3]
+                #         r_value = (rgb & 0x00FF0000) >> 16
+                #         g_value = (rgb & 0x0000FF00) >> 8
+                #         b_value = rgb & 0x000000FF
+                #         arrayR.update(r_value)
+                #         arrayG.update(g_value)
+                #         arrayB.update(b_value)
 
-                    arrayT.update(int(str(t)))
-                    arrayX.update(x)
-                    arrayY.update(y)
-                    arrayZ.update(z)
-                    arrayIntensity.update(intensity)
+                #     arrayT.update(int(str(stamp)))
+                #     arrayX.update(x)
+                #     arrayY.update(y)
+                #     arrayZ.update(z)
 
-                totalArrayTime += time.time_ns() - arrayTimeStart
+                # totalArrayTime += time.time_ns() - arrayTimeStart
                 writeToFile(arrayX, arrayY, arrayZ, arrayIntensity, arrayT, arrayR, arrayG, arrayB)
-                arrayX, arrayY, arrayZ, arrayIntensity, arrayT, arrayR, arrayG, arrayB = createArrs()
-                f.write(str(t) + "\n")
+                arrayX, arrayY, arrayZ, arrayT, arrayR, arrayG, arrayB, arrayIntensity = createArrs()
+                f.write(str(stamp) + "\n")
 
     print("Total points: " + str(totalNumPoints))
     endTime = time.time_ns()

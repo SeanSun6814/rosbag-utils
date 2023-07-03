@@ -1,0 +1,1 @@
+docker exec -it rosbag-util bash -c "source /opt/ros/noetic/setup.bash; cd ~/rosbag-utils; bash"

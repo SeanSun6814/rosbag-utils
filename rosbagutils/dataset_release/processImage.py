@@ -71,7 +71,7 @@ def processImage(paths, targetTopic, pathOut, sendProgress, start_time=None, end
                 f.write(str(t) + "\n")
 
     result = {
-        "numFrames": frameCount,
+        "numFrames": frameCount + 1,
         "size": utils.getFolderSize(pathOut),
     }
     return result
