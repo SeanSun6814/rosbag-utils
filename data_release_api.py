@@ -102,14 +102,14 @@ if __name__ == "__main__":
         for topic in topic_list:
             if "velodyne" in topic:
                 for vel_topic in vel_topics.topic_list:
-                    if vel_topic in topic:
+                    if vel_topic == topic[1:]:
                         # checking if there is a topic with higher priority
                         index = vel_topics.topic_list.index(vel_topic)
                         if index <= vel_topics.topic_num:
                             vel_topics.topic_num = index
                             release_topics = check_topic("lidar", topic, release_topics)
                 for map_topic in map_topics.topic_list:
-                    if map_topic in topic:
+                    if map_topic == topic[1:]:
                         index = map_topics.topic_list.index(map_topic)
                         if index <= map_topics.topic_num:
                             map_topics.topic_num = index
