@@ -131,7 +131,7 @@ if __name__ == "__main__":
                 release_topics = check_topic("imu", topic, release_topics)
             elif "thermal/image" in topic:
                 release_topics = check_topic("thermal", topic, release_topics)
-            elif "/tf" in topic:
+            elif topic.endswith("/tf"):
                 release_topics = check_topic("tf", topic, release_topics)
             elif "stats" in topic:
                 release_topics = check_topic("stats", topic, release_topics)
