@@ -72,7 +72,7 @@ def pc2bin(paths, targetTopics, pathOut, binFolderName):
                         arrayG.append(g_value)
                         arrayB.append(b_value)
 
-                    arrayT.append(int(str(t)))
+                    arrayT.append(int(str(msg.header.stamp)))
                     arrayX.append(x)
                     arrayY.append(y)
                     arrayZ.append(z)
@@ -80,7 +80,7 @@ def pc2bin(paths, targetTopics, pathOut, binFolderName):
                 totalArrayTime += time.time_ns() - arrayTimeStart
                 writeToFile(arrayX, arrayY, arrayZ, arrayT, arrayR, arrayG, arrayB)
                 arrayX, arrayY, arrayZ, arrayT, arrayR, arrayG, arrayB = [], [], [], [], [], [], []
-                f.write(str(t) + "\n")
+                f.write(str(msg.header.stamp) + "\n")
 
     print("Total points: " + str(totalNumPoints))
     endTime = time.time_ns()

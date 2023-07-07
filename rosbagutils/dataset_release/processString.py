@@ -40,7 +40,7 @@ def processString(paths, targetTopic, pathOut, sendProgress, start_time=None, en
             for topic, msg, t in tqdm(
                 bagIn.read_messages(topics=[targetTopic], start_time=start_time, end_time=end_time), total=totalMessages
             ):
-                timestamp = str(t)
+                timestamp = str(msg.header.stamp)
                 data = msg.data
 
                 f.write(timestamp + ", " + data + "\n")

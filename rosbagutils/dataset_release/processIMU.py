@@ -40,7 +40,7 @@ def processIMU(paths, targetTopic, pathOut, sendProgress, start_time=None, end_t
             for topic, msg, t in tqdm(
                 bagIn.read_messages(topics=[targetTopic], start_time=start_time, end_time=end_time), total=totalMessages
             ):
-                timestamp = str(t)
+                timestamp = str(msg.header.stamp)
                 q_x, q_y, q_z, q_w = (
                     msg.orientation.x,
                     msg.orientation.y,

@@ -50,7 +50,7 @@ def exportBag(pathIn, pathOut, targetTopics, startTime, endTime):
     dt = rospy.Duration(0, 45 * 1e6)
     with rosbag.Bag(pathOut, "w") as bagOut:
         for topic, msg, t in bagIn.read_messages():
-            timestamp = float(str(t))
+            timestamp = float(str(msg.header.stamp))
             if timestamp >= startTime and timestamp <= endTime:
                 if topic in targetTopics:
                     bagOut.write(topic, msg, t)

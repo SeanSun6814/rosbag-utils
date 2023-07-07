@@ -112,7 +112,7 @@ def processPointcloud(paths, targetTopic, pathOut, sendProgress, start_time=None
                         arrayG.update(g_value)
                         arrayB.update(b_value)
 
-                    arrayT.update(int(str(t)))
+                    arrayT.update(int(str(msg.header.stamp)))
                     arrayX.update(x)
                     arrayY.update(y)
                     arrayZ.update(z)
@@ -121,7 +121,7 @@ def processPointcloud(paths, targetTopic, pathOut, sendProgress, start_time=None
                 totalArrayTime += time.time_ns() - arrayTimeStart
                 writeToFile(arrayX, arrayY, arrayZ, arrayIntensity, arrayT, arrayR, arrayG, arrayB)
                 arrayX, arrayY, arrayZ, arrayIntensity, arrayT, arrayR, arrayG, arrayB = createArrs()
-                f.write(str(t) + "\n")
+                f.write(str(msg.header.stamp) + "\n")
 
     print("Total points: " + str(totalNumPoints))
     endTime = time.time_ns()

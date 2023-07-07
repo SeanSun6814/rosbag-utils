@@ -67,7 +67,7 @@ def exportVideo(
         bagStartCount = frameCount
         for topic, msg, t in bagIn.read_messages(topics=[targetTopic]):
             if startTime == -1:
-                startTime = int(str(t))
+                startTime = int(str(msg.header.stamp))
                 if rangeFor16Bit is None:
                     minDigest, maxDigest = TDigest(), TDigest()
                 video = cv2.VideoWriter(
@@ -116,7 +116,7 @@ def exportVideo(
             if printTimestamp == "sec":
                 cv2.putText(
                     cv_img,
-                    formatTime(int(str(t)), startTime),
+                    formatTime(int(str(msg.header.stamp)), startTime),
                     textLocation,
                     font,
                     fontScale,
@@ -127,7 +127,7 @@ def exportVideo(
             elif printTimestamp == "timestamp":
                 cv2.putText(
                     cv_img,
-                    str(t),
+                    str(msg.header.stamp),
                     textLocation,
                     font,
                     fontScale,
@@ -138,7 +138,7 @@ def exportVideo(
             elif printTimestamp == "both":
                 cv2.putText(
                     cv_img,
-                    formatTime(int(str(t)), startTime),
+                    formatTime(int(str(msg.header.stamp)), startTime),
                     textLocation,
                     font,
                     fontScale,
@@ -148,7 +148,7 @@ def exportVideo(
                 )
                 cv2.putText(
                     cv_img,
-                    str(t),
+                    str(msg.header.stamp),
                     textLocationBelow,
                     font,
                     fontScale,

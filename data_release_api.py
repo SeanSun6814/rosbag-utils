@@ -46,9 +46,6 @@ if __name__ == "__main__":
                                                 \ne.g. \033[91mdata/file_1.bag file_2.bag ..... file_n.bag\033[0m\
                                                 \nGive the path to this folder in the --datapath argument.",
     )
-    # parser.add_argument('--datapath' , help='destination of data folder')
-    # parser.add_argument('--start_time', default=0, help='start_time of a bag, in seconds')
-    # parser.add_argument('--stop_time', help='stop_time of a bag, in seconds')
     parser.add_argument("config_file", help="json config file")
     parser.add_argument(
         "--in_docker",
@@ -85,6 +82,7 @@ if __name__ == "__main__":
         test_bag = rosbag.Bag(file_list[0], mode="r")
         topic_dict = test_bag.get_type_and_topic_info()
         topic_info = topic_dict.topics
+        # print(topic_dict)
         topic_list = list(topic_dict.topics.keys())
         start_timestamp = rospy.Time(test_bag.get_start_time() + configs[i]["start_time"])
         if configs[i]["end_time"] == -1:
@@ -102,14 +100,14 @@ if __name__ == "__main__":
         for topic in topic_list:
             if "velodyne" in topic:
                 for vel_topic in vel_topics.topic_list:
-                    if vel_topic in topic:
+                    if topic == configs[i]["namespace"] + "/" + vel_topic:
                         # checking if there is a topic with higher priority
                         index = vel_topics.topic_list.index(vel_topic)
                         if index <= vel_topics.topic_num:
                             vel_topics.topic_num = index
                             release_topics = check_topic("lidar", topic, release_topics)
                 for map_topic in map_topics.topic_list:
-                    if map_topic in topic:
+                    if topic == configs[i]["namespace"] + "/" + map_topic:
                         index = map_topics.topic_list.index(map_topic)
                         if index <= map_topics.topic_num:
                             map_topics.topic_num = index
@@ -127,19 +125,19 @@ if __name__ == "__main__":
                         if index <= integrated_odom_topics.topic_num:
                             integrated_odom_topics.topic_num = index
                             release_topics = check_topic("integrated_odom", topic, release_topics)
-            elif "imu/data" in topic:
+            elif topic == configs[i]["namespace"] + "/imu/data":
                 release_topics = check_topic("imu", topic, release_topics)
-            elif "thermal/image" in topic:
+            elif topic == configs[i]["namespace"] + "/thermal/image" in topic:
                 release_topics = check_topic("thermal", topic, release_topics)
-            elif "/tf" in topic:
+            elif topic.endswith("/tf"):
                 release_topics = check_topic("tf", topic, release_topics)
             elif "stats" in topic:
                 release_topics = check_topic("stats", topic, release_topics)
             elif "prediction_source" in topic:
                 release_topics = check_topic("pred_source", topic, release_topics)
-            elif "image_raw" in topic:
-                if "detection" not in topic:
-                    camera_topics.append(topic)
+            elif topic.endswith("/image_raw"):
+                camera_topics.append(topic)
+        print(release_topics, camera_topics)
 
         total_num_topics = len(release_topics) + len(camera_topics)
         assert total_num_topics > 0, "There are no relevant topics available for data release, in the bag files"

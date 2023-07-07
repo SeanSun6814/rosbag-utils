@@ -23,12 +23,12 @@ def exportCsv(paths, targetTopic, outPath):
             if topic == targetTopic:
                 # print(msg.uncertainty_x)
                 data_arr.update(msg.uncertainty_x)
-                time_arr.update(int(str(t)))
+                time_arr.update(int(str(msg.header.stamp)))
 
     smooth_data_arr = gaussian_filter1d(data_arr.finalize(), sigma=80)
     with open(outPath, "w") as file:
         for t, v in zip(time_arr.finalize(), smooth_data_arr):
-            file.write(str(t) + "," + str(v) + "\n")
+            file.write(str(msg.header.stamp) + "," + str(v) + "\n")
 
 
 # exportCsv(

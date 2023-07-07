@@ -120,7 +120,7 @@ def exportPointCloud(
                 elif collapseAxis == "Z":
                     z = 0
 
-                arrayT.update(int(str(t)))
+                arrayT.update(int(str(msg.header.stamp)))
                 arrayX.update(x)
                 arrayY.update(y)
                 arrayZ.update(z)

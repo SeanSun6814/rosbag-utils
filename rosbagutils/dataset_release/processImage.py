@@ -61,14 +61,13 @@ def processImage(paths, targetTopic, pathOut, sendProgress, start_time=None, end
                         ),
                         details=("Processing " + str(frameCount) + " images"),
                     )
-                msg
                 cv_img = np.array(bridge.imgmsg_to_cv2(msg))
 
                 if "rgb" in msg.encoding.lower():
                     cv_img = cv2.cvtColor(cv_img, cv2.COLOR_RGB2BGR)
 
                 cv2.imwrite(pathOut + "/" + str(frameCount) + ".png", cv_img)
-                f.write(str(t) + "\n")
+                f.write(str(msg.header.stamp) + "\n")
 
     result = {
         "numFrames": frameCount + 1,
