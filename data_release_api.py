@@ -127,7 +127,7 @@ if __name__ == "__main__":
                             release_topics = check_topic("integrated_odom", topic, release_topics)
             elif topic == configs[i]["namespace"] + "/imu/data":
                 release_topics = check_topic("imu", topic, release_topics)
-            elif topic == configs[i]["namespace"] + "/thermal/image" in topic:
+            elif "/thermal/image" in topic:
                 release_topics = check_topic("thermal", topic, release_topics)
             elif topic.endswith("/tf"):
                 release_topics = check_topic("tf", topic, release_topics)
