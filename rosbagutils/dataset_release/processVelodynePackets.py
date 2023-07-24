@@ -16,31 +16,40 @@ def processVelodynePackets(paths, targetTopic, pathOut, sendProgress, start_time
     def writeToFile(arrayX, arrayY, arrayZ, arrayIntensity, arrayT, arrayR, arrayG, arrayB):
         nonlocal outFileCount, totalNumPoints
         totalNumPoints += arrayX.size
-        arrayXfinalized = arrayX.finalize()
-        arrayYfinalized = arrayY.finalize()
-        arrayZfinalized = arrayZ.finalize()
-        arrayXmean = arrayXfinalized.mean()
-        arrayYmean = arrayYfinalized.mean()
-        arrayZmean = arrayZfinalized.mean()
         filename = pathOut + str(outFileCount) + ".las"
-        header = laspy.LasHeader(version="1.3", point_format=3)
-        header.offsets = [arrayXfinalized.mean(), arrayYfinalized.mean(), arrayZfinalized.mean()]
-        header.scales = [
-            2**(math.ceil(math.log2(abs(arrayXfinalized - arrayXmean).max())) - 31),
-            2**(math.ceil(math.log2(abs(arrayYfinalized - arrayYmean).max())) - 31),
-            2**(math.ceil(math.log2(abs(arrayZfinalized - arrayZmean).max())) - 31)
-        ]
-        lasData = laspy.LasData(header)
-        lasData.x = arrayXfinalized
-        lasData.y = arrayYfinalized
-        lasData.z = arrayZfinalized
-        lasData.intensity = arrayIntensity.finalize()
-        lasData.gps_time = arrayT.finalize()
-        if arrayR.size > 0 and arrayG.size > 0 and arrayB.size > 0:
-            lasData.red = arrayR.finalize()
-            lasData.green = arrayG.finalize()
-            lasData.blue = arrayB.finalize()
-        lasData.write(filename)
+        if arrayX.size == 0:
+            header = laspy.LasHeader(version="1.3", point_format=3)
+            lasData = laspy.LasData(header)
+            lasData.write(filename)
+        else: 
+            arrayXfinalized = arrayX.finalize()
+            arrayYfinalized = arrayY.finalize()
+            arrayZfinalized = arrayZ.finalize()
+            arrayXmean = arrayXfinalized.mean()
+            arrayYmean = arrayYfinalized.mean()
+            arrayZmean = arrayZfinalized.mean()
+            header = laspy.LasHeader(version="1.3", point_format=3)
+            header.offsets = [arrayXfinalized.mean(), arrayYfinalized.mean(), arrayZfinalized.mean()]
+            try:
+                header.scales = [
+                    2**(math.ceil(math.log2(abs(arrayXfinalized - arrayXmean).max())) - 31),
+                    2**(math.ceil(math.log2(abs(arrayYfinalized - arrayYmean).max())) - 31),
+                    2**(math.ceil(math.log2(abs(arrayZfinalized - arrayZmean).max())) - 31)
+                ]
+            except ValueError:
+                header.scale = [1,1,1]
+
+            lasData = laspy.LasData(header)
+            lasData.x = arrayXfinalized
+            lasData.y = arrayYfinalized
+            lasData.z = arrayZfinalized
+            lasData.intensity = arrayIntensity.finalize()
+            lasData.gps_time = arrayT.finalize()
+            if arrayR.size > 0 and arrayG.size > 0 and arrayB.size > 0:
+                lasData.red = arrayR.finalize()
+                lasData.green = arrayG.finalize()
+                lasData.blue = arrayB.finalize()
+            lasData.write(filename)
         outFileCount += 1
 
     def createArrs():
